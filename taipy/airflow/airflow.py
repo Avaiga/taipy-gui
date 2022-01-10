@@ -1,6 +1,8 @@
 import json
 import multiprocessing as mp
 import os
+import platform
+import posixpath
 import shutil
 import subprocess
 import sys
@@ -54,6 +56,7 @@ class Airflow:
     @property
     def dag_folder(self) -> Path:
         """Dag folder where the application will move DAGs and convertor"""
+
         return Path(Config.job_config().airflow_dags_folder)  # type: ignore
 
     def stop(self):
@@ -99,14 +102,36 @@ class Airflow:
 
     def _create_dag(self, dag_id, tasks):
         json_model = {
-            "path": sys.path[0],
+            "path": self.generate_airflow_path(),
             "dag_id": dag_id,
-            "storage_folder": str(Path(Config.global_config().storage_folder).resolve()),  # type: ignore
+            "storage_folder": self.generate_storage_folder_path(),  # type: ignore
             "tasks": [task.id for task in tasks],
         }
         dag_path = Path(Config.job_config().airflow_dags_folder).resolve() / "taipy" / f"{dag_id}.json"  # type: ignore
 
         dag_path.write_text(json.dumps(json_model))
+
+    @staticmethod
+    def generate_storage_folder_path():
+        if platform.system() == "Linux":
+            return str(Path(Config.global_config().storage_folder).resolve())
+        else:
+            linux_storage_mount_path = str(Path(Config.global_config().storage_folder)).replace(os.sep, posixpath.sep)
+            linux_storage_mount_path = linux_storage_mount_path.replace(":", "")
+            linux_storage_mount_path = linux_storage_mount_path.lower()
+            window_path = "/mnt/" + linux_storage_mount_path
+            return window_path
+
+    @staticmethod
+    def generate_airflow_path():
+        if platform.system() == "Linux":
+            return sys.path[0]
+        else:
+            linux_airflow_mount_path = str(Path(sys.path[0])).replace(os.sep, posixpath.sep)
+            linux_airflow_mount_path = linux_airflow_mount_path.replace(":", "")
+            linux_airflow_mount_path = linux_airflow_mount_path.lower()
+            window_airflow_path = "/mnt/" + linux_airflow_mount_path
+            return window_airflow_path
 
     def _create_airflow_folder(self):
         os.makedirs(self.airflow_folder, exist_ok=True)
@@ -160,11 +185,13 @@ class Airflow:
         os.environ["AIRFLOW__API__AUTH_BACKEND"] = "airflow.api.auth.backend.basic_auth"
 
         with open(stdout_file, "w") as stdout, open(stderr_file, "w") as stderr:
-            subprocess.run(["airflow", "standalone"], stdout=stdout, stderr=stderr)
+            if platform.system() == "Linux":
+                subprocess.run(["airflow", "standalone"], stdout=stdout, stderr=stderr)
+            elif platform.system() == "Windows":
+                subprocess.run(["wsl", "airflow", "standalone"], stdout=stdout, stderr=stderr)
 
     def _get_credentials(self):
         password_file = self.airflow_folder / "standalone_admin_password.txt"
-
         return "admin", password_file.read_text()
 
     @staticmethod
