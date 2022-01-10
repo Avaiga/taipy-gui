@@ -54,7 +54,7 @@ class Airflow:
     @property
     def dag_folder(self) -> Path:
         """Dag folder where the application will move DAGs and convertor"""
-        return Path(Config.job_config().airflow_dag_folder)  # type: ignore
+        return Path(Config.job_config().airflow_dags_folder)  # type: ignore
 
     def stop(self):
         """Stop Airflow process if exists"""
@@ -104,7 +104,7 @@ class Airflow:
             "storage_folder": str(Path(Config.global_config().storage_folder).resolve()),  # type: ignore
             "tasks": [task.id for task in tasks],
         }
-        dag_path = Path(Config.job_config().airflow_dag_folder).resolve() / "taipy" / f"{dag_id}.json"  # type: ignore
+        dag_path = Path(Config.job_config().airflow_dags_folder).resolve() / "taipy" / f"{dag_id}.json"  # type: ignore
 
         dag_path.write_text(json.dumps(json_model))
 
@@ -147,7 +147,7 @@ class Airflow:
         shutil.copy(to_dag.__file__, self.dag_folder)
 
     @staticmethod
-    def _start_airflow_in_standalone_mode(airflow_folder, airflow_dag_folder, stdout_file, stderr_file):
+    def _start_airflow_in_standalone_mode(airflow_folder, airflow_dags_folder, stdout_file, stderr_file):
         """
         Start Airflow in the Standalone mode through its CLI interface.
         Stdout and Stderr are redirects in two different files to keep logs and limit the
@@ -155,7 +155,7 @@ class Airflow:
         The connection on the Airflow webserver will be through the basic_auth, we set it through the environment.
         """
         os.environ["AIRFLOW_HOME"] = str(airflow_folder)
-        os.environ["AIRFLOW__CORE__DAGS_FOLDER"] = str(airflow_dag_folder)
+        os.environ["AIRFLOW__CORE__DAGS_FOLDER"] = str(airflow_dags_folder)
         os.environ["AIRFLOW__CORE__LOAD_EXAMPLES"] = str(False)
         os.environ["AIRFLOW__API__AUTH_BACKEND"] = "airflow.api.auth.backend.basic_auth"
 
