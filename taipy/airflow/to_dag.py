@@ -6,6 +6,7 @@ This file should be put inside of the Airflow DAG folder. It convert all JSON fr
 import json
 import sys
 from datetime import datetime
+from importlib import util
 from pathlib import Path
 from typing import Dict
 
@@ -14,12 +15,10 @@ from taipy.task import TaskManager
 
 # This file can be import from Taipy to be moved inside of the Airflow DAG folder.
 # Taipy doesn't need any package of Airflow to be able to run, so this import will failed.
-try:
+if util.find_spec("airflow"):
     from airflow import DAG
     from airflow.operators.python import PythonOperator
     from airflow.sensors.python import PythonSensor
-except:
-    ...
 
 
 def is_ready(application_path, task_id, storage_folder):

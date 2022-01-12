@@ -56,7 +56,6 @@ class Airflow:
     @property
     def dag_folder(self) -> Path:
         """Dag folder where the application will move DAGs and convertor"""
-
         return Path(Config.job_config().airflow_dags_folder)  # type: ignore
 
     def stop(self):
@@ -104,7 +103,7 @@ class Airflow:
         json_model = {
             "path": self.generate_airflow_path(),
             "dag_id": dag_id,
-            "storage_folder": self.generate_storage_folder_path(),  # type: ignore
+            "storage_folder": self.generate_storage_folder_path(),
             "tasks": [task.id for task in tasks],
         }
         dag_path = Path(Config.job_config().airflow_dags_folder).resolve() / "taipy" / f"{dag_id}.json"  # type: ignore
@@ -115,23 +114,23 @@ class Airflow:
     def generate_storage_folder_path():
         if platform.system() == "Linux":
             return str(Path(Config.global_config().storage_folder).resolve())
-        else:
+        elif platform.system() == "Windows":
             linux_storage_mount_path = str(Path(Config.global_config().storage_folder)).replace(os.sep, posixpath.sep)
             linux_storage_mount_path = linux_storage_mount_path.replace(":", "")
             linux_storage_mount_path = linux_storage_mount_path.lower()
-            window_path = "/mnt/" + linux_storage_mount_path
-            return window_path
+            windows_path = "/mnt/" + linux_storage_mount_path
+            return windows_path
 
     @staticmethod
     def generate_airflow_path():
         if platform.system() == "Linux":
             return sys.path[0]
-        else:
+        elif platform.system() == "Windows":
             linux_airflow_mount_path = str(Path(sys.path[0])).replace(os.sep, posixpath.sep)
             linux_airflow_mount_path = linux_airflow_mount_path.replace(":", "")
             linux_airflow_mount_path = linux_airflow_mount_path.lower()
-            window_airflow_path = "/mnt/" + linux_airflow_mount_path
-            return window_airflow_path
+            windows_airflow_path = "/mnt/" + linux_airflow_mount_path
+            return windows_airflow_path
 
     def _create_airflow_folder(self):
         os.makedirs(self.airflow_folder, exist_ok=True)
