@@ -11,25 +11,13 @@ from pathlib import Path
 from typing import Dict
 
 from taipy.config import Config
-from taipy.task import TaskManager
+from taipy.task.manager import TaskManager
 
 # This file can be import from Taipy to be moved inside of the Airflow DAG folder.
 # Taipy doesn't need any package of Airflow to be able to run, so this import will failed.
 if util.find_spec("airflow"):
     from airflow import DAG
     from airflow.operators.python import PythonOperator
-    from airflow.sensors.python import PythonSensor
-
-
-def is_ready(application_path, task_id, storage_folder):
-    """
-    Check if the Data Sources of the task are ready to be used.
-    """
-    sys.path.insert(0, application_path)
-    Config.set_global_config(storage_folder=storage_folder)
-    task_manager = TaskManager()
-    task = task_manager.get(task_id)
-    return not task_manager.task_scheduler.is_blocked(task)
 
 
 def submit(application_path, task_id, storage_folder):
@@ -40,7 +28,7 @@ def submit(application_path, task_id, storage_folder):
     Config.set_global_config(storage_folder=storage_folder)
     task_manager = TaskManager()
     task = task_manager.get(task_id)
-    task_manager.task_scheduler.submit(task)
+    task_manager.scheduler.submit_task(task)
 
 
 def to_dag(conf: Dict):
@@ -61,23 +49,13 @@ def to_dag(conf: Dict):
     for task_id in conf["tasks"]:
         kwargs = {**kwargs, "task_id": task_id}
 
-        sensor = PythonSensor(
-            task_id=f"sensor_{task_id}",
-            dag=dag,
-            python_callable=is_ready,
-            op_kwargs=kwargs,
-            start_date=datetime(2021, 1, 1),
-            mode="reschedule",
-        )
-        task = PythonOperator(
+        PythonOperator(
             task_id=task_id,
             python_callable=submit,
             dag=dag,
             start_date=datetime(2021, 1, 1),
             op_kwargs=kwargs,
         )
-        sensor >> task
-
     return dag
 
 
