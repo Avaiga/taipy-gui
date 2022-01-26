@@ -36,7 +36,7 @@ def to_dag(conf: Dict):
     Generate the Airflow DAGs based on the parameters provide.
 
     Taipy tasks are converted into two Airflow Operator:
-    1) A sensor that will be triggered intermediately and check if task's data sources are ready.
+    1) A sensor that will be triggered intermediately and check if task's data nodes are ready.
     2) A operator that will execute the task itself.
     """
     dag = DAG(dag_id=conf["dag_id"], schedule_interval=None)
