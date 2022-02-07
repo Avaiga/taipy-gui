@@ -192,8 +192,13 @@ class AirflowScheduler(AbstractScheduler):
                 subprocess.run(["wsl", "airflow", "standalone"], stdout=stdout, stderr=stderr)
 
     def get_credentials(self):
-        password_file = self.__airflow_folder / "standalone_admin_password.txt"
-        return "admin", password_file.read_text()
+        user = Config.job_config().airflow_user
+        if Config.job_config().airflow_password:
+            password = Config.job_config().airflow_password
+        else:
+            password_file = self.__airflow_folder / "standalone_admin_password.txt"
+            password = password_file.read_text()
+        return user, password
 
     @staticmethod
     def __retry_on_airflow(cb):
