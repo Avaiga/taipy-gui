@@ -1,0 +1,1948 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.0">
+    
+    
+      
+        <title>Core configuration - Taipy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.8b42a75e.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>:root{--md-text-font-family:"Lato";--md-code-font-family:""}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/avaiga.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <script>function __prefix(e){return new URL("../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuration-attributes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Taipy" class="md-header__button md-logo" aria-label="Taipy" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Taipy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Core configuration
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/avaiga/taipy/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taipy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../getting_started/installation/" class="md-tabs__link">
+        Getting started
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link md-tabs__link--active">
+        User Manual
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../reference/" class="md-tabs__link">
+      Reference Manual
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../contributing/about_contributing/" class="md-tabs__link">
+        Contributing
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../credits/development_lead/" class="md-tabs__link">
+        Credits
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../history/" class="md-tabs__link">
+      History
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Taipy" class="md-nav__button md-logo" aria-label="Taipy" data-md-component="logo">
+      
+  <img src="../../../assets/images/logo.png" alt="logo">
+
+    </a>
+    Taipy
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/avaiga/taipy/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taipy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Getting started
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Getting started" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Getting started
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting_started/creating_a_taipy_application/" class="md-nav__link">
+        Creating a Taipy application
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          User Manual
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="User Manual" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          User Manual
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        About Taipy's User Manual
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" checked>
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_2">
+          Taipy core
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Taipy core" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_2">
+          <span class="md-nav__icon md-icon"></span>
+          Taipy core
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user_core_concepts/" class="md-nav__link">
+        Core concepts
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user_core_features/" class="md-nav__link">
+        Core features
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Core configuration
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Core configuration
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-attributes" class="md-nav__link">
+    Configuration attributes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-a-python-configuration" class="md-nav__link">
+    Building a python configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-mechanism" class="md-nav__link">
+    Configuration mechanism
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-configuration" class="md-nav__link">
+    Default configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-code-configuration" class="md-nav__link">
+    Python code configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-toml-file-configuration" class="md-nav__link">
+    Explicit TOML file configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variable-file-configuration" class="md-nav__link">
+    Environment variable file configuration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting-configuration" class="md-nav__link">
+    Exporting configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variable" class="md-nav__link">
+    Environment variable
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#job-execution-configuration" class="md-nav__link">
+    Job execution configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Job execution configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standalone" class="md-nav__link">
+    Standalone
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-airflow" class="md-nav__link">
+    Using Airflow
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Airflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-airflow-from-taipy" class="md-nav__link">
+    Start Airflow from Taipy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-an-external-airflow" class="md-nav__link">
+    Use an external Airflow
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_3">
+          Graphical User Interface
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Graphical User Interface" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          Graphical User Interface
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_pages/" class="md-nav__link">
+        Pages
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3_3" type="checkbox" id="__nav_3_3_3" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_3_3">
+          Visual Elements
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Visual Elements" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          Visual Elements
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_viselements/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_controls/" class="md-nav__link">
+        Controls
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_blocks/" class="md-nav__link">
+        Blocks
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_binding/" class="md-nav__link">
+        Binding variables
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_styling/" class="md-nav__link">
+        Styling
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_callbacks/" class="md-nav__link">
+        Callbacks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_dialogs/" class="md-nav__link">
+        Dialogs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_notifications/" class="md-nav__link">
+        Notifications
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gui/user_gui/" class="md-nav__link">
+        GUI References
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" >
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_4">
+          Docker
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Docker" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          Docker
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker/standalone/" class="md-nav__link">
+        Standalone Application
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker/airflow/" class="md-nav__link">
+        Running with Airflow
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" >
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_5">
+          Deployment
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Deployment" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          Deployment
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/prepare-taipy-for-deployment/" class="md-nav__link">
+        Prepare your application for deployment
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5_2" type="checkbox" id="__nav_3_5_2" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3_5_2">
+          Heroku
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Heroku" data-md-level="3">
+        <label class="md-nav__title" for="__nav_3_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Heroku
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/heroku/getting-started/" class="md-nav__link">
+        Getting started
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/heroku/setup/" class="md-nav__link">
+        Setup
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/heroku/git/" class="md-nav__link">
+        Based on Git
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/heroku/docker/" class="md-nav__link">
+        Based on Docker
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        Reference Manual
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Contributing" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Contributing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/about_contributing/" class="md-nav__link">
+        About contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/how-to-contribute/" class="md-nav__link">
+        How you can contribute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/get-started/" class="md-nav__link">
+        Get started for local development
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Credits
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Credits" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Credits
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../credits/development_lead/" class="md-nav__link">
+        Development lead
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../credits/contributors/" class="md-nav__link">
+        Contributors
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../history/" class="md-nav__link">
+        History
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-attributes" class="md-nav__link">
+    Configuration attributes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-a-python-configuration" class="md-nav__link">
+    Building a python configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-mechanism" class="md-nav__link">
+    Configuration mechanism
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration mechanism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-configuration" class="md-nav__link">
+    Default configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-code-configuration" class="md-nav__link">
+    Python code configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-toml-file-configuration" class="md-nav__link">
+    Explicit TOML file configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variable-file-configuration" class="md-nav__link">
+    Environment variable file configuration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting-configuration" class="md-nav__link">
+    Exporting configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variable" class="md-nav__link">
+    Environment variable
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#job-execution-configuration" class="md-nav__link">
+    Job execution configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Job execution configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standalone" class="md-nav__link">
+    Standalone
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-airflow" class="md-nav__link">
+    Using Airflow
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Airflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-airflow-from-taipy" class="md-nav__link">
+    Start Airflow from Taipy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-an-external-airflow" class="md-nav__link">
+    Use an external Airflow
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/avaiga/taipy/edit/master/docs/manuals/core/user_core_configuration.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>Core configuration</h1>
+                
+                <p>Taipy is an application builder. The purpose of configuring the application back end is to describe the user
+application entities and how they behave at runtime.</p>
+<p>In this documentation we first provide a complete description of the configuration attributes. In a second section, an
+example is proposed, showing how to create a standard Taipy configuration. Because multiple configuration methods are
+possible, we then provide a documentation of the configuration mechanism. Finally the method to export a configuration
+is described.</p>
+<h2 id="configuration-attributes">Configuration attributes<a class="headerlink" href="#configuration-attributes" title="Permanent link">&para;</a></h2>
+<div class="admonition abstract">
+<p class="admonition-title">TODO JRM</p>
+<ul>
+<li>Add reference to the ref manual</li>
+<li>Describe config nodes (Global, job, data node, ...) The configuration includes configuration for global
+    application, job executions, scenarios, pipelines, tasks and data
+    nodes. As an example, the data node configurations may have name, storage type, credentials, format, path,
+    scope, or any custom property.</li>
+<li>List all the fields and for each field provide possible values, examples</li>
+</ul>
+</div>
+<h2 id="building-a-python-configuration">Building a python configuration<a class="headerlink" href="#building-a-python-configuration" title="Permanent link">&para;</a></h2>
+<h2 id="configuration-mechanism">Configuration mechanism<a class="headerlink" href="#configuration-mechanism" title="Permanent link">&para;</a></h2>
+<p>Here is a possible example of a workflow for the developer.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<ol>
+<li>
+<p>First as a developer, I am designing and developing my taipy application. I don’t really need to care about
+   configuration, so I use the simple default configuration.</p>
+</li>
+<li>
+<p>Then, I am testing the application built. At this step, I need my application to have a more realistic
+   behavior like real data. For that, I need more configuration. I can specify for my specific input dataset what
+   file to use. I am using the Python code configuration for that.</p>
+</li>
+<li>
+<p>Then, once I am happy with my application running on local, I am deploying it to a remote environment for
+   testing and debugging the application. This is on a dedicated environment made for testing deployment and for
+   integration testing. I can use an explicit file configuration. I can easily update the file if necessary to be
+   efficient in debugging, without changing the code directly.</p>
+</li>
+<li>
+<p>Once the step 3 is done, I want to be able to deploy a released and tagged version of my application on
+   several remote environments (e.g. pre-production, production). I am creating one file per remote environment
+   with a few values that differ from the step 3, and on each environment, I am setting a different environment
+   variable value to point to the right configuration file.</p>
+</li>
+</ol>
+</div>
+<p>Four methods to configure taipy are possible:</p>
+<ul>
+<li>A default configuration</li>
+<li>A Python configuration</li>
+<li>A file configuration using <em>TOML</em> file format</li>
+<li>An environment variable configuration</li>
+</ul>
+<p>These methods are described below.</p>
+<h3 id="default-configuration">Default configuration<a class="headerlink" href="#default-configuration" title="Permanent link">&para;</a></h3>
+<p>The first method is the default configuration and is directly provided by the Taipy library. It allows the developer to
+run the application in the most basic and standard way (running in localhost, storing data on the local file system,
+executing tasks sequentially and synchronously, ....). Nothing is needed from the user at this point.
+Here is the <em>TOML</em> export file of all (not None) default values :</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>    <span class="p">[</span><span class="n">TAIPY</span><span class="p">]</span>
+    <span class="n">root_folder</span> <span class="o">=</span> <span class="s2">&quot;./taipy/&quot;</span>
+    <span class="n">storage_folder</span> <span class="o">=</span> <span class="s2">&quot;.data/&quot;</span>
+
+    <span class="p">[</span><span class="n">JOB</span><span class="p">]</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;standalone&quot;</span>
+    <span class="n">nb_of_workers</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">hostname</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
+    <span class="n">storage_type</span> <span class="o">=</span> <span class="s2">&quot;pickle&quot;</span>
+    <span class="n">scope</span> <span class="o">=</span> <span class="s2">&quot;PIPELINE&quot;</span>
+
+    <span class="p">[</span><span class="n">TASK</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="p">[</span><span class="n">PIPELINE</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="p">[</span><span class="n">SCENARIO</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
+    <span class="n">pipelines</span> <span class="o">=</span> <span class="p">[]</span>
+</code></pre></div>
+</td></tr></table>
+<h3 id="python-code-configuration">Python code configuration<a class="headerlink" href="#python-code-configuration" title="Permanent link">&para;</a></h3>
+<p>Then, a code configuration can be done on a Python file directly when designing the pipelines and scenarios. This
+configuration can be done by importing the <a href="../../reference/#taipy.config.config.Config"><code>taipy.Config</code></a> class
+and calling the various methods.
+This python configuration is meant to be used during the application development phase. It overrides the default
+configuration: if some values are not provided, the default configuration applies.</p>
+<div class="admonition example">
+<p class="admonition-title">Example<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="n">dataset_cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">add_data_node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span> <span class="n">storage_type</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;./local/path/to/my/dataset.csv&quot;</span><span class="p">)</span>
+<span class="n">task_cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_task&quot;</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">data_set_cfg</span><span class="p">,</span> <span class="n">my_function</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[])</span>
+</code></pre></div>
+</td></tr></table>
+</p>
+</div>
+<h3 id="explicit-toml-file-configuration">Explicit TOML file configuration<a class="headerlink" href="#explicit-toml-file-configuration" title="Permanent link">&para;</a></h3>
+<p>Taipy also provides file configuration. Indeed, a <em>TOML</em> file can be explicitly provided by the developer to the Taipy
+application using Python coding such as :</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">Config</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;folder/config.toml&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>This file configuration overrides the code configuration (and the default configuration).
+Here is an example of a <em>TOML</em> file :</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>    <span class="p">[</span><span class="n">TAIPY</span><span class="p">]</span>
+    <span class="n">version</span><span class="o">=</span><span class="mf">0.5.5</span>
+
+    <span class="p">[</span><span class="n">JOB</span><span class="p">]</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;standalone&quot;</span>
+    <span class="n">nb_of_workers</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">Default</span><span class="p">]</span>
+    <span class="n">storage_type</span><span class="o">=</span><span class="n">pickle</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">dataset</span><span class="p">]</span>
+    <span class="n">storage_type</span><span class="o">=</span><span class="n">csv</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;remote/path/subfolder/file.csv&quot;</span>
+</code></pre></div>
+</td></tr></table>
+<h3 id="environment-variable-file-configuration">Environment variable file configuration<a class="headerlink" href="#environment-variable-file-configuration" title="Permanent link">&para;</a></h3>
+<p>Finally, if the environment variable TAIPY_CONFIG_PATH is defined with the path of a <em>TOML</em> config, Taipy will
+automatically load the file and override the previous configurations (explicit file configuration, code configuration
+and default configuration).</p>
+<h2 id="exporting-configuration">Exporting configuration<a class="headerlink" href="#exporting-configuration" title="Permanent link">&para;</a></h2>
+<p>Taipy also provides a method to export the configuration applied after the compilation of all the configurations
+(default, Python code, explicit file, and environment variable configurations) which is the result of the overwriting.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code>    <span class="p">[</span><span class="n">TAIPY</span><span class="p">]</span>
+    <span class="n">notification</span> <span class="o">=</span> <span class="n">false</span>
+    <span class="n">broker_endpoint</span> <span class="o">=</span> <span class="s2">&quot;my_broker_end_point&quot;</span>
+    <span class="n">root_folder</span> <span class="o">=</span> <span class="s2">&quot;./root/&quot;</span>
+    <span class="n">storage_folder</span> <span class="o">=</span> <span class="s2">&quot;./data/&quot;</span>
+
+    <span class="p">[</span><span class="n">JOB</span><span class="p">]</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;standalone&quot;</span>
+    <span class="n">nb_of_workers</span> <span class="o">=</span> <span class="s2">&quot;5&quot;</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
+    <span class="n">custom</span> <span class="o">=</span> <span class="s2">&quot;default_custom_property&quot;</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">dataset</span><span class="p">]</span>
+    <span class="n">storage_type</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+    <span class="n">custom</span> <span class="o">=</span> <span class="s2">&quot;custom property&quot;</span>
+    <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;the/path/to/my/dataset.csv&quot;</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">forecasts</span><span class="p">]</span>
+    <span class="n">storage_type</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+    <span class="n">Path</span> <span class="o">=</span> <span class="s2">&quot;the/path/to/my/forecasts.csv&quot;</span>
+
+    <span class="p">[</span><span class="n">DATA_NODE</span><span class="o">.</span><span class="n">date</span><span class="p">]</span>
+    <span class="n">scope</span> <span class="o">=</span> <span class="s2">&quot;SCENARIO&quot;</span>
+    <span class="n">default_data</span> <span class="o">=</span> <span class="s2">&quot;15/03/2022&quot;</span>
+
+    <span class="p">[</span><span class="n">TASK</span><span class="o">.</span><span class="n">t1</span><span class="p">]</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;dataset&quot;</span><span class="p">,</span> <span class="s2">&quot;date&quot;</span><span class="p">]</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;forecasts&quot;</span><span class="p">]</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;my description&quot;</span>
+
+    <span class="p">[</span><span class="n">PIPELINE</span><span class="o">.</span><span class="n">p1</span><span class="p">]</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;t1&quot;</span><span class="p">,]</span>
+    <span class="n">cron</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span>
+
+    <span class="p">[</span><span class="n">SCENARIO</span><span class="o">.</span><span class="n">s1</span><span class="p">]</span>
+    <span class="n">pipelines</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;p1&quot;</span><span class="p">,]</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="s2">&quot;DAILY&quot;</span>
+    <span class="n">owner</span> <span class="o">=</span> <span class="s2">&quot;John Doe&quot;</span>
+</code></pre></div>
+</td></tr></table>
+<h2 id="environment-variable">Environment variable<a class="headerlink" href="#environment-variable" title="Permanent link">&para;</a></h2>
+<p>Configuration can be set dynamically using environment variables through the syntax <code>ENV[MY_VARIABLE]</code>.
+At runtime, Taipy will search <code>MY_VARIABLE</code> in the environment variables then use it.</p>
+<p>This is especially useful if you want to use secret strings such as host names, user names or passwords.
+For example, if you are using Airflow as scheduler, you can hide the password from the
+configuration file using an environment variable:
+<div class="highlight"><pre><span></span><code>[JOB]
+airflow_password = &quot;ENV[PASS]&quot;
+</code></pre></div></p>
+<h2 id="job-execution-configuration">Job execution configuration<a class="headerlink" href="#job-execution-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="standalone">Standalone<a class="headerlink" href="#standalone" title="Permanent link">&para;</a></h3>
+<p>By default, Taipy execute each <code>Task</code> one by one synchronously.</p>
+<p>You can ensure this behavior by setting:
+<div class="highlight"><pre><span></span><code>[JOB]
+mode = &quot;standalone&quot;
+nb_of_workers = 1
+</code></pre></div></p>
+<p>To execute tasks in parallel, you can allow Taipy to use multiple processes by setting the <code>nb_of_workers</code> property to a positive integer greater then 1, for example:
+<div class="highlight"><pre><span></span><code>[JOB]
+mode = &quot;standalone&quot;
+nb_of_workers = 8
+</code></pre></div></p>
+<h3 id="using-airflow">Using Airflow<a class="headerlink" href="#using-airflow" title="Permanent link">&para;</a></h3>
+<p>Taipy tasks can run with Airflow. For that, you need to specify:
+<div class="highlight"><pre><span></span><code>[JOB]
+mode = &quot;airflow&quot;
+</code></pre></div></p>
+<h4 id="start-airflow-from-taipy">Start Airflow from Taipy<a class="headerlink" href="#start-airflow-from-taipy" title="Permanent link">&para;</a></h4>
+<p>To start Airflow within Taipy, you can use the following configuration:
+<div class="highlight"><pre><span></span><code>[JOB]
+start_airflow = True
+</code></pre></div></p>
+<p>By default, Airflow creates a local folder <code>.airflow</code> to store its dependencies.
+You can change this location with the <code>airflow_folder</code> config:
+<div class="highlight"><pre><span></span><code>[JOB]
+airflow_folder = &quot;my_custom_path&quot;
+</code></pre></div></p>
+<div class="admonition warning">
+<p class="admonition-title">Production setting</p>
+<p>Taipy starts Airflow in <code>standalone</code> mode. It is an Airflow development mode and not recommended for production.</p>
+</div>
+<h4 id="use-an-external-airflow">Use an external Airflow<a class="headerlink" href="#use-an-external-airflow" title="Permanent link">&para;</a></h4>
+<p>The default configuration is to use an external Airflow. You can specify it by setting:
+<div class="highlight"><pre><span></span><code>[JOB]
+start_airflow = False
+</code></pre></div></p>
+<p>By default, Taipy is connected to Airflow on <code>localhost:8080</code>. You can change it:
+<div class="highlight"><pre><span></span><code>[JOB]
+hostname = &quot;my_remote_airflow:port&quot;
+</code></pre></div></p>
+<p>Taipy <em>Task</em> are converted in Airflow <em>DAG</em> through the Airflow DAG Folder.
+By default, this folder is <code>.dags</code>, but you can update it:
+<div class="highlight"><pre><span></span><code>[JOB]
+airflow_dags_folder = &quot;/dags&quot;
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Remote Airflow</p>
+<p>The Airflow <em>Dag</em> generation can only be accomplished through this folder.
+If Taipy and Airflow are not on the same machine or if Airflow uses remote workers,
+you should mount this folder as shared.</p>
+</div>
+<p>Airflow can take time before loading <em>DAGS</em>.
+In order to wait for Airflow to be ready to schedule tasks, Taipy requests the scheduling several times until the request is actually accepted.
+Depending on your Airflow configuration, you can update the number of retries:
+<div class="highlight"><pre><span></span><code>[JOB]
+airflow_api_retry = 10
+</code></pre></div></p>
+<p>Taipy authentication with Airflow is based on <a class="ext-link" href="https://airflow.apache.org/docs/apache-airflow/stable/security/api.html#basic-authentication">basic_auth</a>.
+If Airflow is not started by Taipy, you should provide this configuration:
+<div class="highlight"><pre><span></span><code>[JOB]
+airflow_user = &quot;user&quot;
+airflow_password = &quot;pass&quot;
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Security</p>
+<p>To ensure you are not exposing your company's secrets, we recommend using <a href="#environment-variable">environment-based configuration</a> for <code>airflow_user</code> and <code>airflow_password</code>.</p>
+</div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../user_core_features/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Core features" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Core features
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../gui/user/" class="md-footer__link md-footer__link--next" aria-label="Next: About" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              About
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            © 2022 Avaiga
+          </div>
+        
+        
+        
+      </div>
+      
+  <div class="md-footer-social">
+    
+      
+      
+      <a href="http://www.avaiga.com" target="_blank" rel="noopener" title="Tweet" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+      </a>
+    
+      
+      
+      <a href="http://www.avaiga.com" target="_blank" rel="noopener" title="Facebook" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg>
+      </a>
+    
+      
+      
+      <a href="https://github.com/avaiga/taipy" target="_blank" rel="noopener" title="Github" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      </a>
+    
+      
+      
+      <a href="mailto:taipy.dev@avaiga.com" target="_blank" rel="noopener" title="" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20 8-8 5-8-5V6l8 5 8-5m0-2H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/></svg>
+      </a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.indexes", "navigation.tabs", "navigation.instant", "navigation.tabs.sticky", "content.tabs.link"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.f8263e09.min.js", "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.4fc53ad4.min.js"></script>
+      
+    
+  </body>
+</html>
