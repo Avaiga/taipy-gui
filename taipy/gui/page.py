@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import typing as t
+import warnings
 
 if t.TYPE_CHECKING:
     from .renderers import PageRenderer
@@ -29,9 +30,13 @@ class Page(object):
         self.route: t.Union[str, None] = None
         self.head: t.Union[str, None] = None
 
-    def render(self):
+    def render(self) -> None:
         if self.renderer is None:
-            raise RuntimeError(f"Can't render JSX for {self.route} due to missing renderer!")
+            warnings.warn(f"Can't render JSX for {self.route} due to missing renderer!")
+            return
+        if not self.renderer.validate():
+            warnings.warn(f"Validation error for page {self.route}")
+            return
         self.rendered_jsx = self.renderer.render()
         if hasattr(self.renderer, "head"):
             self.head = str(self.renderer.head)

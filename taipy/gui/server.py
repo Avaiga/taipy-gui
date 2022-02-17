@@ -6,6 +6,7 @@ import re
 import typing as t
 
 import __main__
+import warnings
 from flask import Blueprint, Flask, jsonify, render_template, render_template_string, request, send_from_directory, json
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -88,16 +89,19 @@ class Server:
                 return render_template(
                     "index.html",
                     flask_url=client_url,
-                    app_css="/" + self.css_file + ".css",
+                    app_css=f'/{self.css_file}.css',
                     title=title,
                     favicon=favicon,
                     themes=themes,
                 )
+
             if os.path.isfile(static_folder + os.path.sep + path):
                 return send_from_directory(static_folder + os.path.sep, path)
             # use the path mapping to detect and find resources
             for k, v in self.__path_mapping.items():
-                if path.startswith(k + "/") and os.path.isfile(v + os.path.sep + path[len(k) + 1 :]):
+                if path.startswith(f'{k}/') and os.path.isfile(
+                    v + os.path.sep + path[len(k) + 1 :]
+                ):
                     return send_from_directory(v + os.path.sep, path[len(k) + 1 :])
             if hasattr(__main__, "__file__") and os.path.isfile(
                 os.path.dirname(__main__.__file__) + os.path.sep + path
@@ -143,7 +147,14 @@ class Server:
         if page is None:
             return (jsonify({"error": "Page doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
         # TODO: assign global scopes to current scope if the page has been rendered
-        page.render()
+        with warnings.catch_warnings(record=True) as w:
+            page.render()
+            if len(w) > 0:
+                print(message:= f"--- {len(w)} warnings were found for page {page.route} ---")
+                for wm in w:
+                    print(wm.message)
+                print("-" * len(message))
+
         if (
             render_path_name == self._root_page_name
             and page.rendered_jsx is not None

@@ -3,7 +3,6 @@ from __future__ import annotations
 import typing as t
 from abc import ABC, abstractmethod
 from os import path
-
 from ._html import TaipyHTMLParser
 from ._markdown import makeTaipyExtension
 
@@ -39,15 +38,35 @@ class PageRenderer(ABC):
 
     def set_content(self, content: str) -> None:
         self.__process_content(content)
+    
+    @abstractmethod
+    def validate(self) -> bool:
+        pass
 
     @abstractmethod
     def render(self) -> str:
         pass
 
 
+class PageValidator(ABC):
+    """
+    This base class provide validation functionality to PageRenderer. This allow users to catch potential errors in runtime.
+    """
+
+    def __init__(self, page: PageRenderer) -> None:
+        self._page = page
+    
+    @abstractmethod
+    def validate(self) -> bool:
+        pass
+
 class EmptyPageRenderer(PageRenderer):
+
     def __init__(self) -> None:
         super().__init__("<PageContent />")
+    
+    def validate(self) -> bool:
+        return "<PageContent />" in self._content
 
     def render(self) -> str:
         return str(self._content)
@@ -65,6 +84,10 @@ class Markdown(PageRenderer):
             content (string): The text content or the path to the file holding the Markdown text to be transformed.
         """
         super().__init__(content)
+    
+    def validate(self) -> bool:
+        from ._markdown.validator import MarkdownValidator
+        return MarkdownValidator(self).validate()
 
     # Generate JSX from Markdown
     def render(self) -> str:
@@ -90,6 +113,10 @@ class Html(PageRenderer):
     # Modify path routes
     def modify_taipy_base_url(self, base_url):
         self._content = str(self._content).replace("{{taipy_base_url}}", f"/{base_url}")
+
+    def validate(self) -> bool:
+        from ._html.validator import HTMLValidator
+        return HTMLValidator(self).validate()
 
     # Generate JSX from HTML
     def render(self) -> str:
