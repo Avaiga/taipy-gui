@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 from abc import ABC, abstractmethod
 from os import path
+
 from ._html import TaipyHTMLParser
 from ._markdown import makeTaipyExtension
 
@@ -32,13 +33,14 @@ class PageRenderer(ABC):
     def __process_content(self, content: str) -> None:
         if path.exists(content) and path.isfile(content):
             with open(t.cast(str, content), "r") as f:
+                self._filepath = content
                 self._content = f.read()
         else:
             self._content = content
 
     def set_content(self, content: str) -> None:
         self.__process_content(content)
-    
+
     @abstractmethod
     def validate(self) -> bool:
         pass
@@ -55,16 +57,33 @@ class PageValidator(ABC):
 
     def __init__(self, page: PageRenderer) -> None:
         self._page = page
-    
+
+    def init_lines(self):
+        if not hasattr(self, "_lines"):
+            self._lines = str(self._page._content).split("\r")
+            self._line = 0
+
+    def has_next_line(self) -> bool:
+        self.init_lines()
+        return self._line < len(self._lines)
+
+    def get_line(self):
+        self.init_lines()
+        return self._lines[self._line]
+
+    @abstractmethod
+    def generate_error_detail(self) -> str:
+        pass
+
     @abstractmethod
     def validate(self) -> bool:
         pass
 
-class EmptyPageRenderer(PageRenderer):
 
+class EmptyPageRenderer(PageRenderer):
     def __init__(self) -> None:
         super().__init__("<PageContent />")
-    
+
     def validate(self) -> bool:
         return "<PageContent />" in self._content
 
@@ -84,9 +103,10 @@ class Markdown(PageRenderer):
             content (string): The text content or the path to the file holding the Markdown text to be transformed.
         """
         super().__init__(content)
-    
+
     def validate(self) -> bool:
         from ._markdown.validator import MarkdownValidator
+
         return MarkdownValidator(self).validate()
 
     # Generate JSX from Markdown
@@ -116,6 +136,7 @@ class Html(PageRenderer):
 
     def validate(self) -> bool:
         from ._html.validator import HTMLValidator
+
         return HTMLValidator(self).validate()
 
     # Generate JSX from HTML
