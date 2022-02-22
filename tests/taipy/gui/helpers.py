@@ -1,6 +1,7 @@
 import json
 import logging
 import typing as t
+
 import pytest
 
 from taipy.gui import Gui, Html, Markdown
@@ -11,7 +12,6 @@ class Helpers:
     @staticmethod
     def test_cleanup():
         Builder._reset_key()
-        del Gui._instances[Gui]
 
     @staticmethod
     def test_control_md(gui: Gui, md_string: str, expected_values: t.Union[str, t.List], check_warning=True):
@@ -73,5 +73,5 @@ class Helpers:
     @staticmethod
     def create_scope_and_get_sid(gui: Gui) -> str:
         sid = "test"
-        gui._scopes.create_scope(sid)
+        gui._bindings()._get_or_create_scope(sid)
         return sid

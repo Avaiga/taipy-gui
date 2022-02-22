@@ -3,20 +3,20 @@ from json import JSONEncoder
 from pathlib import Path
 import warnings
 
-from ..taipyimage import TaipyImage
-from ..utils import _MapDictionary, TaipyBase, dateToISO
+from ..icon import Icon
+from ..utils import _MapDict, TaipyBase, date_to_ISO
 
 
 class TaipyJsonEncoder(JSONEncoder):
     def default(self, o):
-        if isinstance(o, TaipyImage):
+        if isinstance(o, Icon):
             return o.to_dict()
-        elif isinstance(o, _MapDictionary):
+        elif isinstance(o, _MapDict):
             return o._dict
         elif isinstance(o, TaipyBase):
             return o.get()
         elif isinstance(o, datetime):
-            return dateToISO(o)
+            return date_to_ISO(o)
         elif isinstance(o, Path):
             return str(o)
         try:

@@ -41,7 +41,8 @@ class Factory:
     __TEXT_ANCHOR_NONE = "none"
 
     CONTROL_BUILDERS = {
-        "button": lambda control_type, attrs: Builder(
+        "button": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Button",
             attributes=attrs,
@@ -54,7 +55,8 @@ class Factory:
                 ("active", AttributeType.dynamic_boolean, True),
             ]
         ),
-        "chart": lambda control_type, attrs: Builder(
+        "chart": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Chart",
             attributes=attrs,
@@ -70,16 +72,18 @@ class Factory:
                 ("range_change",),
                 ("active", AttributeType.dynamic_boolean, True),
                 ("limit_rows", AttributeType.boolean),
+                ("render", AttributeType.dynamic_boolean, True),
             ]
         )
         .get_chart_config("scatter", "lines+markers")
         .set_propagate()
         .set_refresh_on_update()
         .set_refresh(),
-        "content": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="PageContent", attributes=attrs
+        "content": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="PageContent", attributes=attrs
         ),
-        "date": lambda control_type, attrs: Builder(
+        "date": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="DateSelector",
             attributes=attrs,
@@ -95,15 +99,18 @@ class Factory:
             ]
         )
         .set_propagate(),
-        "dialog": lambda control_type, attrs: Builder(
+        "dialog": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Dialog",
             attributes=attrs,
         )
         .set_value_and_default(var_type=AttributeType.dynamic_boolean)
+        .set_partial()  # partial should be set before page
         .set_attributes(
             [
                 ("id",),
+                ("page",),
                 ("title",),
                 ("cancel_action",),
                 ("cancel_label", AttributeType.string, "Cancel"),
@@ -114,11 +121,9 @@ class Factory:
                 ("height", AttributeType.string_or_number),
             ]
         )
-        .set_propagate()
-        .set_partial()  # partial should be set before page_id
-        .set_page_id(),
-        "expandable": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="Expandable", attributes=attrs, default_value=""
+        .set_propagate(),
+        "expandable": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="Expandable", attributes=attrs, default_value=None
         )
         .set_value_and_default()
         .set_attributes(
@@ -127,7 +132,8 @@ class Factory:
                 ("expanded", AttributeType.dynamic_boolean, True),
             ]
         ),
-        "file_download": lambda control_type, attrs: Builder(
+        "file_download": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="FileDownload",
             attributes=attrs,
@@ -145,7 +151,8 @@ class Factory:
                 ("name",),
             ]
         ),
-        "file_selector": lambda control_type, attrs: Builder(
+        "file_selector": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="FileSelector",
             attributes=attrs,
@@ -162,7 +169,8 @@ class Factory:
                 ("drop_message",),
             ]
         ),
-        "image": lambda control_type, attrs: Builder(
+        "image": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Image",
             attributes=attrs,
@@ -178,7 +186,8 @@ class Factory:
                 ("height",),
             ]
         ),
-        "indicator": lambda control_type, attrs: Builder(
+        "indicator": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Indicator",
             attributes=attrs,
@@ -194,7 +203,8 @@ class Factory:
                 ("orientation"),
             ]
         ),
-        "input": lambda control_type, attrs: Builder(
+        "input": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Input",
             attributes=attrs,
@@ -208,8 +218,8 @@ class Factory:
                 ("active", AttributeType.dynamic_boolean, True),
             ]
         ),
-        "layout": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="Layout", attributes=attrs, default_value=""
+        "layout": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="Layout", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_default=False)
         .set_attributes(
@@ -219,7 +229,8 @@ class Factory:
                 ("gap",),
             ]
         ),
-        "menu": lambda control_type, attrs: Builder(
+        "menu": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="MenuCtl",
             attributes=attrs,
@@ -239,8 +250,8 @@ class Factory:
         )
         .set_refresh_on_update()
         .set_propagate(),
-        "navbar": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="NavBar", attributes=attrs, default_value=""
+        "navbar": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="NavBar", attributes=attrs, default_value=None
         )
         .get_adapter("lov", multi_selection=False)  # need to be called before set_lov
         .set_lov()
@@ -250,7 +261,8 @@ class Factory:
                 ("active", AttributeType.dynamic_boolean, True),
             ]
         ),
-        "number": lambda control_type, attrs: Builder(
+        "number": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Input",
             attributes=attrs,
@@ -265,13 +277,15 @@ class Factory:
                 ("active", AttributeType.dynamic_boolean, True),
             ]
         ),
-        "pane": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="Pane", attributes=attrs, default_value=""
+        "pane": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="Pane", attributes=attrs, default_value=None
         )
         .set_value_and_default(var_type=AttributeType.dynamic_boolean)
+        .set_partial()  # partial should be set before page
         .set_attributes(
             [
                 ("id",),
+                ("page",),
                 ("anchor", AttributeType.string, "left"),
                 ("close_action",),
                 ("persistent", AttributeType.boolean, False),
@@ -280,15 +294,14 @@ class Factory:
                 ("height", AttributeType.string_or_number, "30vh"),
             ]
         )
-        .set_propagate()
-        .set_partial()  # partial should be set before page_id
-        .set_page_id(),
-        "part": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="Part", attributes=attrs, default_value=""
+        .set_propagate(),
+        "part": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="Part", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_update=False, var_type=AttributeType.dynamic_boolean, default_val=True)
         .set_attributes([("id",)]),
-        "selector": lambda control_type, attrs: Builder(
+        "selector": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Selector",
             attributes=attrs,
@@ -309,7 +322,8 @@ class Factory:
         )
         .set_refresh_on_update()
         .set_propagate(),
-        "slider": lambda control_type, attrs: Builder(
+        "slider": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Slider",
             attributes=attrs,
@@ -332,17 +346,18 @@ class Factory:
         .set_labels()
         .set_string_with_check("text_anchor", Factory.__TEXT_ANCHORS + [Factory.__TEXT_ANCHOR_NONE], "bottom")
         .set_propagate(),
-        "status": lambda control_type, attrs: Builder(
+        "status": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Status",
             attributes=attrs,
         )
         .set_value_and_default(with_update=False)
-        .set_propagate()
         .set_attributes(
-            [("id",), ("active", AttributeType.dynamic_boolean, True), ("without_close", AttributeType.boolean, False)]
+            [("id",), ("without_close", AttributeType.boolean, False)]
         ),
-        "table": lambda control_type, attrs: Builder(
+        "table": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Table",
             attributes=attrs,
@@ -371,7 +386,8 @@ class Factory:
         .get_list_attribute("selected", AttributeType.number)
         .set_refresh_on_update()
         .set_table_pagesize_options(),
-        "text": lambda control_type, attrs: Builder(
+        "text": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="Field",
             attributes=attrs,
@@ -384,8 +400,8 @@ class Factory:
                 ("id",),
             ]
         ),
-        "toggle": lambda control_type, attrs: Builder(
-            control_type=control_type, element_name="Toggle", attributes=attrs, default_value=""
+        "toggle": lambda gui, control_type, attrs: Builder(
+            gui=gui, control_type=control_type, element_name="Toggle", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_default=False, var_type=AttributeType.lov_value)
         .get_adapter("lov", multi_selection=False)  # need to be called before set_lov
@@ -401,7 +417,8 @@ class Factory:
         .set_kind()
         .set_refresh_on_update()
         .set_propagate(),
-        "tree": lambda control_type, attrs: Builder(
+        "tree": lambda gui, control_type, attrs: Builder(
+            gui=gui,
             control_type=control_type,
             element_name="TreeView",
             attributes=attrs,

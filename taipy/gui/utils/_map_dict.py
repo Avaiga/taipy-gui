@@ -3,13 +3,13 @@ from __future__ import annotations
 import typing as t
 
 
-class _MapDictionary(object):
+class _MapDict(object):
     """
     Provide class binding, can utilize getattr, setattr functionality
     Also perform update operation
     """
 
-    local_vars = ("_dict", "_update_var")
+    __local_vars = ("_dict", "_update_var")
 
     def __init__(self, dict_import: dict, app_update_var=None):
         self._dict = dict_import
@@ -26,9 +26,9 @@ class _MapDictionary(object):
         value = self._dict.__getitem__(key)
         if isinstance(value, dict):
             if self._update_var:
-                return _MapDictionary(value, lambda s, v: self._update_var(f"{key}.{s}", v))
+                return _MapDict(value, lambda s, v: self._update_var(f"{key}.{s}", v))
             else:
-                return _MapDictionary(value)
+                return _MapDict(value)
         return value
 
     def __setitem__(self, key, value):
@@ -57,7 +57,7 @@ class _MapDictionary(object):
         return self._dict.get(attr)
 
     def __setattr__(self, attr, value):
-        if attr in _MapDictionary.local_vars:
+        if attr in _MapDict.__local_vars:
             super().__setattr__(attr, value)
         else:
             self.__setitem__(attr, value)
@@ -86,8 +86,8 @@ class _MapDictionary(object):
     def popitem(self) -> tuple:
         return self._dict.popitem()
 
-    def copy(self) -> _MapDictionary:
-        return _MapDictionary(self._dict.copy(), self._update_var)
+    def copy(self) -> _MapDict:
+        return _MapDict(self._dict.copy(), self._update_var)
 
     def update(self, d: dict) -> None:
         current_keys = self.keys()

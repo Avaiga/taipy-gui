@@ -44,6 +44,8 @@ interface ChartProp extends TaipyActiveProps {
     rangeChange?: string;
     limitRows?: boolean;
     testId?: string;
+    render?: boolean;
+    defaultRender?: boolean;
     //[key: `selected_${number}`]: number[];
 }
 
@@ -62,6 +64,7 @@ interface ChartConfig {
     lines: Partial<ScatterLine>[];
     texts: string[];
     textAnchors: string[];
+    extendData: Record<string, unknown>[];
 }
 
 export type TraceValueType = Record<string, (string | number)[]>;
@@ -105,6 +108,7 @@ const Chart = (props: ChartProp) => {
     const dataKey = useRef("default");
 
     const active = useDynamicProperty(props.active, props.defaultActive, true);
+    const render = useDynamicProperty(props.render, props.defaultRender, true);
 
     // get props.selected[i] values
     useEffect(() => {
@@ -160,6 +164,7 @@ const Chart = (props: ChartProp) => {
                 lines: [],
                 texts: [],
                 textAnchors: [],
+                extendData: [],
             } as ChartConfig;
         }
     }, [props.config]);
@@ -213,6 +218,7 @@ const Chart = (props: ChartProp) => {
         const datum = data && data[dataKey.current];
         return config.traces.map((trace, idx) => {
             const ret = {
+                ...getArrayValue(config.extendData, idx, {}),
                 type: config.types[idx],
                 mode: config.modes[idx],
                 name:
@@ -234,7 +240,7 @@ const Chart = (props: ChartProp) => {
                     ret.y = ys;
                 } else {
                     ret.x = Array.from(Array(xs.length).keys());
-                    ret.y = ret.x;
+                    ret.y = xs;
                 }
                 ret.z = getValue(datum, trace, 2);
                 ret.text = getValue(datum, config.texts, idx);
@@ -294,7 +300,7 @@ const Chart = (props: ChartProp) => {
         [getRealIndex, dispatch, tp_updatevars, propagate]
     );
 
-    return (
+    return render ? (
         <Box id={id} key="div" data-testid={props.testId} className={className} ref={plotRef}>
             <Suspense fallback={<Skeleton key="skeleton" sx={skelStyle} />}>
                 <Plot
@@ -310,7 +316,7 @@ const Chart = (props: ChartProp) => {
                 />
             </Suspense>
         </Box>
-    );
+    ) : null;
 };
 
 export default Chart;

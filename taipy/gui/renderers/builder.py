@@ -5,14 +5,20 @@ import re
 import typing as t
 import warnings
 import xml.etree.ElementTree as etree
-from operator import attrgetter
-from types import FunctionType
-
-from taipy.gui.utils.types import TaipyData
 
 from ..page import Partial
 from ..types import AttributeType, _get_taipy_type
-from ..utils import _MapDictionary, dateToISO, get_client_var_name, getDataType, is_boolean_true
+from ..utils import (
+    _MapDict,
+    _get_expr_var_name,
+    date_to_ISO,
+    get_client_var_name,
+    get_data_type,
+    getscopeattr_drill,
+    getuserattr,
+    is_boolean_true,
+)
+from ..utils.types import TaipyData
 from .jsonencoder import TaipyJsonEncoder
 from .utils import _add_to_dict_and_get, _get_columns_dict, _get_tuple_val, _to_camel_case
 
@@ -25,6 +31,7 @@ class Builder:
 
     def __init__(
         self,
+        gui,
         control_type: str,
         element_name: str,
         attributes: t.Union[t.Dict[str, t.Any], None],
@@ -40,19 +47,19 @@ class Builder:
         self.__attributes = attributes or {}
         self.__hashes = {}
         self.__update_vars: t.List[str] = []
-        self.__gui = Gui._get_instance()
+        self.__gui: Gui = gui
 
         self.__default_property_name = Factory.get_default_property_name(control_type) or ""
         default_property_value = self.__attributes.get(self.__default_property_name, None)
-        if default_property_value is None:
+        if default_property_value is None and default_value is not None:
             self.__attributes[self.__default_property_name] = default_value
 
         # Bind properties dictionary to attributes if condition is matched (will leave the binding for function at the builder )
         if "properties" in self.__attributes:
             (properties_dict_name, _) = self.__parse_attribute_value(self.__attributes["properties"])
             self.__gui.bind_var(properties_dict_name)
-            properties_dict = getattr(self.__gui, properties_dict_name)
-            if not isinstance(properties_dict, _MapDictionary):
+            properties_dict = getuserattr(self.__gui, properties_dict_name)
+            if not isinstance(properties_dict, _MapDict):
                 raise Exception(
                     f"Can't find properties configuration dictionary {properties_dict_name}!"
                     f" Please review your GUI templates!"
@@ -63,12 +70,18 @@ class Builder:
 
         # Bind potential function and expressions in self.attributes
         for k, v in self.__attributes.items():
-            # need to unescape the double quotes that were escaped during preprocessing
-            (val, hashname) = self.__parse_attribute_value(v.replace('\\"', '"') if isinstance(v, str) else v)
-            if isinstance(val, str):
-                # Bind potential function
-                self.__gui.bind_func(val)
-            # Try to evaluate as expressions
+            val = v
+            hashname = None
+            if callable(v):
+                if v.__name__ == "<lambda>":
+                    hashname = _get_expr_var_name(v.__code__)
+                    self.__gui.bind_var_val(hashname, v)
+                else:
+                    hashname = v.__name__
+            elif isinstance(v, str):
+                # need to unescape the double quotes that were escaped during preprocessing
+                (val, hashname) = self.__parse_attribute_value(v.replace('\\"', '"'))
+
             if val is not None or hashname:
                 self.__attributes[k] = val
             if hashname:
@@ -109,14 +122,17 @@ class Builder:
         return ret
 
     def __get_multiple_indexed_attributes(self, names: t.Tuple[str], index: t.Optional[int] = None) -> t.List[str]:
-        names = [n if index is None else f"{n}[{index}]" for n in names]  # type: ignore
+        names = names if index is None else [f"{n}[{index}]" for n in names]  # type: ignore
         return [self.__attributes.get(name) for name in names]
 
     def __parse_attribute_value(self, value) -> t.Tuple:
         if isinstance(value, str) and self.__gui._is_expression(value):
             hash_value = self.__gui._evaluate_expr(value)
             try:
-                return (attrgetter(hash_value)(self.__gui._get_data_scope()), hash_value)
+                func = self.__gui._get_user_function(hash_value)
+                if callable(func):
+                    return (func, hash_value)
+                return (getscopeattr_drill(self.__gui, hash_value), hash_value)
             except AttributeError:
                 warnings.warn(f"Expression '{value}' cannot be evaluated")
         return (value, None)
@@ -136,10 +152,8 @@ class Builder:
                 dict_attr = {}
                 for val in vals:
                     if len(val) > 1:
-                        value = val[1].strip()
-                        self.__gui.bind_func(value)
-                        dict_attr[val[0].strip()] = value
-            if isinstance(dict_attr, (dict, _MapDictionary)):
+                        dict_attr[val[0].strip()] = val[1].strip()
+            if isinstance(dict_attr, (dict, _MapDict)):
                 self.__set_json_attribute(_to_camel_case(name), dict_attr)
             else:
                 warnings.warn(f"{self.__element_name} {name} should be a dict\n'{str(dict_attr)}'")
@@ -198,7 +212,7 @@ class Builder:
         if isinstance(lov, list):
             from_string = getattr(self, "from_string", False)
             adapter = self.__attributes.get("adapter")
-            if adapter and not isinstance(adapter, FunctionType):
+            if adapter and not callable(adapter):
                 warnings.warn("'adapter' property value is invalid")
                 adapter = None
             var_type = self.__attributes.get("type")
@@ -299,30 +313,25 @@ class Builder:
             for k, v in apply.items():
                 col_desc = next((x for x in columns.values() if x["dfid"] == k), None)
                 if col_desc:
-                    if isinstance(v, FunctionType):
+                    if callable(v):
                         value = self.__hashes.get(f"apply[{k}]")
-                        # bind the function to its hashed value
-                        self.__gui.bind_var_val(value, v)
+                    elif isinstance(v, str):
+                        value = v.strip()
                     else:
-                        value = str(v).strip()
-                        if value and value not in self.__gui._agregate_functions:
-                            # Bind potential function
-                            self.__gui.bind_func(value)
+                        warnings.warn(f"{self.__element_name} apply[{k}] should be a user or predefined function")
+                        value = None
                     if value:
                         col_desc["apply"] = value
                 else:
                     warnings.warn(f"{self.__element_name} apply[{k}] is not in the list of displayed columns")
             line_style = self.__attributes.get("style")
             if line_style:
-                if isinstance(line_style, FunctionType):
+                if callable(line_style):
                     value = self.__hashes.get("style")
-                    # bind the function to its hashed value
-                    self.__gui.bind_var_val(value, line_style)
+                elif isinstance(line_style, str):
+                    value = line_style.strip()
                 else:
-                    value = str(line_style).strip()
-                    if value:
-                        # Bind potential function
-                        self.__gui.bind_func(value)
+                    value = None
                 if value in col_types.keys():
                     warnings.warn(f"{self.__element_name} style={value} cannot be a column's name")
                 elif value:
@@ -331,15 +340,12 @@ class Builder:
             for k, v in styles.items():
                 col_desc = next((x for x in columns.values() if x["dfid"] == k), None)
                 if col_desc:
-                    if isinstance(v, FunctionType):
+                    if callable(v):
                         value = self.__hashes.get(f"style[{k}]")
-                        # bind the function to its hashed value
-                        self.__gui.bind_var_val(value, v)
+                    elif isinstance(v, str):
+                        value = v.strip()
                     else:
-                        value = str(v).strip()
-                        if value:
-                            # Bind potential function
-                            self.__gui.bind_func(value)
+                        value = None
                     if value in col_types.keys():
                         warnings.warn(f"{self.__element_name} style[{k}]={value} cannot be a column's name")
                     elif value:
@@ -350,10 +356,11 @@ class Builder:
             self.__set_json_attribute("columns", columns)
         return self
 
-    def __check_dict(self, values: t.List[t.Any], index: int, names: t.Tuple[str]) -> None:
-        if values[index] is not None and not isinstance(values[index], (dict, _MapDictionary)):
-            warnings.warn(f"{self.__element_name} {names[index]} should be a dict")
-            values[index] = None
+    def __check_dict(self, values: t.List[t.Any], indexes: t.Tuple[int], names: t.Tuple[str]) -> None:
+        for index in indexes:
+            if values[index] is not None and not isinstance(values[index], (dict, _MapDict)):
+                warnings.warn(f"{self.__element_name} {names[index]} should be a dict")
+                values[index] = None
 
     def get_chart_config(self, default_type="scatter", default_mode="lines+markers"):
         names = (
@@ -374,6 +381,7 @@ class Builder:
             "name",
             "line",
             "text_anchor",
+            "extend_data",
         )
         trace = self.__get_multiple_indexed_attributes(names)
         if not trace[5]:
@@ -390,15 +398,13 @@ class Builder:
         if not trace[9]:
             # yaxis
             trace[9] = "y"
-        self.__check_dict(trace, 11, names)
-        self.__check_dict(trace, 12, names)
+        self.__check_dict(trace, (11, 12, 17), names)
         traces = []
         idx = 1
         indexed_trace = self.__get_multiple_indexed_attributes(names, idx)
         if len([x for x in indexed_trace if x]):
             while len([x for x in indexed_trace if x]):
-                self.__check_dict(indexed_trace, 11, names)
-                self.__check_dict(indexed_trace, 12, names)
+                self.__check_dict(indexed_trace, (11, 12, 17), names)
                 traces.append([x or trace[i] for i, x in enumerate(indexed_trace)])
                 idx += 1
                 indexed_trace = self.__get_multiple_indexed_attributes(names, idx)
@@ -439,6 +445,7 @@ class Builder:
                 "names": [t[14] for t in traces],
                 "lines": [t[15] if isinstance(t[15], dict) else {"dash": t[15]} for t in traces],
                 "textAnchors": [t[16] for t in traces],
+                "extendData": [t[17] for t in traces],
             }
 
             self.__set_json_attribute("config", ret_dict)
@@ -448,7 +455,7 @@ class Builder:
     def set_chart_layout(self):
         layout = self.__attributes.get("layout")
         if layout:
-            if isinstance(layout, (dict, _MapDictionary)):
+            if isinstance(layout, (dict, _MapDict)):
                 self.__set_json_attribute("layout", layout)
             else:
                 warnings.warn(f"Chart control: layout attribute should be a dict\n'{str(layout)}'")
@@ -531,7 +538,7 @@ class Builder:
 
     def set_dataType(self):
         value = self.__attributes.get("value")
-        return self.set_attribute("dataType", getDataType(value))
+        return self.set_attribute("dataType", get_data_type(value))
 
     def set_file_content(self, var_name: str = "content"):
         hash_name = self.__hashes.get(var_name)
@@ -606,7 +613,7 @@ class Builder:
             value = self.__attributes.get(var_name)
         default_var_name = _to_camel_case("default_" + var_name)
         if isinstance(value, datetime.datetime):
-            self.set_attribute(default_var_name, dateToISO(value))
+            self.set_attribute(default_var_name, date_to_ISO(value))
         elif isinstance(value, str):
             self.set_attribute(default_var_name, value)
         elif native_type and isinstance(value, numbers.Number):
@@ -676,19 +683,16 @@ class Builder:
             return self.__set_dict_attribute(var_name)
         return self
 
-    def set_page_id(self):
-        return self.__set_string_attribute("page_id")
-
     def set_partial(self):
         if self.__element_name != "Dialog" and self.__element_name != "Pane":
             return self
         partial = self.__attributes.get("partial")
         if partial:
-            page_id = self.__attributes.get("page_id")
-            if page_id:
-                warnings.warn("Dialog control: page_id and partial should not be defined at the same time")
+            page = self.__attributes.get("page")
+            if page:
+                warnings.warn("Dialog control: page and partial should not be defined at the same time.")
             if isinstance(partial, Partial):
-                self.__attributes["page_id"] = partial.route
+                self.__attributes["page"] = partial.route
         return self
 
     def set_propagate(self):

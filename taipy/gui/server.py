@@ -7,7 +7,7 @@ import typing as t
 
 import __main__
 import warnings
-from flask import Blueprint, Flask, jsonify, render_template, render_template_string, request, send_from_directory, json
+from flask import Blueprint, Flask, json, jsonify, render_template, render_template_string, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
@@ -62,12 +62,10 @@ class Server:
 
         @self._ws.on("connect")
         def ws_connect():
-            # gui._scopes.create_scope()
             pass
 
         @self._ws.on("disconnect")
         def ws_disconnect():
-            # gui._scopes.delete_scope()
             pass
 
     def _get_default_blueprint(
@@ -148,7 +146,7 @@ class Server:
             return (jsonify({"error": "Page doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
         # TODO: assign global scopes to current scope if the page has been rendered
         with warnings.catch_warnings(record=True) as w:
-            page.render()
+            page.render(self._gui)
             if len(w) > 0:
                 print(message:= f"--- {len(w)} warnings were found for page {page.route} ---")
                 for wm in w:
