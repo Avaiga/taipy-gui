@@ -2,7 +2,10 @@
 
 """The setup script."""
 
+import os
 from setuptools import find_packages, setup
+from setuptools.command.build_py import build_py
+
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -34,6 +37,13 @@ extras_require = {
     "rdp": ["rdp>=0.8"],
 }
 
+
+class NPMInstall(build_py):
+    def run(self):
+        os.system('cd gui && npm ci && npm run build')
+        build_py.run(self)
+
+
 setup(
     author="Avaiga",
     author_email="taipy.dev@avaiga.com",
@@ -58,7 +68,8 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/avaiga/taipy-gui",
-    version="0.1.2",
+    version="1.0.0.dev",
     zip_safe=False,
     extras_require=extras_require,
+    cmdclass={'build_py': NPMInstall},
 )
