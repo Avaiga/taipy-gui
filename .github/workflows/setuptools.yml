@@ -42,7 +42,7 @@ jobs:
           ls `python -c "import taipy.gui as gui;print(gui.__path__[0])"`
 
   optionals-packages:
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       matrix:
         python-versions: ['3.8', '3.9', '3.10']
