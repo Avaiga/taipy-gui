@@ -25,10 +25,16 @@ jobs:
       - name: Install Taipy without dependencies
         run: |
           pip install .
-          rm -r taipy  # Removal of Taipy code to ensure the use of the installed package
           pip install markupsafe==2.0.1
+          rm -r taipy
+
+          # Run tests
           pip install pytest pytest-mock
           pytest -m "not teste2e"
+          pytest
+
+          # Ensure `webapp` folder is present in lib package
+          ls `python -c "import taipy.gui as gui;print(gui.__path__[0])"`
 
   optionals-packages:
     timeout-minutes: 10
