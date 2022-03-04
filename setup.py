@@ -3,6 +3,7 @@
 """The setup script."""
 
 import os
+from pathlib import Path
 from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py
 
@@ -38,9 +39,15 @@ extras_require = {
 }
 
 
+def _build_webapp():
+    already_exists = Path(f'./taipy/gui/webapp/index.html').exists()
+    if not already_exists:
+        os.system('cd gui && npm ci && npm run build')
+
+
 class NPMInstall(build_py):
     def run(self):
-        os.system('cd gui && npm ci && npm run build')
+        _build_webapp()
         build_py.run(self)
 
 
