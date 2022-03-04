@@ -11,8 +11,6 @@ from setuptools.command.build_py import build_py
 with open("README.md") as readme_file:
     readme = readme_file.read()
 
-with open("docs/history.md") as history_file:
-    history = history_file.read()
 
 requirements = [
     "flask",
@@ -67,7 +65,6 @@ setup(
     description="AI Platform for Business Applications.",
     install_requires=requirements,
     license="MIT license",
-    long_description=readme + "\n\n" + history,
     include_package_data=True,
     keywords="taipy-gui",
     name="taipy-gui",
