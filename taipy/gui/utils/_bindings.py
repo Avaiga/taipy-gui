@@ -1,9 +1,9 @@
+import typing as t
 from datetime import datetime
 from random import random
-import typing as t
 
-from ._map_dict import _MapDict
 from ..data.data_scope import _DataScopes
+from ._map_dict import _MapDict
 
 if t.TYPE_CHECKING:
     from ..gui import Gui

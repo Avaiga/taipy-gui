@@ -1,9 +1,9 @@
+import re
 import typing as t
 import warnings
-import re
 
-from ..utils import _get_date_col_str_name, _MapDict
 from ..types import NumberTypes
+from ..utils import _get_date_col_str_name, _MapDict
 
 
 def _add_to_dict_and_get(dico: t.Dict[str, t.Any], key: str, value: t.Any) -> t.Any:

@@ -1,23 +1,23 @@
-from datetime import datetime, date, time
 import json
 import numbers
 import re
 import typing as t
 import warnings
 import xml.etree.ElementTree as etree
+from datetime import date, datetime, time
 
 from ..partial import Partial
 from ..types import _AttributeType, _get_taipy_type
 from ..utils import (
-    _get_expr_var_name,
-    _MapDict,
     _date_to_ISO,
     _get_client_var_name,
     _get_data_type,
+    _get_expr_var_name,
     _getscopeattr,
     _getscopeattr_drill,
     _is_boolean,
     _is_boolean_true,
+    _MapDict,
 )
 from ..utils.types import _TaipyData
 from .jsonencoder import _TaipyJsonEncoder
@@ -117,7 +117,6 @@ class _Builder:
     def __get_list_of_(self, name: str):
         lof = self.__attributes.get(name)
         if isinstance(lof, str):
-            self.from_string = True
             lof = [s for s in lof.split(";")]
         return lof
 
@@ -247,11 +246,14 @@ class _Builder:
     def __set_react_attribute(self, name: str, value: t.Any):
         return self.set_attribute(name, "{!" + (str(value).lower() if isinstance(value, bool) else str(value)) + "!}")
 
+    @staticmethod
+    def __default_str_adapter(x: t.Any):
+        return str(x)
+
     def get_adapter(self, var_name: str, property_name: t.Optional[str] = None, multi_selection=True):  # noqa: C901
         property_name = var_name if property_name is None else property_name
         lov = self.__get_list_of_(var_name)
         if isinstance(lov, list):
-            from_string = getattr(self, "from_string", False)
             adapter = self.__attributes.get("adapter")
             if adapter and not callable(adapter):
                 warnings.warn("'adapter' property value is invalid")
@@ -289,7 +291,7 @@ class _Builder:
                 self.__gui._add_adapter_for_type(var_type, adapter)
 
             if adapter is None:
-                adapter = (lambda x: (x, x)) if from_string else (lambda x: str(x))  # type: ignore
+                adapter = _Builder.__default_str_adapter
             ret_list = []
             if len(lov) > 0:
                 ret = self.__gui._get_valid_adapter_result(lov[0], index="0")
@@ -351,7 +353,7 @@ class _Builder:
                     else:
                         warnings.warn(f"{self.__element_name} group_by[{k}] is not in the list of displayed columns")
             apply = self.__get_name_indexed_property("apply")
-            for k, v in apply.items():
+            for k, v in apply.items():  # pragma: no cover
                 col_desc = next((x for x in columns.values() if x["dfid"] == k), None)
                 if col_desc:
                     if callable(v):
@@ -366,7 +368,7 @@ class _Builder:
                 else:
                     warnings.warn(f"{self.__element_name} apply[{k}] is not in the list of displayed columns")
             line_style = self.__attributes.get("style")
-            if line_style:
+            if line_style:  # pragma: no cover
                 if callable(line_style):
                     value = self.__hashes.get("style")
                 elif isinstance(line_style, str):
@@ -378,7 +380,7 @@ class _Builder:
                 elif value:
                     self.set_attribute("lineStyle", value)
             styles = self.__get_name_indexed_property("style")
-            for k, v in styles.items():
+            for k, v in styles.items():  # pragma: no cover
                 col_desc = next((x for x in columns.values() if x["dfid"] == k), None)
                 if col_desc:
                     if callable(v):
@@ -578,8 +580,7 @@ class _Builder:
 
     def __set_class_names(self):
         classes = ["taipy-" + self.__control_type.replace("_", "-")]
-        cl = self.__attributes.get("classname")
-        if cl:
+        if cl := self.__attributes.get("classname"):
             classes.append(str(cl))
 
         return self.set_attribute("className", " ".join(classes))
@@ -589,8 +590,7 @@ class _Builder:
         return self.set_attribute("dataType", _get_data_type(value))
 
     def set_file_content(self, var_name: str = "content"):
-        hash_name = self.__hashes.get(var_name)
-        if hash_name:
+        if hash_name := self.__hashes.get(var_name):
             self.__set_update_var_name(hash_name)
         else:
             warnings.warn("{self.element_name} {var_name} should be binded")
@@ -613,9 +613,8 @@ class _Builder:
 
     def set_lov(self, var_name="lov", property_name: t.Optional[str] = None):
         property_name = var_name if property_name is None else property_name
-        self.__set_list_of_("default_" + property_name)
-        hash_name = self.__hashes.get(var_name)
-        if hash_name:
+        self.__set_list_of_(f"default_{property_name}")
+        if hash_name := self.__hashes.get(var_name):
             hash_name = self.__get_typed_hash_name(hash_name, _AttributeType.lov)
             self.__update_vars.append(f"{property_name}={hash_name}")
             self.__set_react_attribute(property_name, hash_name)
@@ -787,8 +786,7 @@ class _Builder:
         return self
 
     def __get_typed_hash_name(self, hash_name: str, var_type: t.Optional[_AttributeType]) -> str:
-        taipy_type = _get_taipy_type(var_type)
-        if taipy_type:
+        if taipy_type := _get_taipy_type(var_type):
             expr = self.__gui._get_expr_from_hash(hash_name)
             hash_name = self.__gui._evaluate_bind_holder(taipy_type, expr)
         return hash_name

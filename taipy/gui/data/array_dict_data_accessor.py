@@ -2,9 +2,9 @@ import typing as t
 
 import pandas as pd
 
+from ..gui import Gui
 from .data_format import _DataFormat
 from .pandas_data_accessor import _PandasDataAccessor
-from ..gui import Gui
 
 
 class _ArrayDictDataAccessor(_PandasDataAccessor):

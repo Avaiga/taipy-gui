@@ -48,7 +48,7 @@ and what actions (callback functions) are triggered when buttons are pressed:
          on_cancel="cancel_action">{show_dialog}</taipy:dialog>
         ```
 
-### Dialog as block
+### Dialog as block element
 
 The content of the dialog can be specified directly inside the dialog block.
 
@@ -59,8 +59,6 @@ The content of the dialog can be specified directly inside the dialog block.
         ```
         <|{show_dialog}|dialog|
             ...
-            Some content
-            ...
             <|{some content}|>
             ...
         |>
@@ -69,13 +67,11 @@ The content of the dialog can be specified directly inside the dialog block.
     === "HTML"
 
         ```html
-        <taipy:dialog.start>{show_dialog}</taipy:dialog.start>
-            ...
-            Some text
+        <taipy:dialog open={show_dialog}>
             ...
             <taipy:text>{some content}</taipy:text>
             ...
-        <taipy:dialog.end></taipy:dialog.end>
+        </taipy:dialog>
         ```
 
 ### Dialog with page
@@ -98,7 +94,7 @@ The content of the dialog can be specified as an existing page name using the _p
 
 ### Dialog with partial
 
-The content of the dialog can be specified as a _Partial_ instance using the _partial_ property.
+The content of the dialog can be specified as a `Partial^` instance using the _partial_ property.
 
 !!! example "Page content"
 

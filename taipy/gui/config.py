@@ -84,7 +84,7 @@ class _Config(object):
         # Check that the user timezone configuration setting is valid
         self.get_time_zone()
 
-    def _get_config(self, name: ConfigParameter, default_value: t.Any) -> t.Any:
+    def _get_config(self, name: ConfigParameter, default_value: t.Any) -> t.Any:  # pragma: no cover
         if name in self.config and self.config[name] is not None:
             if default_value is not None and not isinstance(self.config[name], type(default_value)):
                 try:
@@ -132,7 +132,7 @@ class _Config(object):
         args, unknown_args = parser.parse_known_args()
         self._handle_argparse(args)
 
-    def _handle_argparse(self, args):
+    def _handle_argparse(self, args):  # pragma: no cover
         config = self.config
         if args.port:
             if not _Config.__RE_PORT_NUMBER.match(args.port):
@@ -154,7 +154,7 @@ class _Config(object):
         if args.ngrok_token:
             config["ngrok_token"] = args.ngrok_token
 
-    def _build_config(self, root_dir, env_filename, kwargs):
+    def _build_config(self, root_dir, env_filename, kwargs):  # pragma: no cover
         config = self.config
         env_file_abs_path = env_filename if os.path.isabs(env_filename) else os.path.join(root_dir, env_filename)
         if os.path.isfile(env_file_abs_path):
@@ -162,8 +162,7 @@ class _Config(object):
                 key = key.lower()
                 if value is not None and key in config:
                     try:
-                        config[key] = value if config[key] is None else type(
-                            config[key])(value)  # type: ignore
+                        config[key] = (value if config[key] is None else type(config[key])(value))  # type: ignore
                     except Exception as e:
                         warnings.warn(
                             f"Invalid env value in Gui.run: {key} - {value}. Unable to parse value to the correct type.\n{e}"

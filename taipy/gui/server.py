@@ -11,7 +11,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 
 from .renderers.jsonencoder import _TaipyJsonEncoder
-from .utils import _KillableThread, _is_in_notebook
+from .utils import _is_in_notebook, _KillableThread
 
 if t.TYPE_CHECKING:
     from .gui import Gui
@@ -57,14 +57,6 @@ class _Server:
                 print(message["status"])
             elif "type" in message.keys():
                 gui._manage_message(message["type"], message)
-
-        @self._ws.on("connect")
-        def ws_connect():
-            pass
-
-        @self._ws.on("disconnect")
-        def ws_disconnect():
-            pass
 
     def _get_default_blueprint(
         self,

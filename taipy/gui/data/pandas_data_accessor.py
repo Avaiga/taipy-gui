@@ -1,14 +1,19 @@
 import typing as t
 import warnings
+from importlib import util
+
 import numpy as np
-
 import pandas as pd
-import pyarrow as pa
 
+from ..gui import Gui
 from ..utils import _get_date_col_str_name
 from .data_accessor import _DataAccessor
 from .data_format import _DataFormat
-from ..gui import Gui
+
+_has_arrow_module = False
+if util.find_spec("pyarrow"):
+    _has_arrow_module = True
+    import pyarrow as pa
 
 
 class _PandasDataAccessor(_DataAccessor):
@@ -22,7 +27,7 @@ class _PandasDataAccessor(_DataAccessor):
     @staticmethod
     def __style_function(
         row: pd.Series, column_name: t.Optional[str], user_function: t.Callable, arg_count: int, function_name: str
-    ) -> str:
+    ) -> str:  # pragma: no cover
         if arg_count > 0:
             args_idx = 0
             args = []
@@ -114,7 +119,7 @@ class _PandasDataAccessor(_DataAccessor):
             ret["start"] = start
         if data_extraction is not None:
             ret["dataExtraction"] = data_extraction  # Extract data out of dictionary on frontend
-        if data_format == _DataFormat.APACHE_ARROW:
+        if data_format == _DataFormat.APACHE_ARROW and _has_arrow_module:
             # Convert from pandas to Arrow
             table = pa.Table.from_pandas(data)
             # Create sink buffer stream
@@ -130,6 +135,8 @@ class _PandasDataAccessor(_DataAccessor):
             ret["data"] = buf.to_pybytes()
             ret["orient"] = orient
         else:
+            if data_format == _DataFormat.APACHE_ARROW:
+                raise RuntimeError("Cannot use Arrow as pyarrow package is not installed")
             # workaround for python built in json encoder that does not yet support ignore_nan
             ret["data"] = data.replace([np.nan], ["NaN" if handle_nan else None]).to_dict(orient=orient)
         return ret

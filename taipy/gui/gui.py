@@ -29,29 +29,29 @@ from .partial import Partial
 from .renderers import _EmptyPage
 from .renderers._markdown import _TaipyMarkdownExtension
 from .server import _Server
+from .state import State
 from .types import _WsType
 from .utils import (
+    _delscopeattr,
+    _get_client_var_name,
+    _get_non_existent_file_path,
+    _getscopeattr,
+    _getscopeattr_drill,
+    _hasscopeattr,
+    _is_in_notebook,
+    _MapDict,
+    _setscopeattr,
+    _setscopeattr_drill,
     _TaipyBase,
     _TaipyContent,
     _TaipyContentImage,
     _TaipyData,
     _TaipyLov,
     _TaipyLovValue,
-    _get_non_existent_file_path,
-    _is_in_notebook,
-    _MapDict,
-    _delscopeattr,
-    _get_client_var_name,
-    _getscopeattr,
-    _getscopeattr_drill,
-    _hasscopeattr,
-    _setscopeattr,
-    _setscopeattr_drill,
 )
 from .utils._adapter import _Adapter
 from .utils._bindings import _Bindings
 from .utils._evaluator import _Evaluator
-from .state import State
 
 
 class Gui:
@@ -222,7 +222,7 @@ class Gui:
         current_value = _getscopeattr_drill(self, self._get_hash_from_expr(var_name))
         if isinstance(current_value, _TaipyData):
             return
-        elif rel_var and isinstance(current_value, _TaipyLovValue):
+        elif rel_var and isinstance(current_value, _TaipyLovValue):  # pragma: no cover
             lov_holder = _getscopeattr_drill(self, self._get_hash_from_expr(rel_var))
             if isinstance(lov_holder, _TaipyLov):
                 if isinstance(value, list):
@@ -579,9 +579,6 @@ class Gui:
         return self.__evaluator._fetch_expression_list(expr)
 
     # Proxy methods for Adapter
-    def _add_list_for_variable(self, var_name: str, list_name: str) -> None:
-        self.__adapter._add_list_for_variable(var_name, list_name)
-
     def _add_adapter_for_type(self, type_name: str, adapter: t.Callable) -> None:
         self.__adapter._add_adapter_for_type(type_name, adapter)
 
@@ -867,7 +864,7 @@ class Gui:
         self,
         callback: t.Optional[t.Union[str, t.Callable]] = None,
         message: t.Optional[str] = "Work in Progress...",
-    ):
+    ):  # pragma: no cover
         action_name = callback.__name__ if callable(callback) else callback
         func = self.__get_on_cancel_block_ui(action_name)
         def_action_name = func.__name__
@@ -879,7 +876,7 @@ class Gui:
             self._bind(Gui.__UI_BLOCK_NAME, True)
         self.__send_ws_block(action=def_action_name, message=message, cancel=bool(action_name))
 
-    def _resume_actions(self):
+    def _resume_actions(self):  # pragma: no cover
         if _hasscopeattr(self, Gui.__UI_BLOCK_NAME):
             _setscopeattr(self, Gui.__UI_BLOCK_NAME, False)
         self.__send_ws_block(close=True)
@@ -941,12 +938,15 @@ class Gui:
         if _is_in_notebook() or run_in_thread:
             self._config.config["single_client"] = True
 
-        if run_server and app_config["ngrok_token"]:
-            ngrok.set_auth_token(app_config["ngrok_token"])
-            http_tunnel = ngrok.connect(app_config["port"], "http")
-            app_config["client_url"] = http_tunnel.public_url
-            app_config["use_reloader"] = False
-            print(f" * NGROK Public Url: {http_tunnel.public_url}")
+        if run_server and app_config["ngrok_token"]:  # pragma: no cover
+            if not util.find_spec("pyngrok"):
+                raise RuntimeError("Cannot use ngrok as pyngrok package is not installed")
+            else:
+                ngrok.set_auth_token(app_config["ngrok_token"])
+                http_tunnel = ngrok.connect(app_config["port"], "http")
+                app_config["client_url"] = http_tunnel.public_url
+                app_config["use_reloader"] = False
+                print(f" * NGROK Public Url: {http_tunnel.public_url}")
 
         # Save all local variables of the parent frame (usually __main__)
         self.__locals_bind = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back).f_locals
