@@ -734,7 +734,7 @@ class _Builder:
         return self
 
     def set_propagate(self):
-        val = self.__get_boolean_attribute("propagate", self.__gui._config.app_config.get("propagate"))
+        val = self.__get_boolean_attribute("propagate", self.__gui._config.config.get("propagate"))
         if not val:
             return self.__set_boolean_attribute("propagate", False)
         return self
