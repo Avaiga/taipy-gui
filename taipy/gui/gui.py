@@ -66,7 +66,7 @@ class Gui:
         on_change (Callable): The function that is called when a control
             modifies variables it is bound to, as the result of an interaction with the
             end-user.<br/>
-            It defaults to the _on_action_ global function defined in the Python
+            It defaults to the _on_change_ global function defined in the Python
             application. If there is no such function, user interactions will not trigger
             anything.
     """
@@ -106,7 +106,10 @@ class Gui:
                 If _page_ is a string that does not indicate a path to readable file then
                 a `Markdown^` page is built from that string.<br/>
                 Note that if _pages_ is provided, those pages are added as well.
-            pages: TODO
+            pages: Used if you want to initialize this instance with a set of pages.
+                The method `(Gui.)add_pages()^` is called if _pages_ is not None, and
+                you can find details on the possible values of this argument in the
+                documentation for this method.
             css_file:  An optional pathname to a CSS file that gets used as a style sheet in
                 all the pages.<br/>
                 The default value is a file that has the same base name as the Python

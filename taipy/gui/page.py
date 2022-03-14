@@ -6,13 +6,13 @@ from os import path
 
 class Page(ABC):
     """
-    The base class that transform template text to actual pages that can be
+    The base class that transforms template text to actual pages that can be
     displayed on a Web browser.
 
     When a page is requested to be displayed, it is transformed into HTML
     code that can be sent to the client. All control placeholders are
     replaced by the appropriate graphical component so you can display
-    your application variables, and potentially interact with them.
+    your application variables, and interact with them.
     """
 
     def __init__(self, content: str) -> None:
