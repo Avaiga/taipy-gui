@@ -38,6 +38,7 @@ class _Bindings:
                 return _MapDict(value._dict, lambda k, v: ud.__gui._update_var(f"{name}.{k}", v))
             else:
                 return value
+
         return property(__getter, __setter)  # Getter, Setter
 
     def _set_single_client(self, value: bool) -> None:

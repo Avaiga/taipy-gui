@@ -34,7 +34,8 @@ def _get_columns_dict(
         for col in columns:
             if col not in col_types_keys:
                 warnings.warn(
-                    f'Error column "{col}" is not present in the dataframe "{value.head(0) if hasattr(value, "head") else value}"')
+                    f'Error column "{col}" is not present in the dataframe "{value.head(0) if hasattr(value, "head") else value}"'
+                )
             else:
                 coldict[col] = {"index": idx}
                 idx += 1

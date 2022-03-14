@@ -689,9 +689,8 @@ class Gui:
                           Markdown text.
 
                 If _pages_ is a string that contains the path to a directory, then
-                this directory is traversed, looking for filenames that have the
-                _.md_ extention, 
-        
+                this directory is read to create pages. See below for details.
+
         !!! note "Reading pages from a directory"
             If _pages_ is a string that holds the path to a readable directory, then
             this directory is traversed, recursively, to find files that Taipy can build
@@ -888,8 +887,7 @@ class Gui:
     def _navigate(self, to: t.Optional[str] = ""):
         to = to or Gui.__root_page_name
         if to not in self._config.routes:
-            warnings.warn(
-                f'cannot navigate to "{to if to != Gui.__root_page_name else "/"}": unknown page.')
+            warnings.warn(f'cannot navigate to "{to if to != Gui.__root_page_name else "/"}": unknown page.')
             return
         self.__send_ws_navigate(to)
 
@@ -995,7 +993,7 @@ class Gui:
                 title=self._get_config("title", "Taipy App"),
                 favicon=self._get_config("favicon", "/favicon.png"),
                 themes=self._get_themes(),
-                root_margin=self._get_config("margin", None)
+                root_margin=self._get_config("margin", None),
             )
         )
 

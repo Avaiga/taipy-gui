@@ -1,4 +1,11 @@
-from ._attributes import _delscopeattr, _getscopeattr, _getscopeattr_drill, _hasscopeattr, _setscopeattr, _setscopeattr_drill
+from ._attributes import (
+    _delscopeattr,
+    _getscopeattr,
+    _getscopeattr_drill,
+    _hasscopeattr,
+    _setscopeattr,
+    _setscopeattr_drill,
+)
 from ._map_dict import _MapDict
 from .boolean import _is_boolean_true, _is_boolean
 from .clientvarname import _get_client_var_name

@@ -3,6 +3,7 @@ import typing as t
 from .utils import _varname_from_content
 from os import path
 
+
 class Page(ABC):
     """
     The base class that transform template text to actual pages that can be
@@ -47,7 +48,6 @@ class Page(ABC):
         """
         self.__process_content(content)
 
-
     def _get_content_detail(self, gui) -> str:
         if self._filepath:
             return f"in file '{self._filepath}'"
@@ -58,5 +58,3 @@ class Page(ABC):
     @abstractmethod
     def render(self, gui) -> str:
         pass
-
-

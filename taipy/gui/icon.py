@@ -14,13 +14,14 @@ class Icon:
     If a text is associated to an icon, it is rendered by the visual elements that
     uses this Icon.
     """
+
     @staticmethod
     def get_dict_or(value: t.Union[str, t.Any]) -> t.Union[str, dict]:
         return value._to_dict() if isinstance(value, Icon) else value
 
     def __init__(self, path: str, text: t.Optional[str] = None) -> None:
         """Initialize a new Icon.
-        
+
         Arguments:
             path: the path to an image file.
             text: the text associated to the image. If _text_ is None, there is no text

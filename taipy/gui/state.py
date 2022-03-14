@@ -53,8 +53,8 @@ class State:
     def change_variable(state):
         state.var_name = new_value
     ```
-    
     """
+
     __attrs = ("_gui", "_user_var_list")
     __methods = ("assign")
     __gui_attr = "_gui"

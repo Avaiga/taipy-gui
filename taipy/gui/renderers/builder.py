@@ -21,7 +21,14 @@ from ..utils import (
 )
 from ..utils.types import _TaipyData
 from .jsonencoder import _TaipyJsonEncoder
-from .utils import _add_to_dict_and_get, _get_columns_dict, _get_col_from_indexed, _get_idx_from_col, _get_tuple_val, _to_camel_case
+from .utils import (
+    _add_to_dict_and_get,
+    _get_columns_dict,
+    _get_col_from_indexed,
+    _get_idx_from_col,
+    _get_tuple_val,
+    _to_camel_case,
+)
 
 
 class _Builder:
@@ -196,7 +203,9 @@ class _Builder:
             return self
         return self.set_attribute(_to_camel_case(name), str(strattr))
 
-    def __set_dynamic_string_attribute(self, name: str, default_value: t.Optional[str] = None, with_update: t.Optional[bool] = False):
+    def __set_dynamic_string_attribute(
+        self, name: str, default_value: t.Optional[str] = None, with_update: t.Optional[bool] = False
+    ):
         hash_name = self.__hashes.get(name)
         str_val = self.__attributes.get(name, default_value)
         if str_val is not None:
@@ -464,8 +473,9 @@ class _Builder:
             icols.append([c for c in [_get_col_from_indexed(c, i) for c in columns.keys()] if c])
         for i, tr in enumerate(traces):
             if not tr[0] or tr[6] in _Builder.__ONE_COLUMN_CHART or not tr[1]:
-                traces[i] = tuple(v or (icols[i].pop(0) if j < 3 and j < len(icols[i]) else v)
-                                  for j, v in enumerate(tr))
+                traces[i] = tuple(
+                    v or (icols[i].pop(0) if j < 3 and j < len(icols[i]) else v) for j, v in enumerate(tr)
+                )
 
         if columns is not None:
             self.__attributes["columns"] = columns
@@ -783,7 +793,9 @@ class _Builder:
             hash_name = self.__gui._evaluate_bind_holder(taipy_type, expr)
         return hash_name
 
-    def __set_dynamic_bool_attribute(self, name: str, def_val: t.Any, with_update: bool, var_type: _AttributeType, update_main=True):
+    def __set_dynamic_bool_attribute(
+        self, name: str, def_val: t.Any, with_update: bool, var_type: _AttributeType, update_main=True
+    ):
         hash_name = self.__hashes.get(name)
         val = self.__get_boolean_attribute(name, def_val)
         default_name = "default_" + name if hash_name is not None else name
@@ -809,8 +821,9 @@ class _Builder:
                 if val != def_val:
                     self.__set_boolean_attribute(attr[0], val)
             elif var_type == _AttributeType.dynamic_boolean:
-                self.__set_dynamic_bool_attribute(attr[0], _get_tuple_val(
-                    attr, 2, False), _get_tuple_val(attr, 3, False), var_type)
+                self.__set_dynamic_bool_attribute(
+                    attr[0], _get_tuple_val(attr, 2, False), _get_tuple_val(attr, 3, False), var_type
+                )
             elif var_type == _AttributeType.number:
                 self.__set_number_attribute(attr[0], _get_tuple_val(attr, 2, None))
             elif var_type == _AttributeType.dynamic_number:
@@ -818,8 +831,9 @@ class _Builder:
             elif var_type == _AttributeType.string:
                 self.__set_string_attribute(attr[0], _get_tuple_val(attr, 2, None), _get_tuple_val(attr, 3, True))
             elif var_type == _AttributeType.dynamic_string:
-                self.__set_dynamic_string_attribute(attr[0], _get_tuple_val(
-                    attr, 2, None), _get_tuple_val(attr, 3, False))
+                self.__set_dynamic_string_attribute(
+                    attr[0], _get_tuple_val(attr, 2, None), _get_tuple_val(attr, 3, False)
+                )
             elif var_type == _AttributeType.function:
                 self.__set_function_attribute(attr[0], _get_tuple_val(attr, 2, None), _get_tuple_val(attr, 3, True))
             elif var_type == _AttributeType.react:
@@ -832,8 +846,9 @@ class _Builder:
                 self.__set_dynamic_string_list(attr[0], _get_tuple_val(attr, 2, None))
             elif var_type == _AttributeType.boolean_or_list:
                 if _is_boolean(self.__attributes.get(attr[0])):
-                    self.__set_dynamic_bool_attribute(attr[0], _get_tuple_val(
-                        attr, 2, False), True, var_type, update_main=False)
+                    self.__set_dynamic_bool_attribute(
+                        attr[0], _get_tuple_val(attr, 2, False), True, var_type, update_main=False
+                    )
                 else:
                     self.__set_dynamic_string_list(attr[0], _get_tuple_val(attr, 2, None))
         return self

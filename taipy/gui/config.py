@@ -60,7 +60,7 @@ Config = t.TypedDict(
         "upload_folder": t.Union[str, None],
         "data_url_max_size": t.Union[int, None],
         "flask_log": bool,
-        "margin": t.Union[str, None]
+        "margin": t.Union[str, None],
     },
     total=False,
 )
