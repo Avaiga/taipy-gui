@@ -68,11 +68,7 @@ class Gui:
         on_change (Callable): The function that is called when a control
             modifies variables it is bound to, as the result of an interaction with the
             end-user.<br/>
-<<<<<<< HEAD
             It defaults to the _on_change_ global function defined in the Python
-=======
-            It defaults to the _on_action_ global function defined in the Python
->>>>>>> e9f9247 (- More Reference Manual input - and conventions applied.)
             application. If there is no such function, user interactions will not trigger
             anything.
     """
@@ -112,14 +108,10 @@ class Gui:
                 If _page_ is a string that does not indicate a path to readable file then
                 a `Markdown^` page is built from that string.<br/>
                 Note that if _pages_ is provided, those pages are added as well.
-<<<<<<< HEAD
             pages: Used if you want to initialize this instance with a set of pages.
                 The method `(Gui.)add_pages()^` is called if _pages_ is not None, and
                 you can find details on the possible values of this argument in the
                 documentation for this method.
-=======
-            pages: TODO
->>>>>>> e9f9247 (- More Reference Manual input - and conventions applied.)
             css_file:  An optional pathname to a CSS file that gets used as a style sheet in
                 all the pages.<br/>
                 The default value is a file that has the same base name as the Python
@@ -127,13 +119,8 @@ class Gui:
                 with the `.css` extension.
             path_mapping: TODO explain what this does.
             env_filename: An optional file from which to load application configuration
-<<<<<<< HEAD
                 variables (see the [Configuration](../gui/configuration.md#configuring-the-gui-instance)
                 section for details.)</br>
-=======
-                variables (see the [Configuration](../gui/configuration.md) section for
-                details.)</br>
->>>>>>> e9f9247 (- More Reference Manual input - and conventions applied.)
                 The default value is "taipy.gui.env"
             flask: TODO explain what this does.
         """
@@ -727,14 +714,10 @@ class Gui:
                           Markdown text.
 
                 If _pages_ is a string that contains the path to a directory, then
-<<<<<<< HEAD
-                this directory is read to create pages. See below for details.
-
-=======
                 this directory is traversed, looking for filenames that have the
                 _.md_ extention, 
         
->>>>>>> e9f9247 (- More Reference Manual input - and conventions applied.)
+
         !!! note "Reading pages from a directory"
             If _pages_ is a string that holds the path to a readable directory, then
             this directory is traversed, recursively, to find files that Taipy can build
@@ -771,11 +754,7 @@ class Gui:
             Calling `gui.add_pages('reports')` is equivalent to calling:
             ```py
             gui.add_pages({
-<<<<<<< HEAD
                             "reports/home", Html("reports/home.html"),
-=======
-                            "reports/home", Htlm("reports/home.html"),
->>>>>>> e9f9247 (- More Reference Manual input - and conventions applied.)
                             "reports/budget/expenses/marketing", Markdown("reports/budget/expenses/marketing.md"),
                             "reports/budget/expenses/production", Markdown("reports/budget/expenses/production.md"),
                             "reports/budget/revenue/EMAE", Markdown("reports/budget/revenue/EMAE.md"),
@@ -828,12 +807,9 @@ class Gui:
                   the new `Partial` is read as Markdown input text.
                 - If it is not, the content of the new `Partial` is read from this string
                   as Markdown text.
-<<<<<<< HEAD
 
         Returns:
             Partial: the new Partial object defined by _page_.
-=======
->>>>>>> e9f9247 (- More Reference Manual input - and conventions applied.)
         """
         new_partial = Partial()
         # Validate name
