@@ -14,10 +14,10 @@ def test_render_route(gui: Gui):
         response_data = json.loads(response.get_data().decode("utf-8", "ignore"))
         assert response.status_code == 200
         assert isinstance(response_data, dict)
-        assert "page1" in response_data["router"]
-        assert "page2" in response_data["router"]
-        assert "/" in response_data["router"]
+        assert "/page1" in response_data["locations"]
+        assert "/page2" in response_data["locations"]
+        assert "/" in response_data["locations"]
         assert (
             response_data["router"]
-            == '<Routes key="routes"><Route path="/" key="TaiPy_root_page" element={<MainPage key="trTaiPy_root_page" path="/TaiPy_root_page" route="/page1" />} ><Route path="page1" key="page1" element={<TaipyRendered key="trpage1"/>} /><Route path="page2" key="page2" element={<TaipyRendered key="trpage2"/>} /><Route path="*" key="NotFound" element={<NotFound404 />} /></Route></Routes>'
+            == '<Routes key="routes"><Route path="/" key="TaiPy_root_page" element={<MainPage key="trTaiPy_root_page" path="/TaiPy_root_page" route="/page1" />} ><Route path="/page1" key="page1" element={<TaipyRendered key="trpage1"/>} /><Route path="/page2" key="page2" element={<TaipyRendered key="trpage2"/>} /><Route path="*" key="NotFound" element={<NotFound404 />} /></Route></Routes>'
         )

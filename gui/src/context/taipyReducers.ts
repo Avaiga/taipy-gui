@@ -21,6 +21,7 @@ enum Types {
     SetTimeZone = "SET_TIMEZONE",
     SetAlert = "SET_ALERT",
     SetBlock = "SET_BLOCK",
+    SetUrlPrefix = "SET_URL_PREFIX",
     Navigate = "NAVIGATE",
     ClientId = "CLIENT_ID",
     MultipleMessages = "MULTIPLE_MESSAGES",
@@ -43,6 +44,7 @@ export interface TaipyState {
     id: string;
     menu: MenuProps;
     download?: FileDownloadProps;
+    urlPrefix: string;
 }
 
 export interface TaipyBaseAction {
@@ -152,6 +154,7 @@ export const INITIAL_STATE: TaipyState = {
     timeZone: TIMEZONE_CLIENT,
     id: getLocalStorageValue("TaipyClientId", ""),
     menu: {},
+    urlPrefix: "",
 };
 
 export const taipyInitialize = (initialState: TaipyState): TaipyState => ({
@@ -324,6 +327,9 @@ export const taipyReducer = (state: TaipyState, baseAction: TaipyBaseAction): Ta
             }
             return state;
         }
+        case Types.SetUrlPrefix: {
+            return { ...state, urlPrefix: (action.payload.value as string) || "" }
+        }
         case Types.SetMenu: {
             const mAction = baseAction as TaipySetMenuAction;
             return { ...state, menu: mAction.menu };
@@ -489,6 +495,12 @@ export const createTimeZoneAction = (timeZone: string, fromBackend = false): Tai
     type: Types.SetTimeZone,
     name: "timeZone",
     payload: { timeZone: timeZone, fromBackend: fromBackend },
+});
+
+export const createUrlPrefixAction = (urlPrefix: string): TaipyAction => ({
+    type: Types.SetUrlPrefix,
+    name: "urlPrefix",
+    payload: { value: urlPrefix },
 });
 
 const getAlertType = (aType: string) => {

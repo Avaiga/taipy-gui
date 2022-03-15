@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { TaipyContext } from "../../context/taipyContext";
 
 import TaipyRendered from "./TaipyRendered";
 
@@ -9,14 +10,15 @@ interface MainPageProps {
 }
 
 const MainPage = (props: MainPageProps) => {
+    const { state } = useContext(TaipyContext);
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
-        if (props.route && location.pathname == "/") {
+        if (props.route && location.pathname == `${state.urlPrefix}/`) {
            navigate(props.route);
         }
-    }, [location.pathname, navigate, props.route]);
+    }, [location.pathname, navigate, props.route, state.urlPrefix]);
 
     return <TaipyRendered path={props.path} />;
 };

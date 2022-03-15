@@ -17,7 +17,7 @@ module.exports = (env, options) => {
             filename: "taipy.js",
             path: path.resolve(__dirname, "../taipy/gui/webapp"),
             library: "Taipy",
-            publicPath: "/",
+            publicPath: "{{url_prefix}}",
             libraryTarget: "umd", //"var" "commonjs" "umd"
         },
 

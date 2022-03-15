@@ -37,7 +37,7 @@ ConfigParameter = t.Literal[
 ]
 
 Config = t.TypedDict(
-    "AppConfig",
+    "Config",
     {
         "port": int,
         "dark_mode": bool,
@@ -162,7 +162,7 @@ class _Config(object):
                 key = key.lower()
                 if value is not None and key in config:
                     try:
-                        config[key] = (value if config[key] is None else type(config[key])(value))  # type: ignore
+                        config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                     except Exception as e:
                         warnings.warn(
                             f"Invalid env value in Gui.run: {key} - {value}. Unable to parse value to the correct type.\n{e}"

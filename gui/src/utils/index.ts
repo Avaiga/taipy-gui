@@ -99,9 +99,10 @@ export const getInitials = (value: string, max = 2): string =>
         .join("")
         .toUpperCase();
 
-export const ENDPOINT =
-    !process.env.NODE_ENV || process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
-        ? (process.env.REACT_APP_BACKEND_FLASK_URL as string)
-        : window.taipyUrl;
+export const getPathWithoutPrefix = (path: string, prefix: string): string => {
+    return path.startsWith(prefix) ? path.slice(prefix.length) : path;
+}
+
+export const ENDPOINT = window.taipyUrl;
 
 export const TIMEZONE_CLIENT = Intl.DateTimeFormat().resolvedOptions().timeZone;

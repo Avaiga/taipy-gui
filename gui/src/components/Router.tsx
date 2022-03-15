@@ -18,6 +18,7 @@ import {
     createSetLocationsAction,
     createThemeAction,
     createTimeZoneAction,
+    createUrlPrefixAction,
     initializeWebSocket,
     INITIAL_STATE,
     retreiveBlockUi,
@@ -37,6 +38,7 @@ interface AxiosRouter {
     timeZone: string;
     locations: Record<string, string>;
     blockUI: boolean;
+    urlPrefix: string;
 }
 
 const mainSx = { flexGrow: 1, bgcolor: "background.default"};
@@ -66,6 +68,7 @@ const Router = () => {
                 dispatch(createTimeZoneAction(result.data.timeZone, true));
                 dispatch(createSetLocationsAction(result.data.locations));
                 result.data.blockUI && dispatch(createBlockAction(retreiveBlockUi()));
+                dispatch(createUrlPrefixAction(result.data.urlPrefix))
             })
             .catch((error) => {
                 // Fallback router if there is any error

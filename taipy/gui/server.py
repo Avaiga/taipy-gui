@@ -18,9 +18,6 @@ if t.TYPE_CHECKING:
 
 
 class _Server:
-
-    __RE_JSX_RENDER_ROUTE = re.compile(r"/taipy-jsx/(.*)/")
-
     def __init__(
         self,
         gui: Gui,
@@ -51,7 +48,7 @@ class _Server:
         self.__path_mapping = path_mapping
 
         # Websocket (handle json message)
-        @self._ws.on("message")
+        @self._ws.on("message", namespace=self._gui._get_url_prefix() or "/")
         def handle_message(message) -> None:
             if "status" in message:
                 print(message["status"])
@@ -83,6 +80,7 @@ class _Server:
                     favicon=favicon,
                     themes=themes,
                     root_margin=root_margin,
+                    url_prefix=self._gui._get_url_prefix(),
                 )
             if os.path.isfile(static_folder + os.path.sep + path):
                 return send_from_directory(static_folder + os.path.sep, path)
@@ -120,7 +118,8 @@ class _Server:
 
     def _render_page(self) -> t.Any:
         page = None
-        render_path_name = _Server.__RE_JSX_RENDER_ROUTE.match(request.path).group(1)  # type: ignore
+        re_jsx_render_route = re.compile(self._gui._get_url_prefix() + r"/taipy-jsx/(.*)/")
+        render_path_name = re_jsx_render_route.match(request.path).group(1)  # type: ignore
         # Get page instance
         for page_i in self._gui._config.pages:
             if page_i._route == render_path_name:
@@ -147,33 +146,34 @@ class _Server:
             return ("No page template", 404)
 
     def _render_route(self) -> t.Any:
+        url_prefix = self._gui._get_url_prefix()
         router = '<Routes key="routes">'
         router += (
-            '<Route path="/" key="'
+            f'<Route path="{url_prefix}/" key="'
             + self._root_page_name
             + '" element={<MainPage key="tr'
             + self._root_page_name
-            + '" path="/'
+            + f'" path="{url_prefix}/'
             + self._root_page_name
             + '"'
         )
         routes = self._gui._config.routes
         route = next((r for r in routes if r != self._root_page_name), None)
-        router += (' route="/' + route + '"') if route else ""
+        router += f' route="{url_prefix}/{route}"' if route else ""
         router += " />} >"
-        locations = {"/": f"/{self._root_page_name}"}
+        locations = {f"{url_prefix}/": f"{url_prefix}/{self._root_page_name}"}
         for route in routes:
             if route != self._root_page_name:
                 router += (
                     '<Route path="'
-                    + route
+                    + f"{url_prefix}/{route}"
                     + '" key="'
                     + route
                     + '" element={<TaipyRendered key="tr'
                     + route
                     + '"/>} />'
                 )
-                locations[f"/{route}"] = f"/{route}"
+                locations[f"{url_prefix}/{route}"] = f"{url_prefix}/{route}"
         router += '<Route path="*" key="NotFound" element={<NotFound404 />} />'
         router += "</Route>"
         router += "</Routes>"
@@ -185,6 +185,7 @@ class _Server:
                 "timeZone": self._gui._config.get_time_zone(),
                 "darkMode": self._gui._get_config("dark_mode", True),
                 "blockUI": self._gui._is_ui_blocked(),
+                "urlPrefix": self._gui._get_url_prefix(),
             }
         )
 

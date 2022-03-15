@@ -20,11 +20,11 @@ if util.find_spec("pyngrok"):
 
 from ._default_config import default_config
 from ._page import _Page
-from .page import Page
 from .config import Config, ConfigParameter, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
+from .page import Page
 from .partial import Partial
 from .renderers import _EmptyPage
 from .renderers._markdown import _TaipyMarkdownExtension
@@ -95,6 +95,7 @@ class Gui:
         path_mapping: t.Optional[dict] = {},
         env_filename: t.Optional[str] = None,
         flask: t.Optional[Flask] = None,
+        url_prefix: t.Optional[str] = None,
     ):
         """Initialize a new Gui instance.
 
@@ -121,14 +122,17 @@ class Gui:
                 details.)</br>
                 The default value is "taipy.gui.env"
             flask: TODO explain what this does.
+            url_prefix: TODO explain what this does.
         """
-        self._server = _Server(
-            self, path_mapping=path_mapping, flask=flask, css_file=css_file, root_page_name=Gui.__root_page_name
-        )
         # Preserve server config for re-initialization on notebook
         self._path_mapping = path_mapping
         self._flask = flask
         self._css_file = css_file
+        self.__url_prefix = url_prefix
+
+        self._server = _Server(
+            self, path_mapping=path_mapping, flask=flask, css_file=css_file, root_page_name=Gui.__root_page_name
+        )
 
         self._config = _Config()
         self.__content_accessor = None
@@ -408,9 +412,7 @@ class Gui:
         if grouping_message is None:
             try:
                 self._server._ws.emit(
-                    "message",
-                    payload,
-                    to=self.__get_ws_receiver(),
+                    "message", payload, to=self.__get_ws_receiver(), namespace=self._get_url_prefix() or "/"
                 )
             except Exception as e:
                 warnings.warn(
@@ -620,6 +622,11 @@ class Gui:
 
     def _get_root_page_name(self):
         return self.__root_page_name
+
+    def _get_url_prefix(self):
+        if self.__url_prefix:
+            return self.__url_prefix if self.__url_prefix.startswith("/") else f"/{self.__url_prefix}"
+        return ""
 
     # Public methods
     def add_page(
@@ -860,9 +867,7 @@ class Gui:
         self.__send_ws_alert(
             notification_type,
             message,
-            self._get_config("browser_notification", True)
-            if browser_notification is None
-            else browser_notification,
+            self._get_config("browser_notification", True) if browser_notification is None else browser_notification,
             self._get_config("notification_duration", 3000) if duration is None else duration,
         )
 
@@ -999,9 +1004,9 @@ class Gui:
             self._server._get_default_blueprint(
                 static_folder=f"{_absolute_path}{os.path.sep}webapp",
                 template_folder=f"{_absolute_path}{os.path.sep}webapp",
-                client_url=app_config["client_url"],
+                client_url=f"{app_config['client_url']}{self._get_url_prefix()}",
                 title=self._get_config("title", "Taipy App"),
-                favicon=self._get_config("favicon", "/favicon.png"),
+                favicon=self._get_config("favicon", f"{self._get_url_prefix()}/favicon.png"),
                 themes=self._get_themes(),
                 root_margin=self._get_config("margin", None),
             )
@@ -1017,8 +1022,10 @@ class Gui:
         pages_bp.add_url_rule("/taipy-init/", view_func=self._server._render_route)
 
         # Register Flask Blueprint if available
+        default_blueprint = Blueprint("default-blueprint", __name__, url_prefix=self._get_url_prefix())
         for bp in self._flask_blueprint:
-            self._server.get_flask().register_blueprint(bp)
+            default_blueprint.register_blueprint(bp)
+        self._server.get_flask().register_blueprint(default_blueprint)
 
         # Register data accessor communicaiton data format (JSON, Apache Arrow)
         self._accessors._set_data_format(_DataFormat.APACHE_ARROW if app_config["use_arrow"] else _DataFormat.JSON)
