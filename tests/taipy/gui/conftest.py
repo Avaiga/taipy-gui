@@ -33,6 +33,15 @@ def gui(helpers):
     helpers.test_cleanup()
 
 
+@pytest.fixture(scope="function")
+def gui_prefix(helpers):
+    gui = Gui(url_prefix="/prefix")
+    yield gui
+    # Delete Gui instance and state of some classes after each test
+    gui.stop()
+    helpers.test_cleanup()
+
+
 @pytest.fixture
 def helpers():
     return Helpers

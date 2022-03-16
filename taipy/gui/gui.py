@@ -771,7 +771,7 @@ class Gui:
 
                 if re_match := Gui.__RE_HTML.match(file_name):
                     renderers = Html(os.path.join(folder_path, file_name))
-                    renderers.modify_taipy_base_url(folder_name)
+                    renderers.modify_taipy_base_url(f"{folder_name}{self._get_url_prefix()}")
                     self.add_page(name=re_match.group(1), page=renderers)
                 elif re_match := Gui.__RE_MD.match(file_name):
                     renderers_md = Markdown(os.path.join(folder_path, file_name))
