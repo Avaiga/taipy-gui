@@ -238,18 +238,13 @@ class Gui:
         elif rel_var and isinstance(current_value, _TaipyLovValue):  # pragma: no cover
             lov_holder = _getscopeattr_drill(self, self.__evaluator.get_hash_from_expr(rel_var))
             if isinstance(lov_holder, _TaipyLov):
-                if isinstance(value, list):
-                    val = value
-                else:
-                    val = [value]
+                val = value if isinstance(value, list) else [value]
                 elt_4_ids = self.__adapter._get_elt_per_ids(lov_holder.get_name(), lov_holder.get())
                 ret_val = [elt_4_ids.get(x, x) for x in val]
-                if not isinstance(value, list):
-                    if ret_val:
-                        value = ret_val[0]
-                else:
+                if isinstance(value, list):
                     value = ret_val
-
+                elif ret_val:
+                    value = ret_val[0]
         elif isinstance(current_value, _TaipyBase):
             value = current_value.cast_value(value)
         self._update_var(var_name, value, propagate, current_value if isinstance(current_value, _TaipyBase) else None)
