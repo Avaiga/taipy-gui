@@ -28,8 +28,8 @@ from .data.data_format import _DataFormat
 from .page import Page
 from .partial import Partial
 from .renderers import _EmptyPage
-from .renderers.jsonencoder import _TaipyJsonEncoder
 from .renderers._markdown import _TaipyMarkdownExtension
+from .renderers.jsonencoder import _TaipyJsonEncoder
 from .server import _Server
 from .state import State
 from .types import _WsType
@@ -382,10 +382,7 @@ class Gui:
                     else:
                         newvalue = ret_value
                 elif isinstance(newvalue, _TaipyLov):
-                    newvalue = [
-                        self.__adapter._run_for_var(newvalue.get_name(), elt)
-                        for elt in newvalue.get()
-                    ]
+                    newvalue = [self.__adapter._run_for_var(newvalue.get_name(), elt) for elt in newvalue.get()]
                 elif isinstance(newvalue, _TaipyLovValue):
                     if isinstance(newvalue.get(), list):
                         newvalue = [
@@ -602,9 +599,7 @@ class Gui:
     ) -> t.Union[t.Tuple[str, ...], str, None]:
         return self.__adapter._run(adapter, value, var_name, id_only)
 
-    def _get_valid_adapter_result(
-        self, value: t.Any, id_only=False
-    ) -> t.Union[t.Tuple[str, ...], str, None]:
+    def _get_valid_adapter_result(self, value: t.Any, id_only=False) -> t.Union[t.Tuple[str, ...], str, None]:
         return self.__adapter._get_valid_result(value, id_only)
 
     def _is_ui_blocked(self):
@@ -617,6 +612,22 @@ class Gui:
             self.__on_action(id, callback)
 
         return _taipy_on_cancel_block_ui
+
+    def __add_pages_in_folder(self, folder_name: str, folder_path: str):
+        list_of_files = os.listdir(folder_path)
+        for file_name in list_of_files:
+            from .renderers import Html, Markdown
+
+            if re_match := Gui.__RE_HTML.match(file_name):
+                renderers = Html(os.path.join(folder_path, file_name))
+                renderers.modify_taipy_base_url(folder_name)
+                self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers)
+            elif re_match := Gui.__RE_MD.match(file_name):
+                renderers_md = Markdown(os.path.join(folder_path, file_name))
+                self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
+            elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
+                child_dir_name = f"{folder_name}/{file_name}"
+                self.__add_pages_in_folder(child_dir_name, child_dir_path)
 
     def _get_locals_bind(self):
         return self.__locals_bind
@@ -766,27 +777,7 @@ class Gui:
             if folder_name in Gui.__reserved_routes:
                 raise Exception(f"Invalid directory. Directory {folder_name} is a reserved route")
             self.__directory_name_of_pages.append(folder_name)
-            list_of_files = os.listdir(folder_path)
-            for file_name in list_of_files:
-                from .renderers import Html, Markdown
-
-                if re_match := Gui.__RE_HTML.match(file_name):
-                    renderers = Html(os.path.join(folder_path, file_name))
-                    renderers.modify_taipy_base_url(f"{folder_name}{self._get_url_prefix()}")
-                    self.add_page(name=re_match.group(1), page=renderers)
-                elif re_match := Gui.__RE_MD.match(file_name):
-                    renderers_md = Markdown(os.path.join(folder_path, file_name))
-                    self.add_page(name=re_match.group(1), page=renderers_md)
-                elif os.path.isdir(assets_folder := os.path.join(folder_path, file_name)):
-                    assets_dir_name = f"{folder_name}/{file_name}"
-                    self._flask_blueprint.append(
-                        Blueprint(
-                            assets_dir_name,
-                            __name__,
-                            static_folder=assets_folder,
-                            static_url_path=f"/{assets_dir_name}",
-                        )
-                    )
+            self.__add_pages_in_folder(folder_name, folder_path)
 
     def add_partial(
         self,
@@ -937,14 +928,16 @@ class Gui:
 
         app_config = self._config.config
 
+        run_root_dir = os.path.dirname(
+            inspect.getabsfile(t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back))
+        )
+
         # Register _root_dir for abs path
         if not hasattr(self, "_root_dir"):
-            self._root_dir = os.path.dirname(
-                inspect.getabsfile(t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back))
-            )
+            self._root_dir = run_root_dir
 
         # Load application config from multiple sources (env files, kwargs, command line)
-        self._config._build_config(self._root_dir, self.__env_filename, kwargs)
+        self._config._build_config(run_root_dir, self.__env_filename, kwargs)
 
         # Special config for notebook runtime
         if _is_in_notebook() or run_in_thread:
