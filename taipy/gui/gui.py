@@ -112,7 +112,7 @@ class Gui:
                 The method `(Gui.)add_pages()^` is called if _pages_ is not None, and
                 you can find details on the possible values of this argument in the
                 documentation for this method.
-            css_file:  An optional pathname to a CSS file that gets used as a style sheet in
+            css_file: An optional pathname to a CSS file that gets used as a style sheet in
                 all the pages.<br/>
                 The default value is a file that has the same base name as the Python
                 file defining the `main` function, sitting next to this Python file,
@@ -122,7 +122,10 @@ class Gui:
                 variables (see the [Configuration](../gui/configuration.md#configuring-the-gui-instance)
                 section for details.)</br>
                 The default value is "taipy.gui.env"
-            flask: TODO explain what this does.
+            flask: An optional instance of a Flask application object. If this argument is
+                set, this `Gui` instance will use the value of this argument as the underlying
+                server. If omitted or set to None, this `Gui` will create its own Flask
+                application instance and use it to serve the pages.
         """
         self._server = _Server(
             self, path_mapping=path_mapping, flask=flask, css_file=css_file, root_page_name=Gui.__root_page_name
@@ -439,13 +442,13 @@ class Gui:
     def _send_ws_download(self, content: str, name: str, on_action: str) -> None:
         self.__send_ws({"type": _WsType.DOWNLOAD_FILE.value, "content": content, "name": name, "on_action": on_action})
 
-    def __send_ws_alert(self, type: str, message: str, browser_notification: bool, duration: int) -> None:
+    def __send_ws_alert(self, type: str, message: str, system_notification: bool, duration: int) -> None:
         self.__send_ws(
             {
                 "type": _WsType.ALERT.value,
                 "atype": type,
                 "message": message,
-                "browser": browser_notification,
+                "system": system_notification,
                 "duration": duration,
             }
         )
@@ -879,13 +882,15 @@ class Gui:
         self,
         notification_type: str = "I",
         message: str = "",
-        browser_notification: t.Optional[bool] = None,
+        system_notification: t.Optional[bool] = None,
         duration: t.Optional[int] = None,
     ):
         self.__send_ws_alert(
             notification_type,
             message,
-            self._get_config("browser_notification", True) if browser_notification is None else browser_notification,
+            self._get_config("system_notification", False)
+            if system_notification is None
+            else system_notification,
             self._get_config("notification_duration", 3000) if duration is None else duration,
         )
 
@@ -927,17 +932,24 @@ class Gui:
         """
         Starts the server that delivers pages to Web clients.
 
-        Once you enter `run`, users can run Web browsers and point to the Web server
+        Once you enter `run()`, users can run Web browsers and point to the Web server
         URL that `Gui` serves. The default is to listen to the _localhost_ address
         (127.0.0.1) on the port number 5000. However, the configuration of this `Gui`
-        object may impact that (see the [Configuration](../gui/configuration.md#configuring-the-gui-instance)
-        section for details).
+        object may impact that (see the
+        [Configuration](../gui/configuration.md#configuring-the-gui-instance)
+        section of the User Manual for details).
 
         Arguments:
-            run_server (bool): whether or not to run a Web server locally.
+            run_server: Whether or not to run a Web server locally.
                 If set to _False_, a Web server is _not_ created and started.
-            run_in_thread: TODO
-            kwargs: TODO
+            run_in_thread: Whether or not to run a Web server in a separated thread.
+                If set to _True_, the Web server is run is a separated thread.
+                Note that if you are in a Notebook context, the Web server is always
+                run in a separate thread.
+            kwargs: Additional keywords that configure how this `Gui` is run.
+                Please refer to the
+                [Configuration](../gui/configuration.md#configuring-the-gui-instance)
+                section in the User Manual for more information.
         """
         if (_is_in_notebook() or run_in_thread) and hasattr(self._server, "_thread"):
             self._server._thread.kill()
@@ -1061,6 +1073,13 @@ class Gui:
             )
 
     def stop(self):
+        """
+        Stops the Web server.
+
+        This function stops the underlying Web server only in the situation where
+        it was run in a separated thread: the _run_in_thread_ parameter to the
+        `(Gui.)run^` method was set to True, or you are running in a Notebook context.
+        """
         if hasattr(self._server, "_thread"):
             self._server._thread.kill()
             self._server._thread.join()
