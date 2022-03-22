@@ -24,8 +24,8 @@ from ..utils.types import _TaipyData
 from .jsonencoder import _TaipyJsonEncoder
 from .utils import (
     _add_to_dict_and_get,
-    _get_columns_dict,
     _get_col_from_indexed,
+    _get_columns_dict,
     _get_idx_from_col,
     _get_tuple_val,
     _to_camel_case,
