@@ -119,8 +119,9 @@ class Gui:
                 with the `.css` extension.
             path_mapping: TODO explain what this does.
             env_filename: An optional file from which to load application configuration
-                variables (see the [Configuration](../gui/configuration.md#configuring-the-gui-instance)
-                section for details.)</br>
+                variables (see the
+                [Configuration](../gui/configuration.md#configuring-the-gui-instance) section
+                of the User Manual for details.)</br>
                 The default value is "taipy.gui.env"
             flask: An optional instance of a Flask application object. If this argument is
                 set, this `Gui` instance will use the value of this argument as the underlying
@@ -719,7 +720,7 @@ class Gui:
                 If _pages_ is a string that contains the path to a directory, then
                 this directory is traversed, looking for filenames that have the
                 _.md_ extention, 
-        
+    
 
         !!! note "Reading pages from a directory"
             If _pages_ is a string that holds the path to a readable directory, then
