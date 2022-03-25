@@ -23,7 +23,7 @@ import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 
 import { TaipyContext } from "../../context/taipyContext";
-import { getArrayValue, getUpdateVar, TaipyActiveProps } from "./utils";
+import { getArrayValue, getUpdateVar, TaipyActiveProps, TaipyChangeProps } from "./utils";
 import {
     createRequestChartUpdateAction,
     createSendActionNameAction,
@@ -34,7 +34,7 @@ import { useDispatchRequestUpdateOnFirstRender, useDynamicProperty } from "../..
 
 const Plot = lazy(() => import("react-plotly.js"));
 
-interface ChartProp extends TaipyActiveProps {
+interface ChartProp extends TaipyActiveProps, TaipyChangeProps {
     title?: string;
     width?: string | number;
     height?: string | number;
@@ -101,8 +101,6 @@ const getValue = <T,>(values: TraceValueType | undefined, arr: T[], idx: number)
 };
 
 const selectedPropRe = /selected(\d+)/;
-
-const defaultChartConfig = { responsive: true };
 
 const ONE_COLUMN_CHART = ["pie"];
 
@@ -307,11 +305,15 @@ const Chart = (props: ChartProp) => {
             } catch (e) {
                 console.info(`Error while parsing Chart.plot_config\n${(e as Error).message || e}`);
             }
+            if (typeof plconf !== 'object' || plconf === null || Array.isArray(plconf)) {
+                console.info("Error Chart.plot_config is not a dictionnary");
+                plconf = {}
+            }
         }
         if (active) {
-            return { ...defaultChartConfig, ...plconf };
+            return plconf;
         } else {
-            return { ...defaultChartConfig, ...plconf, staticPlot: true };
+            return { ...plconf, staticPlot: true };
         }
     }, [active, props.plotConfig]);
 
@@ -345,12 +347,12 @@ const Chart = (props: ChartProp) => {
                 traces.forEach((tr, idx) => {
                     const upvar = getUpdateVar(updateVars, `selected${idx}`);
                     if (upvar && tr && tr.length) {
-                        dispatch(createSendUpdateAction(upvar, tr, propagate));
+                        dispatch(createSendUpdateAction(upvar, tr, props.tp_onChange, propagate));
                     }
                 });
             }
         },
-        [getRealIndex, dispatch, updateVars, propagate]
+        [getRealIndex, dispatch, updateVars, propagate, props.tp_onChange]
     );
 
     return render ? (
