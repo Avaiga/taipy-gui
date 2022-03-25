@@ -53,6 +53,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-versions }}
 
+      - name: install libmagic on macos
+        if: matrix.os == 'macos-latest'
+        run: brew install libmagic
+
       - name: Add optionals dependencies
         run: |
           # Extract optionals packages before installing them
