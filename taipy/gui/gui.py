@@ -71,6 +71,9 @@ class Gui:
             It defaults to the _on_change_ global function defined in the Python
             application. If there is no such function, user interactions will not trigger
             anything.
+        state (`State^`): **Only defined when running in an IPython notebook context.**<br/>
+            The unique instance of `State^` that you can use to change bound variables
+            directly, potentially impacting the interface in real-time.
     """
 
     __root_page_name = "TaiPy_root_page"
@@ -101,14 +104,16 @@ class Gui:
         """Initialize a new Gui instance.
 
         Arguments:
-            page: An optional `Page^` instance that is used when there is a single page
-                in this interface, referenced as the _root_ page (located at `/`).<br/>
+            page (Optional[Union[str, Page]]): An optional `Page^` instance that is used
+                when there is a single page in this interface, referenced as the _root_
+                page (located at `/`).<br/>
                 If _page_ is a raw string and if it holds a path to a readable file then
                 a `Markdown^` page is built from the content of that file.<br/>
                 If _page_ is a string that does not indicate a path to readable file then
                 a `Markdown^` page is built from that string.<br/>
                 Note that if _pages_ is provided, those pages are added as well.
-            pages: Used if you want to initialize this instance with a set of pages.
+            pages (Optional[dict]): Used if you want to initialize this instance with a set
+                of pages.<br/>
                 The method `(Gui.)add_pages()^` is called if _pages_ is not None, and
                 you can find details on the possible values of this argument in the
                 documentation for this method.
@@ -117,16 +122,16 @@ class Gui:
                 The default value is a file that has the same base name as the Python
                 file defining the `main` function, sitting next to this Python file,
                 with the `.css` extension.
-            path_mapping: TODO explain what this does.
-            env_filename: An optional file from which to load application configuration
-                variables (see the
+            path_mapping (Optional[dict]): TODO explain what this does.
+            env_filename (Optional[str]): An optional file from which to load application
+                configuration variables (see the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance) section
                 of the User Manual for details.)</br>
                 The default value is "taipy.gui.env"
-            flask: An optional instance of a Flask application object. If this argument is
-                set, this `Gui` instance will use the value of this argument as the underlying
-                server. If omitted or set to None, this `Gui` will create its own Flask
-                application instance and use it to serve the pages.
+            flask (Optional[Flask]): An optional instance of a Flask application object.<br/>
+                If this argument is set, this `Gui` instance will use the value of this argument
+                as the underlying server. If omitted or set to None, this `Gui` will create its
+                own Flask application instance and use it to serve the pages.
         """
         # store suspected local containing frame
         self.__frame = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back)
@@ -819,7 +824,7 @@ class Gui:
         when and how to use this class.
 
         Arguments:
-            page (Union[str, Page]): The page to create a new Partial from.<br/>
+            page (Union[str, `Page^`]): The page to create a new Partial from.<br/>
                 It can be an instance of `Markdown^` or `Html^`.<br/>
                 If _page_ is a string, then:
 
@@ -829,7 +834,7 @@ class Gui:
                   as Markdown text.
 
         Returns:
-            Partial: the new Partial object defined by _page_.
+            Partial: The new `Partial` object defined by _page_.
         """
         new_partial = Partial()
         # Validate name
@@ -964,8 +969,8 @@ class Gui:
                 If set to _False_, a Web server is _not_ created and started.
             run_in_thread: Whether or not to run a Web server in a separated thread.
                 If set to _True_, the Web server is run is a separated thread.
-                Note that if you are in a Notebook context, the Web server is always
-                run in a separate thread.
+                Note that if you are running in an IPython notebook context, the Web
+                server is always run in a separate thread.
             kwargs: Additional keywords that configure how this `Gui` is run.
                 Please refer to the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance)
@@ -1105,7 +1110,8 @@ class Gui:
 
         This function stops the underlying Web server only in the situation where
         it was run in a separated thread: the _run_in_thread_ parameter to the
-        `(Gui.)run^` method was set to True, or you are running in a Notebook context.
+        `(Gui.)run^` method was set to True, or you are running in an IPython notebook
+        context.
         """
         if hasattr(self, "_server") and hasattr(self._server, "_thread"):
             self._server._thread.kill()
