@@ -141,6 +141,9 @@ class Gui:
                 as the underlying server. If omitted or set to None, this `Gui` will create its
                 own Flask application instance and use it to serve the pages.
         """
+        # store suspected local containing frame
+        self.__frame = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back)
+
         # Preserve server config for server initialization
         self._path_mapping = path_mapping
         self._flask = flask
@@ -241,8 +244,15 @@ class Gui:
         except Exception as e:
             warnings.warn(f"Decoding Message has failed: {message}\n{e}")
 
-    def __front_end_update(self, var_name: str, value: t.Any, propagate=True, rel_var: t.Optional[str] = None, on_change: t.Optional[str] = None) -> None:
-        if var_name == "":
+    def __front_end_update(
+        self,
+        var_name: str,
+        value: t.Any,
+        propagate=True,
+        rel_var: t.Optional[str] = None,
+        on_change: t.Optional[str] = None,
+    ) -> None:
+        if not var_name:
             return
         # Check if Variable is a managed type
         current_value = _getscopeattr_drill(self, self.__evaluator.get_hash_from_expr(var_name))
@@ -251,28 +261,31 @@ class Gui:
         elif rel_var and isinstance(current_value, _TaipyLovValue):  # pragma: no cover
             lov_holder = _getscopeattr_drill(self, self.__evaluator.get_hash_from_expr(rel_var))
             if isinstance(lov_holder, _TaipyLov):
-                if isinstance(value, list):
-                    val = value
-                else:
-                    val = [value]
+                val = value if isinstance(value, list) else [value]
                 elt_4_ids = self.__adapter._get_elt_per_ids(lov_holder.get_name(), lov_holder.get())
                 ret_val = [elt_4_ids.get(x, x) for x in val]
-                if not isinstance(value, list):
-                    if ret_val:
-                        value = ret_val[0]
-                else:
+                if isinstance(value, list):
                     value = ret_val
-
+                elif ret_val:
+                    value = ret_val[0]
         elif isinstance(current_value, _TaipyBase):
             value = current_value.cast_value(value)
-        self._update_var(var_name, value, propagate, current_value if isinstance(
-            current_value, _TaipyBase) else None, on_change)
+        self._update_var(
+            var_name, value, propagate, current_value if isinstance(current_value, _TaipyBase) else None, on_change
+        )
 
-    def _update_var(self, var_name: str, value: t.Any, propagate=True, holder: t.Optional[_TaipyBase] = None, on_change: t.Optional[str] = None) -> None:
+    def _update_var(
+        self,
+        var_name: str,
+        value: t.Any,
+        propagate=True,
+        holder: t.Optional[_TaipyBase] = None,
+        on_change: t.Optional[str] = None,
+    ) -> None:
         if holder:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
-        modified_vars = set([hash_expr])
+        modified_vars = {hash_expr}
         # Use custom attrsetter function to allow value binding for _MapDict
         if propagate:
             _setscopeattr_drill(self, hash_expr, value)
@@ -281,8 +294,11 @@ class Gui:
                 modified_vars.update(self._re_evaluate_expr(var_name))
         elif holder:
             modified_vars.update(self._evaluate_holders(hash_expr))
-        self.__call_on_change(var_name, value.get() if isinstance(value, _TaipyBase)
-                              else value._dict if isinstance(value, _MapDict) else value, on_change)
+        self.__call_on_change(
+            var_name,
+            value.get() if isinstance(value, _TaipyBase) else value._dict if isinstance(value, _MapDict) else value,
+            on_change,
+        )
         self.__send_var_list_update(list(modified_vars), var_name)
 
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
@@ -308,11 +324,7 @@ class Gui:
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
         ret_value = self.__get_content_accessor().get_info(var_name, value, image)
-        if isinstance(ret_value, tuple):
-            string_value = Gui.__CONTENT_ROOT + ret_value[0]
-        else:
-            string_value = ret_value
-        return string_value
+        return Gui.__CONTENT_ROOT + ret_value[0] if isinstance(ret_value, tuple) else ret_value
 
     def __serve_content(self, path: str) -> t.Any:
         parts = path.split("/")
@@ -441,9 +453,7 @@ class Gui:
                     to=self.__get_ws_receiver(),
                 )
             except Exception as e:
-                warnings.warn(
-                    f"Web Socket communication error in {t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back).f_code.co_name}\n{e}"
-                )
+                warnings.warn(f"Web Socket communication error in {self.__frame.f_code.co_name}\n{e}")
         else:
             grouping_message.append(payload)
 
@@ -513,9 +523,7 @@ class Gui:
         self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
     def __get_ws_receiver(self) -> t.Union[t.List[str], t.Any, None]:
-        if not self._bindings()._get_single_client():
-            return getattr(request, "sid", None)
-        return None
+        return None if self._bindings()._get_single_client() else getattr(request, "sid", None)
 
     def __get_message_grouping(self):
         if not _hasscopeattr(self, Gui.__MESSAGE_GROUPING_NAME):
@@ -801,10 +809,8 @@ class Gui:
                 self.add_page(name=k, page=v)
         elif isinstance(folder_name := pages, str):
             if not hasattr(self, "_root_dir"):
-                self._root_dir = os.path.dirname(
-                    inspect.getabsfile(t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back))
-                )
-            folder_path = os.path.join(self._root_dir, folder_name) if not os.path.isabs(folder_name) else folder_name
+                self._root_dir = os.path.dirname(inspect.getabsfile(self.__frame))
+            folder_path = folder_name if os.path.isabs(folder_name) else os.path.join(self._root_dir, folder_name)
             folder_name = os.path.basename(folder_path)
             if not os.path.isdir(folder_path):
                 raise RuntimeError(f"Path {folder_path} is not a valid directory")
@@ -951,6 +957,11 @@ class Gui:
     def _get_flask_app(self):
         return self._server.get_flask()
 
+    def _set_frame(self, frame: FrameType):
+        if not isinstance(frame, FrameType):
+            raise RuntimeError("frame must be a FrameType where Gui can collect the local variables.")
+        self.__frame = frame
+
     def run(self, run_server: bool = True, run_in_thread: bool = False, **kwargs) -> None:
         """
         Starts the server that delivers pages to Web clients.
@@ -995,9 +1006,7 @@ class Gui:
 
         app_config = self._config.config
 
-        run_root_dir = os.path.dirname(
-            inspect.getabsfile(t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back))
-        )
+        run_root_dir = os.path.dirname(inspect.getabsfile(self.__frame))
 
         # Register _root_dir for abs path
         if not hasattr(self, "_root_dir"):
@@ -1023,7 +1032,7 @@ class Gui:
             self.__locals_bind = kwargs.get("locals_bind")  # type: ignore
             warnings.warn("Caution: the Gui instance is using a custom 'locals_bind' setting.")
         else:
-            self.__locals_bind = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back).f_locals
+            self.__locals_bind = self.__frame.f_locals
 
         self.__state = State(self, self.__locals_bind.keys())
 

@@ -8,7 +8,7 @@ on:
 
 jobs:
   standard-packages:
-    timeout-minutes: 20
+    timeout-minutes: 40
     strategy:
       matrix:
         python-versions: ['3.8', '3.9', '3.10']
@@ -36,10 +36,11 @@ jobs:
           pip install pytest pytest-mock pytest-playwright
           playwright install
           pytest
+          python -c "import taipy as tp; tp.Gui"
 
 
   optional-packages:
-    timeout-minutes: 20
+    timeout-minutes: 40
     strategy:
       matrix:
         python-versions: ['3.8', '3.9', '3.10']
