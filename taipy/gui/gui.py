@@ -74,6 +74,14 @@ class Gui:
         state (`State^`): **Only defined when running in an IPython notebook context.**<br/>
             The unique instance of `State^` that you can use to change bound variables
             directly, potentially impacting the interface in real-time.
+
+    !!! note
+        This class belong to and is documented in the `taipy.gui` package but it is
+        accessible from the top `taipy` package to simplify its access, allowing to
+        use:
+        ```py
+        from taipy import Gui
+        ```
     """
 
     __root_page_name = "TaiPy_root_page"
@@ -728,7 +736,8 @@ class Gui:
 
         Arguments:
             pages (Union[dict[str, Union[str, Page]], str]): The pages to add.<br/>
-                If _pages_ is a dictionnary, a page is added to this `Gui` instance:
+                If _pages_ is a dictionnary, a page is added to this `Gui` instance
+                for each of the entries in _pages_:
 
                 - The entry key is used as the page name.
                 - The entry value is used as the page content:
