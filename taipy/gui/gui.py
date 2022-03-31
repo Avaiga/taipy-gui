@@ -130,7 +130,13 @@ class Gui:
                 The default value is a file that has the same base name as the Python
                 file defining the `main` function, sitting next to this Python file,
                 with the `.css` extension.
-            path_mapping (Optional[dict]): TODO explain what this does.
+            path_mapping (Optional[dict]): A dictionary that associates a URL prefix to
+                a path in the server filesystem.</br>
+                If the assets of your application are located in _/home/me/app_assets_ and
+                you want to access them with just _assets_ in your application, you can
+                set _path_mapping={"assets": "/home/me/app_assets"}_. If your application
+                then requests the file _"/assets/images/logo.png"_, the server searches
+                for the file  _"/home/me/app_assets/images/logo.png"_.
             env_filename (Optional[str]): An optional file from which to load application
                 configuration variables (see the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance) section
