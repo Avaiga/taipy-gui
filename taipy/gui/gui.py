@@ -122,8 +122,8 @@ class Gui:
                 Note that if _pages_ is provided, those pages are added as well.
             pages (Optional[dict]): Used if you want to initialize this instance with a set
                 of pages.<br/>
-                The method `(Gui.)add_pages()^` is called if _pages_ is not None, and
-                you can find details on the possible values of this argument in the
+                The method `(Gui.)add_pages(pages)^` is called if _pages_ is not None.
+                You can find details on the possible values of this argument in the
                 documentation for this method.
             css_file (str): An optional pathname to a CSS file that gets used as a style sheet in
                 all the pages.<br/>
