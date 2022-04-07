@@ -73,7 +73,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    description="AI Platform for Business Applications.",
+    description="A 360° open-source platform from Python pilots to production-ready web apps.",
     long_description=readme,
     install_requires=requirements,
     license="Apache License 2.0",
