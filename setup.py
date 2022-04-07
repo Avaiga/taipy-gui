@@ -65,7 +65,6 @@ setup(
     author_email="taipy.dev@avaiga.com",
     python_requires=">=3.8",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
