@@ -75,7 +75,6 @@ jobs:
   test-published-package:
     timeout-minutes: 30
     needs: [publish-to-pypi]
-    environment: production
     strategy:
       matrix:
         python-versions: ['3.8','3.9','3.10']
