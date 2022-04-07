@@ -13,6 +13,7 @@ on:
 
 jobs:
   test-package:
+    timeout-minutes: 20
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -40,6 +41,7 @@ jobs:
 
 
   publish-to-pypi:
+    timeout-minutes: 20
     needs: [test-package]
     environment: production
     runs-on: ubuntu-18.04
@@ -70,6 +72,7 @@ jobs:
 
 
   test-published-package:
+    timeout-minutes: 30
     needs: [publish-to-pypi]
     environment: production
     strategy:
@@ -86,7 +89,8 @@ jobs:
       - name: Prepare tests
         run: |
           rm -rf taipy
-          pip install pytest pytest-mock
+          pip install pytest pytest-mock pytest-playwright
+          playwright install chromium
 
       - name: Install and test package
         run: |
