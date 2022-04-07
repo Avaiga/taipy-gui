@@ -62,7 +62,7 @@ class NPMInstall(build_py):
 
 setup(
     author="Avaiga",
-    author_email="taipy.dev@avaiga.com",
+    author_email="dev@taipy.io",
     python_requires=">=3.8",
     classifiers=[
         "Intended Audience :: Developers",
