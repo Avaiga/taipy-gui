@@ -44,7 +44,7 @@ jobs:
   publish-to-pypi:
     timeout-minutes: 20
     needs: [test-package]
-    environment: production
+    environment: publish
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
