@@ -74,7 +74,7 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     description="A 360° open-source platform from Python pilots to production-ready web apps.",
-    long_description=readme,
+    long_description="",
     install_requires=requirements,
     license="Apache License 2.0",
     include_package_data=True,
