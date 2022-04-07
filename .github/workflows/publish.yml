@@ -87,9 +87,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-versions }}
 
-      - name: Prepare tests
+      - name: Remove taipy folder on unix
+        if: matrix.os != 'windows-latest'
         run: |
           rm -rf taipy
+
+      - name: Remove taipy folder on windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          rmdir -Recurse -Force taipy
+
+      - name: Prepare tests
+        run: |
           pip install pytest pytest-mock pytest-playwright
           playwright install chromium
 
