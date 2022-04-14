@@ -41,7 +41,7 @@ test_requirements = ["pytest>=3.8"]
 
 extras_require = {
     "ngrok": ["pyngrok>=5.1"],
-    "image": ["python-magic>=0.4.14;platform_system!='Windows'", "python-magic-bin>=0.4.14;platform_system=='Windows'"],
+    "image": ["python-magic>=0.4.24;platform_system!='Windows'", "python-magic-bin>=0.4.14;platform_system=='Windows'"],
     "rdp": ["rdp>=0.8"],
     "arrow": ["pyarrow>=7.0"],
 }
