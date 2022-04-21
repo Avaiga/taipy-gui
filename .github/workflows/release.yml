@@ -61,7 +61,7 @@ jobs:
   release:
     needs: [test-package]
     timeout-minutes: 20
-    name: Release taipy-core Package
+    name: Release package
     runs-on: ubuntu-18.04
 
     steps:
