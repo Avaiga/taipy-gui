@@ -25,8 +25,8 @@ from types import FrameType
 
 import __main__
 import markdown as md_lib
-from flask import Blueprint, Flask, request, send_from_directory
 import tzlocal
+from flask import Blueprint, Flask, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 if util.find_spec("pyngrok"):
@@ -48,12 +48,15 @@ from .state import State
 from .types import _WsType
 from .utils import (
     _delscopeattr,
+    _filter_locals,
     _get_client_var_name,
+    _get_module_name_from_frame,
     _get_non_existent_file_path,
     _getscopeattr,
     _getscopeattr_drill,
     _hasscopeattr,
     _is_in_notebook,
+    _LocalsContext,
     _MapDict,
     _setscopeattr,
     _setscopeattr_drill,
@@ -67,6 +70,7 @@ from .utils import (
 from .utils._adapter import _Adapter
 from .utils._bindings import _Bindings
 from .utils._evaluator import _Evaluator
+from .utils._variable_directory import _VariableDirectory
 
 
 class Gui:
@@ -168,6 +172,7 @@ class Gui:
         """
         # store suspected local containing frame
         self.__frame = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back)
+        self.__default_module_name = _get_module_name_from_frame(self.__frame)
 
         # Preserve server config for server initialization
         self._path_mapping = path_mapping
@@ -179,7 +184,8 @@ class Gui:
         self._accessors = _DataAccessors()
         self.__state: t.Optional[State] = None
         self.__bindings = _Bindings(self)
-        self.__locals_bind: t.Dict[str, t.Any] = {}
+        self.__locals_context = _LocalsContext()
+        self.__var_dir = _VariableDirectory(self.__locals_context)
 
         self.__evaluator: _Evaluator = None  # type: ignore
         self.__adapter = _Adapter()
@@ -584,7 +590,7 @@ class Gui:
     def _get_user_function(self, func_name: str) -> t.Union[t.Callable, str]:
         func = _getscopeattr(self, func_name, None)
         if not callable(func):
-            func = self.__locals_bind.get(func_name)
+            func = self._get_locals_bind().get(func_name)
         if callable(func):
             return func
         return func_name
@@ -701,8 +707,18 @@ class Gui:
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
 
-    def _get_locals_bind(self):
-        return self.__locals_bind
+    # Proxy methods for LocalsContext
+    def _get_locals_bind(self) -> dict[str, t.Any]:
+        return self.__locals_context.get_locals()
+
+    def _get_locals_context(self) -> t.Optional[str]:
+        return self.__locals_context.get_context()
+
+    def _set_locals_context(self, context: t.Optional[str]) -> None:
+        self.__locals_context.set_locals_context(context)
+
+    def _reset_locals_context(self) -> None:
+        self.__locals_context.reset_locals_context()
 
     def _get_root_page_name(self):
         return self.__root_page_name
@@ -760,7 +776,7 @@ class Gui:
         if isinstance(page, str):
             from .renderers import Markdown
 
-            page = Markdown(page)
+            page = Markdown(page, frame=None)
         elif not isinstance(page, Page):
             raise Exception(f'"page" is invalid for page name "{name if name != Gui.__root_page_name else "/"}')
         # Init a new page
@@ -771,6 +787,10 @@ class Gui:
         # Append page to _config
         self._config.pages.append(new_page)
         self._config.routes.append(name)
+        # Update locals context
+        self.__locals_context.add(page._get_module_name(), page._get_locals())
+        # Update variable directory
+        self.__var_dir.add_frame(page._frame)
 
     def add_pages(self, pages: t.Union[dict[str, t.Union[str, Page]], str] = None) -> None:
         """Add several pages to the graphical User Interface.
@@ -893,13 +913,17 @@ class Gui:
         if isinstance(page, str):
             from .renderers import Markdown
 
-            page = Markdown(page)
+            page = Markdown(page, frame=None)
         elif not isinstance(page, Page):
             raise Exception(f'Partial name "{new_partial._route}" has invalid Page')
         new_partial._renderer = page
         # Append partial to _config
         self._config.partials.append(new_partial)
         self._config.partial_routes.append(str(new_partial._route))
+        # Update locals context
+        self.__locals_context.add(page._get_module_name(), page._get_locals())
+        # Update variable directory
+        self.__var_dir.add_frame(page._frame)
         return new_partial
 
     def _update_partial(self, partial: Partial):
@@ -917,8 +941,8 @@ class Gui:
 
     # Main binding method (bind in markdown declaration)
     def _bind_var(self, var_name: str) -> bool:
-        if not hasattr(self._bindings(), var_name) and var_name in self.__locals_bind.keys():
-            self._bind(var_name, self.__locals_bind[var_name])
+        if not hasattr(self._bindings(), var_name) and var_name in self._get_locals_bind().keys():
+            self._bind(var_name, self._get_locals_bind()[var_name])
             return True
         return False
 
@@ -936,7 +960,7 @@ class Gui:
             )
             func = None
         if func is None:
-            func = self.__locals_bind.get(name)
+            func = self._get_locals_bind().get(name)
         if func is not None:
             if callable(func):
                 setattr(self, name, func)
@@ -1017,8 +1041,15 @@ class Gui:
         if not isinstance(frame, FrameType):
             raise RuntimeError("frame must be a FrameType where Gui can collect the local variables.")
         self.__frame = frame
+        self.__default_module_name = _get_module_name_from_frame(self.__frame)
 
-    def run(self, run_server: bool = True, run_in_thread: bool = False, ssl_context: t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal['adhoc']]] = None, **kwargs) -> t.Optional[Flask]:
+    def run(
+        self,
+        run_server: bool = True,
+        run_in_thread: bool = False,
+        ssl_context: t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal["adhoc"]]] = None,
+        **kwargs,
+    ) -> t.Optional[Flask]:
         """
         Starts the server that delivers pages to Web clients.
 
@@ -1098,14 +1129,15 @@ class Gui:
             app_config["use_reloader"] = False
             print(f" * NGROK Public Url: {http_tunnel.public_url}")
 
-        # Save all local variables of the parent frame (usually __main__)
-        if isinstance(kwargs.get("locals_bind"), dict):
-            self.__locals_bind = kwargs.get("locals_bind")  # type: ignore
-            warnings.warn("Caution: the Gui instance is using a custom 'locals_bind' setting.")
-        else:
-            self.__locals_bind = self.__frame.f_locals
+        locals_bind = _filter_locals(self.__frame.f_locals)
 
-        self.__state = State(self, self.__locals_bind.keys())
+        self.__locals_context.set_default(locals_bind)
+
+        self.__var_dir.set_default(self.__frame)
+
+        self.__var_dir.process_imported_var()
+
+        self.__state = State(self, locals_bind.keys())
 
         if _is_in_notebook():
             # to allow gui.state.x in notebook mode
@@ -1113,7 +1145,7 @@ class Gui:
 
         # base global ctx is TaipyHolder classes + script modules and callables
         glob_ctx = {t.__name__: t for t in _TaipyBase.__subclasses__()}
-        glob_ctx.update({k: v for k, v in self.__locals_bind.items() if inspect.ismodule(v) or callable(v)})
+        glob_ctx.update({k: v for k, v in locals_bind.items() if inspect.ismodule(v) or callable(v)})
         self.__evaluator = _Evaluator(glob_ctx)
 
         # bind on_change and on_action function if available
@@ -1184,7 +1216,7 @@ class Gui:
             use_reloader=app_config["use_reloader"],
             flask_log=app_config["flask_log"],
             run_in_thread=run_in_thread,
-            ssl_context=ssl_context
+            ssl_context=ssl_context,
         )
 
     def stop(self):
