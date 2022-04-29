@@ -15,6 +15,7 @@ from types import FrameType
 
 
 def _get_imported_var(frame: FrameType) -> list[tuple[str, str, str]]:
+    print(inspect.getsource(frame))
     st = ast.parse(inspect.getsource(frame))
     var_list: list[tuple[str, str, str]] = []
     for node in ast.walk(st):

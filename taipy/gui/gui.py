@@ -697,11 +697,11 @@ class Gui:
             from .renderers import Html, Markdown
 
             if re_match := Gui.__RE_HTML.match(file_name):
-                renderers = Html(os.path.join(folder_path, file_name))
+                renderers = Html(os.path.join(folder_path, file_name), frame=None)
                 renderers.modify_taipy_base_url(folder_name)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers)
             elif re_match := Gui.__RE_MD.match(file_name):
-                renderers_md = Markdown(os.path.join(folder_path, file_name))
+                renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
             elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
                 child_dir_name = f"{folder_name}/{file_name}"

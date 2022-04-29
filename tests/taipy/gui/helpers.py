@@ -29,12 +29,12 @@ class Helpers:
 
     @staticmethod
     def test_control_md(gui: Gui, md_string: str, expected_values: t.Union[str, t.List]):
-        gui.add_page("test", Markdown(md_string))
+        gui.add_page("test", Markdown(md_string, frame=None))
         Helpers._test_control(gui, expected_values)
 
     @staticmethod
     def test_control_html(gui: Gui, html_string: str, expected_values: t.Union[str, t.List]):
-        gui.add_page("test", Html(html_string))
+        gui.add_page("test", Html(html_string, frame=None))
         Helpers._test_control(gui, expected_values)
 
     @staticmethod
