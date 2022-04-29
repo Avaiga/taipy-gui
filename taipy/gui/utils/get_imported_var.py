@@ -11,13 +11,14 @@
 
 import ast
 import inspect
+import typing as t
 from types import FrameType
 
 
-def _get_imported_var(frame: FrameType) -> list[tuple[str, str, str]]:
+def _get_imported_var(frame: FrameType) -> t.List[t.Tuple[str, str, str]]:
     print(inspect.getsource(frame))
     st = ast.parse(inspect.getsource(frame))
-    var_list: list[tuple[str, str, str]] = []
+    var_list: t.List[t.Tuple[str, str, str]] = []
     for node in ast.walk(st):
         if isinstance(node, ast.ImportFrom):
             # get the imported element as (name, asname, module)

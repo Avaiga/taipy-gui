@@ -22,9 +22,9 @@ class _VariableDirectory:
     def __init__(self, locals_context: _LocalsContext):
         self._locals_context = locals_context
         self._default_module = ""
-        self._var_dir: dict[str, dict] = {}
-        self._linked_var_dir: dict[str, dict] = {}
-        self._imported_var_dir: dict[str, list[tuple[str, str, str]]] = {}
+        self._var_dir: t.Dict[str, dict] = {}
+        self._linked_var_dir: t.Dict[str, dict] = {}
+        self._imported_var_dir: t.Dict[str, t.List[t.Tuple[str, str, str]]] = {}
 
     def set_default(self, frame: FrameType) -> None:
         self._default_module = _get_module_name_from_frame(frame)

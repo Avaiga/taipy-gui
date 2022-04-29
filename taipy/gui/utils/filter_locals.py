@@ -9,10 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from typing import Any
+import typing as t
 
 locals_key = ["__doc__", "__package__", "__loader__", "__spec__", "__file__", "__cached__", "__builtins__"]
 
 
-def _filter_locals(locals_dict: dict[str, Any]) -> dict[str, Any]:
+def _filter_locals(locals_dict: t.Dict[str, t.Any]) -> t.Dict[str, t.Any]:
     return {k: v for k, v in locals_dict.items() if k not in locals_key}

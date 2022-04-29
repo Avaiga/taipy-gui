@@ -708,7 +708,7 @@ class Gui:
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
 
     # Proxy methods for LocalsContext
-    def _get_locals_bind(self) -> dict[str, t.Any]:
+    def _get_locals_bind(self) -> t.Dict[str, t.Any]:
         return self.__locals_context.get_locals()
 
     def _get_locals_context(self) -> t.Optional[str]:
@@ -792,7 +792,7 @@ class Gui:
         # Update variable directory
         self.__var_dir.add_frame(page._frame)
 
-    def add_pages(self, pages: t.Union[dict[str, t.Union[str, Page]], str] = None) -> None:
+    def add_pages(self, pages: t.Union[t.Dict[str, t.Union[str, Page]], str] = None) -> None:
         """Add several pages to the graphical User Interface.
 
         Arguments:

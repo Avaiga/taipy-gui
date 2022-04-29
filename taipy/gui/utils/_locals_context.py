@@ -15,17 +15,17 @@ import typing as t
 class _LocalsContext:
     def __init__(self) -> None:
         self.__default_module: str = ""
-        self._locals_map: dict[str, dict[str, t.Any]] = {}
+        self._locals_map: t.Dict[str, t.Dict[str, t.Any]] = {}
         self.__current_context: t.Optional[str] = None
 
-    def set_default(self, default: dict[str, t.Any]) -> None:
+    def set_default(self, default: t.Dict[str, t.Any]) -> None:
         self.__default_module = default.get("__name__", "")
         self._locals_map[self.__default_module] = default
 
-    def get_default(self) -> dict[str, t.Any]:
+    def get_default(self) -> t.Dict[str, t.Any]:
         return self._locals_map[self.__default_module]
 
-    def add(self, context: t.Optional[str], locals_dict: t.Optional[dict[str, t.Any]]):
+    def add(self, context: t.Optional[str], locals_dict: t.Optional[t.Dict[str, t.Any]]):
         if context is not None and locals_dict is not None and context not in self._locals_map:
             self._locals_map[context] = locals_dict
 
@@ -33,7 +33,7 @@ class _LocalsContext:
         if context in self._locals_map:
             self.__current_context = context
 
-    def get_locals(self) -> dict[str, t.Any]:
+    def get_locals(self) -> t.Dict[str, t.Any]:
         return self.get_default() if (context := self.get_context()) is None else self._locals_map[context]
 
     def get_context(self) -> t.Optional[str]:

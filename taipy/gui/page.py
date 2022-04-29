@@ -84,7 +84,7 @@ class Page(ABC):
             return f"in variable '{varname}'"
         return ""
 
-    def _get_locals(self) -> t.Optional[dict[str, t.Any]]:
+    def _get_locals(self) -> t.Optional[t.Dict[str, t.Any]]:
         return None if self._frame is None else _filter_locals(self._frame.f_locals)
 
     def _get_module_name(self) -> t.Optional[str]:
