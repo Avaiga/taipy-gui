@@ -45,7 +45,8 @@ class _VariableDirectory:
             imported_module_name = _get_module_name_from_imported_var(
                 name, self._locals_context.get_locals()[asname], module
             )
-            print(imported_module_name)
+            temp_var_name = self.add_var(asname, self._default_module)
+            self.add_var(name, imported_module_name, temp_var_name)
         self._locals_context.reset_locals_context()
 
         for k, v in self._imported_var_dir.items():
@@ -54,16 +55,32 @@ class _VariableDirectory:
                 imported_module_name = _get_module_name_from_imported_var(
                     name, self._locals_context.get_locals()[asname], module
                 )
-                print(imported_module_name)
+                var_name = self.get_var(name, imported_module_name)
+                var_asname = self.get_var(asname, k)
+                if var_name is None and var_asname is None:
+                    temp_var_name = self.add_var(asname, k)
+                    self.add_var(name, imported_module_name, temp_var_name)
+                elif var_name is not None:
+                    self.add_var(asname, k, var_name)
+                else:
+                    self.add_var(name, imported_module_name, var_asname)
             self._locals_context.reset_locals_context()
 
-    def add_var(self, name, module) -> str:
-        var_name = _variable_encode(name, module) if module != self._default_module else name
+    def add_var(self, name: str, module: str, var_name: t.Optional[str] = None) -> str:
+        if gv := self.get_var(name, module):
+            return gv
+        if var_name is None:
+            var_name = _variable_encode(name, module) if module != self._default_module else name
         if name not in self._var_dir:
             self._var_dir[name] = {module: var_name}
         else:
             self._var_dir[name][module] = var_name
         return var_name
+
+    def get_var(self, name: str, module: str) -> t.Optional[str]:
+        if name in self._var_dir and module in self._var_dir[name]:
+            return self._var_dir[name][module]
+        return None
 
 
 def _variable_encode(var_name: str, module_name: t.Optional[str]):
