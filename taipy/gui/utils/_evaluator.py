@@ -73,6 +73,7 @@ class _Evaluator:
     def _analyze_expression(self, gui: Gui, expr: str) -> t.Tuple[t.Dict[str, t.Any], t.List[str]]:
         var_val: t.Dict[str, t.Any] = {}
         var_list: t.List[str] = []
+        var_map: t.Dict[str, str] = {}
         non_vars = list(self.__global_ctx.keys())
         non_vars.extend(dir(builtins))
         # Get a list of expressions (value that has been wrapped in curly braces {}) and find variables to bind
@@ -88,9 +89,10 @@ class _Evaluator:
                     var_name = node.id.split(sep=".")[0]
                     if var_name not in args and var_name not in targets and var_name not in non_vars:
                         try:
-                            gui._bind_var(var_name)
-                            var_val[var_name] = _getscopeattr_drill(gui, var_name)
+                            encoded_var_name = gui._bind_var(var_name)
+                            var_val[var_name] = _getscopeattr_drill(gui, encoded_var_name)
                             var_list.append(var_name)
+                            var_map[var_name] = encoded_var_name
                         except AttributeError as e:
                             warnings.warn(f"Variable '{var_name}' is not defined (in expression '{expr}'): {e}")
         return var_val, var_list

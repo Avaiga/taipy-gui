@@ -940,11 +940,11 @@ class Gui:
         return partial
 
     # Main binding method (bind in markdown declaration)
-    def _bind_var(self, var_name: str) -> bool:
-        if not hasattr(self._bindings(), var_name) and var_name in self._get_locals_bind().keys():
-            self._bind(var_name, self._get_locals_bind()[var_name])
-            return True
-        return False
+    def _bind_var(self, var_name: str) -> str:
+        encoded_var_name = self.__var_dir.add_var(var_name, self._get_locals_context())
+        if not hasattr(self._bindings(), encoded_var_name) and var_name in self._get_locals_bind().keys():
+            self._bind(encoded_var_name, self._get_locals_bind()[var_name])
+        return encoded_var_name
 
     def _bind_var_val(self, var_name: str, value: t.Any) -> bool:
         if not hasattr(self._bindings(), var_name):

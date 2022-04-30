@@ -66,7 +66,9 @@ class _VariableDirectory:
                     self.add_var(name, imported_module_name, var_asname)
             self._locals_context.reset_locals_context()
 
-    def add_var(self, name: str, module: str, var_name: t.Optional[str] = None) -> str:
+    def add_var(self, name: str, module: t.Optional[str], var_name: t.Optional[str] = None) -> str:
+        if module is None:
+            module = self._default_module
         if gv := self.get_var(name, module):
             return gv
         if var_name is None:
