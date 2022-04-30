@@ -23,7 +23,6 @@ class _VariableDirectory:
         self._locals_context = locals_context
         self._default_module = ""
         self._var_dir: t.Dict[str, dict] = {}
-        self._linked_var_dir: t.Dict[str, dict] = {}
         self._imported_var_dir: t.Dict[str, t.List[t.Tuple[str, str, str]]] = {}
 
     def set_default(self, frame: FrameType) -> None:
