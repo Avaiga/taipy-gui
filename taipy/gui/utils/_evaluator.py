@@ -28,6 +28,7 @@ from . import (
     _hasscopeattr,
     _setscopeattr,
     _TaipyBase,
+    _variable_decode,
     _variable_encode,
 )
 
@@ -102,7 +103,6 @@ class _Evaluator:
         expr: str,
         expr_hash: t.Optional[str],
         expr_evaluated: t.Optional[t.Any],
-        var_val: t.Dict[str, t.Any],
         var_map: t.Dict[str, str],
     ):
         if expr in self.__expr_to_hash:
@@ -117,7 +117,7 @@ class _Evaluator:
             expr_hash = var_map[expr_hash]
             self.__expr_to_hash[expr] = expr_hash
         self.__hash_to_expr[expr_hash] = expr
-        for var in var_val:
+        for _, var in var_map.items():
             if var not in self.__global_ctx.keys():
                 lst = self.__var_to_expr_list.get(var)
                 if lst is None:
@@ -199,16 +199,16 @@ class _Evaluator:
             return self.__expr_to_hash[expr]
         try:
             # evaluate expressions
-            ctx = {}
-            ctx.update(self.__global_ctx)
+            ctx: t.Dict[str, t.Any] = {}
+            ctx |= self.__global_ctx
             # entries in var_val are not always seen (NameError) when passed as locals
-            ctx.update(var_val)
-            expr_evaluated = eval(expr_string if not is_edge_case else not_encoded_expr, ctx)
+            ctx |= var_val
+            expr_evaluated = eval(not_encoded_expr if is_edge_case else expr_string, ctx)
         except Exception as e:
             warnings.warn(f"Cannot evaluate expression '{not_encoded_expr if is_edge_case else expr_string}': {e}")
             expr_evaluated = None
         # save the expression if it needs to be re-evaluated
-        return self.__save_expression(gui, expr, expr_hash, expr_evaluated, var_val, var_map)
+        return self.__save_expression(gui, expr, expr_hash, expr_evaluated, var_map)
 
     def re_evaluate_expr(self, gui: Gui, var_name: str) -> t.Set[str]:
         """
@@ -220,6 +220,7 @@ class _Evaluator:
         if var_name not in self.__var_to_expr_list.keys():
             return modified_vars
         for expr in self.__var_to_expr_list[var_name]:
+            expr_decoded, _ = _variable_decode(expr)
             if expr == var_name:
                 continue
             hash_expr = self.__expr_to_hash.get(expr, "UnknownExpr")
@@ -228,26 +229,23 @@ class _Evaluator:
                 warnings.warn(f"Someting is amiss with expression list for {expr}")
                 continue
             eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
-            if self._is_expression(expr):
+            if self._is_expression(expr_decoded):
                 expr_string = 'f"' + expr.replace('"', '\\"') + '"'
             else:
-                expr_string = expr
-
+                expr_string = expr_decoded
             try:
-                ctx = {}
-                ctx.update(self.__global_ctx)
-                ctx.update(eval_dict)
+                ctx: t.Dict[str, t.Any] = {}
+                ctx |= self.__global_ctx
+                ctx |= eval_dict
                 expr_evaluated = eval(expr_string, ctx)
                 _setscopeattr(gui, hash_expr, expr_evaluated)
             except Exception as e:
                 warnings.warn(f"Problem evaluating {expr_string}: {e}")
-
             # refresh holders if any
             for h in self.__expr_to_holders.get(expr, []):
                 holder_hash = self.__get_holder_hash(h, self.get_hash_from_expr(expr))
                 if holder_hash not in modified_vars:
                     _setscopeattr(gui, holder_hash, self.__evaluate_holder(gui, h, expr))
                     modified_vars.add(holder_hash)
-
             modified_vars.add(hash_expr)
         return modified_vars

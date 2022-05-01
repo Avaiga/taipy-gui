@@ -93,5 +93,5 @@ def _variable_encode(var_name: str, module_name: t.Optional[str]):
 
 def _variable_decode(var_name: str):
     if result := re.compile(r"(.*?)_TPMDL_(.*)").match(var_name):
-        return result[1], result[2].replace("_DOT_", ".")
+        return str(result[1]), str(result[2]).replace("_DOT_", ".")
     return var_name, None
