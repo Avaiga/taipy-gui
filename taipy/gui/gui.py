@@ -711,8 +711,9 @@ class Gui:
     def _get_locals_bind(self) -> t.Dict[str, t.Any]:
         return self.__locals_context.get_locals()
 
-    def _get_locals_context(self) -> t.Optional[str]:
-        return self.__locals_context.get_context()
+    def _get_locals_context(self) -> str:
+        current_context = self.__locals_context.get_context()
+        return current_context if current_context is not None else self.__default_module_name
 
     def _set_locals_context(self, context: t.Optional[str]) -> None:
         self.__locals_context.set_locals_context(context)
@@ -1137,7 +1138,7 @@ class Gui:
 
         self.__var_dir.process_imported_var()
 
-        self.__state = State(self, locals_bind.keys())
+        self.__state = State(self, self.__locals_context.get_all_keys())
 
         if _is_in_notebook():
             # to allow gui.state.x in notebook mode

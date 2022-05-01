@@ -25,6 +25,13 @@ class _LocalsContext:
     def get_default(self) -> t.Dict[str, t.Any]:
         return self._locals_map[self.__default_module]
 
+    def get_all_keys(self) -> t.Set[str]:
+        keys = set()
+        for _, v in self._locals_map.items():
+            for i in v.keys():
+                keys.add(i)
+        return keys
+
     def add(self, context: t.Optional[str], locals_dict: t.Optional[t.Dict[str, t.Any]]):
         if context is not None and locals_dict is not None and context not in self._locals_map:
             self._locals_map[context] = locals_dict

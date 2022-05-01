@@ -83,7 +83,6 @@ def test_map_dict_update():
     md.__setitem__("a", 3)
     assert update_values[0] == "a"
     assert update_values[1] == 3
-    print("")
     pass
 
 

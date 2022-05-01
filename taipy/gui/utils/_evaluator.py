@@ -28,6 +28,7 @@ from . import (
     _hasscopeattr,
     _setscopeattr,
     _TaipyBase,
+    _variable_encode,
 )
 
 
@@ -51,8 +52,8 @@ class _Evaluator:
         # "y": ["{x + y}"],
         self.__var_to_expr_list: t.Dict[str, t.List[str]] = {}
         # key = expression, value = list of related variables
-        # "{x + y}": ["x", "y"]
-        self.__expr_to_var_list: t.Dict[str, t.List[str]] = {}
+        # "{x + y}": {"x": "x_TPMDL_module1", "y": "y_TPMDL_module1"}
+        self.__expr_to_var_map: t.Dict[str, t.Dict[str, str]] = {}
         # instead of binding everywhere the types
         self.__global_ctx = default_bindings
         # expr to holders
@@ -70,16 +71,15 @@ class _Evaluator:
     def _fetch_expression_list(self, expr: str) -> t.List:
         return [v[0] for v in _Evaluator.__EXPR_RE.findall(expr)]
 
-    def _analyze_expression(self, gui: Gui, expr: str) -> t.Tuple[t.Dict[str, t.Any], t.List[str]]:
+    def _analyze_expression(self, gui: Gui, expr: str) -> t.Tuple[t.Dict[str, t.Any], t.Dict[str, str]]:
         var_val: t.Dict[str, t.Any] = {}
-        var_list: t.List[str] = []
         var_map: t.Dict[str, str] = {}
         non_vars = list(self.__global_ctx.keys())
         non_vars.extend(dir(builtins))
         # Get a list of expressions (value that has been wrapped in curly braces {}) and find variables to bind
         for e in self._fetch_expression_list(expr):
             var_name = e.split(sep=".")[0]
-            st = ast.parse(e if not _Evaluator.__EXPR_EDGE_CASE_F_STRING.match(e) else 'f"{' + e + '}"')
+            st = ast.parse('f"{' + e + '}"' if _Evaluator.__EXPR_EDGE_CASE_F_STRING.match(e) else e)
             args = [arg.arg for node in ast.walk(st) if isinstance(node, ast.arguments) for arg in node.args]
             targets = [
                 compr.target.id for node in ast.walk(st) if isinstance(node, ast.ListComp) for compr in node.generators  # type: ignore
@@ -91,11 +91,10 @@ class _Evaluator:
                         try:
                             encoded_var_name = gui._bind_var(var_name)
                             var_val[var_name] = _getscopeattr_drill(gui, encoded_var_name)
-                            var_list.append(var_name)
                             var_map[var_name] = encoded_var_name
                         except AttributeError as e:
                             warnings.warn(f"Variable '{var_name}' is not defined (in expression '{expr}'): {e}")
-        return var_val, var_list
+        return var_val, var_map
 
     def __save_expression(
         self,
@@ -104,7 +103,7 @@ class _Evaluator:
         expr_hash: t.Optional[str],
         expr_evaluated: t.Optional[t.Any],
         var_val: t.Dict[str, t.Any],
-        var_list: t.List[str],
+        var_map: t.Dict[str, str],
     ):
         if expr in self.__expr_to_hash:
             if expr_hash is None:
@@ -115,6 +114,7 @@ class _Evaluator:
             expr_hash = self.__expr_to_hash[expr] = _get_expr_var_name(expr)
             gui._bind_var_val(expr_hash, expr_evaluated)
         else:
+            expr_hash = var_map[expr_hash]
             self.__expr_to_hash[expr] = expr_hash
         self.__hash_to_expr[expr_hash] = expr
         for var in var_val:
@@ -124,8 +124,8 @@ class _Evaluator:
                     self.__var_to_expr_list[var] = [expr]
                 else:
                     lst.append(expr)
-        if expr not in self.__expr_to_var_list:
-            self.__expr_to_var_list[expr] = var_list
+        if expr not in self.__expr_to_var_map:
+            self.__expr_to_var_map[expr] = var_map
         return expr_hash
 
     def evaluate_bind_holder(self, gui: Gui, holder: t.Type[_TaipyBase], expr: str) -> str:
@@ -134,18 +134,15 @@ class _Evaluator:
         expr_lit = expr.replace("'", "\\'")
         holder_expr = f"{holder.__name__}({expr},'{expr_lit}')"
         self.__evaluate_holder(gui, holder, expr)
-        # define dependencies
-        a_set = self.__expr_to_holders.get(expr)
-        if a_set:
+        if a_set := self.__expr_to_holders.get(expr):
             a_set.add(holder)
         else:
-            self.__expr_to_holders[expr] = set([holder])
+            self.__expr_to_holders[expr] = {holder}
         self.__expr_to_hash[holder_expr] = hash_name
         # expression is only the first part ...
         expr = expr.split(".")[0]
-        self.__expr_to_var_list[holder_expr] = [expr]
-        a_list = self.__var_to_expr_list.get(expr)
-        if a_list:
+        self.__expr_to_var_map[holder_expr] = {expr: expr}
+        if a_list := self.__var_to_expr_list.get(expr):
             a_list.append(holder_expr)
         else:
             self.__var_to_expr_list[expr] = [holder_expr]
@@ -182,7 +179,7 @@ class _Evaluator:
     def evaluate_expr(self, gui: Gui, expr: str) -> t.Any:
         if not self._is_expression(expr):
             return expr
-        var_val, var_list = self._analyze_expression(gui, expr)
+        var_val, var_map = self._analyze_expression(gui, expr)
         expr_hash = None
         is_edge_case = False
 
@@ -195,6 +192,9 @@ class _Evaluator:
             expr_hash = expr if _Evaluator.__EXPR_VALID_VAR_EDGE_CASE.match(expr) else None
             is_edge_case = True
         # validate whether expression has already been evaluated
+        module_name = gui._get_locals_context()
+        not_encoded_expr = expr
+        expr = _variable_encode(expr, module_name)
         if expr in self.__expr_to_hash and _hasscopeattr(gui, self.__expr_to_hash[expr]):
             return self.__expr_to_hash[expr]
         try:
@@ -203,12 +203,12 @@ class _Evaluator:
             ctx.update(self.__global_ctx)
             # entries in var_val are not always seen (NameError) when passed as locals
             ctx.update(var_val)
-            expr_evaluated = eval(expr_string if not is_edge_case else expr, ctx)
+            expr_evaluated = eval(expr_string if not is_edge_case else not_encoded_expr, ctx)
         except Exception as e:
-            warnings.warn(f"Cannot evaluate expression '{expr if is_edge_case else expr_string}': {e}")
+            warnings.warn(f"Cannot evaluate expression '{not_encoded_expr if is_edge_case else expr_string}': {e}")
             expr_evaluated = None
         # save the expression if it needs to be re-evaluated
-        return self.__save_expression(gui, expr, expr_hash, expr_evaluated, var_val, var_list)
+        return self.__save_expression(gui, expr, expr_hash, expr_evaluated, var_val, var_map)
 
     def re_evaluate_expr(self, gui: Gui, var_name: str) -> t.Set[str]:
         """
@@ -223,12 +223,11 @@ class _Evaluator:
             if expr == var_name:
                 continue
             hash_expr = self.__expr_to_hash.get(expr, "UnknownExpr")
-            expr_var_list = self.__expr_to_var_list.get(expr)  # ["x", "y"]
-            if expr_var_list is None:
+            expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
+            if expr_var_map is None:
                 warnings.warn(f"Someting is amiss with expression list for {expr}")
                 continue
-            eval_dict = {v: _getscopeattr_drill(gui, v) for v in expr_var_list}
-
+            eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
             if self._is_expression(expr):
                 expr_string = 'f"' + expr.replace('"', '\\"') + '"'
             else:
