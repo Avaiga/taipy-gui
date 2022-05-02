@@ -28,7 +28,11 @@ def test_variable_binding(helpers):
     gui.run(run_server=False)
     client = gui._server.test_client()
     jsx = client.get("/taipy-jsx/test/").json["jsx"]
-    for expected in ["<Button", f'defaultLabel="{z}"', "label={z}"]:
+    for expected in [
+        "<Button",
+        f'defaultLabel="{z}"',
+        "label={tpec_z_TPMDL_tests_DOT_taipy_DOT_gui_DOT_gui_specific_DOT_test_variable_binding}",
+    ]:
         assert expected in jsx
     assert gui._bindings().x == x
     assert gui._bindings().y == y

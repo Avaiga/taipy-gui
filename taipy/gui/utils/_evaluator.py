@@ -27,6 +27,7 @@ from . import (
     _getscopeattr_drill,
     _hasscopeattr,
     _setscopeattr,
+    _setscopeattr_drill,
     _TaipyBase,
     _variable_decode,
     _variable_encode,
@@ -226,9 +227,15 @@ class _Evaluator:
         # since this is an edge case --> only 1 item in the dict and that item is the original var
         for _, v in self.__expr_to_var_map[expr_original].items():
             var_name = v
-        _setscopeattr(gui, var_name, _getscopeattr(gui, var_name_original))
+        # construct correct var_path to reassign values
+        var_name_full, _ = _variable_decode(expr_original)
+        var_name_full = var_name_full.split(".")
+        var_name_full[0] = var_name
+        var_name_full = ".".join(var_name_full)
+        _setscopeattr_drill(gui, var_name_full, _getscopeattr(gui, var_name_original))
         for expr in self.__var_to_expr_list[var_name]:
-            if expr == expr_original:
+            if expr == expr_original or expr.startswith("_Taipy"):
+                print(expr)
                 continue
             expr_decoded, _ = _variable_decode(expr)
             if expr == var_name:
