@@ -21,19 +21,19 @@ def test_number_md_1(gui: Gui, helpers):
 def test_number_md_2(gui: Gui, helpers):
     gui._bind_var_val("x", "10")
     md_string = "<|{x}|number|>"
-    expected_list = ["<Input", 'updateVarName="x"', 'defaultValue="10"', 'type="number"', "value={x}"]
+    expected_list = ["<Input", 'updateVarName="_TpN_x"', 'defaultValue="10"', 'type="number"', "value={_TpN_x}"]
     helpers.test_control_md(gui, md_string, expected_list)
 
 
 def test_number_html_1(gui: Gui, helpers):
     gui._bind_var_val("x", 10)
     html_string = '<taipy:number value="{x}" />'
-    expected_list = ["<Input", 'updateVarName="x"', 'defaultValue="10"', 'type="number"', "value={x}"]
+    expected_list = ["<Input", 'updateVarName="_TpN_x"', 'defaultValue="10"', 'type="number"', "alue={_TpN_x}"]
     helpers.test_control_html(gui, html_string, expected_list)
 
 
 def test_number_html_2(gui: Gui, helpers):
     gui._bind_var_val("x", 10)
     html_string = "<taipy:number>{x}</taipy:number>"
-    expected_list = ["<Input", 'updateVarName="x"', 'defaultValue="10"', 'type="number"', "value={x}"]
+    expected_list = ["<Input", 'updateVarName="_TpN_x"', 'defaultValue="10"', 'type="number"', "value={_TpN_x}"]
     helpers.test_control_html(gui, html_string, expected_list)

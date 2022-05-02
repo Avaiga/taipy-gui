@@ -40,7 +40,7 @@ def test_variable_binding(helpers):
 def test_properties_binding(helpers):
     gui = Gui()
     modifier = "nice "  # noqa: F841
-    button_properties = { "label": "A {modifier}button" }  # noqa: F841
+    button_properties = {"label": "A {modifier}button"}  # noqa: F841
     gui.add_page("test", Markdown("<|button|properties=button_properties|>"))
     gui.run(run_server=False)
     client = gui._server.test_client()
@@ -54,7 +54,6 @@ def test_dict_binding(helpers):
     """
     Tests the binding of a dictionary property
     """
-
     d = {"k": "test"}  # noqa: F841
     gui = Gui("<|{d.k}|>")
     gui.run(run_server=False)

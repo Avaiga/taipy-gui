@@ -243,7 +243,7 @@ class _Factory:
                 ("hover_text", _AttributeType.dynamic_string),
                 ("on_change", _AttributeType.function),
                 ("on_action", _AttributeType.function),
-                ("action_keys", ),
+                ("action_keys",),
             ]
         ),
         "layout": lambda gui, control_type, attrs: _Builder(
@@ -299,7 +299,7 @@ class _Factory:
             default_value=0,
         )
         .set_input_type("number")
-        .set_value_and_default()
+        .set_value_and_default(var_type=_AttributeType.dynamic_number)
         .set_change_delay()
         .set_propagate()
         .set_attributes(
