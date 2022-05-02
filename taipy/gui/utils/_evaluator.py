@@ -111,11 +111,12 @@ class _Evaluator:
                 gui._bind_var_val(expr_hash, expr_evaluated)
             return expr_hash
         if expr_hash is None:
-            expr_hash = self.__expr_to_hash[expr] = _get_expr_var_name(expr)
-            gui._bind_var_val(expr_hash, expr_evaluated)
+            expr_hash = _get_expr_var_name(expr)
         else:
-            expr_hash = var_map[expr_hash]
-            self.__expr_to_hash[expr] = expr_hash
+            # edge case, only a single variable
+            expr_hash = f"tpec_{_get_client_var_name(expr)}"
+        self.__expr_to_hash[expr] = expr_hash
+        gui._bind_var_val(expr_hash, expr_evaluated)
         self.__hash_to_expr[expr_hash] = expr
         for _, var in var_map.items():
             if var not in self.__global_ctx.keys():
@@ -216,10 +217,19 @@ class _Evaluator:
         an expression with only a single variable
         """
         modified_vars: t.Set[str] = set()
-        var_name = var_name.split(".")[0]
-        if var_name not in self.__var_to_expr_list.keys():
+        # Verify that the current hash is an edge case one (only a single variable inside the original expression)
+        if not var_name.startswith("tpec_"):
             return modified_vars
+        # backup for later reference
+        var_name_original = var_name
+        expr_original = self.__hash_to_expr[var_name]
+        # since this is an edge case --> only 1 item in the dict and that item is the original var
+        for _, v in self.__expr_to_var_map[expr_original].items():
+            var_name = v
+        _setscopeattr(gui, var_name, _getscopeattr(gui, var_name_original))
         for expr in self.__var_to_expr_list[var_name]:
+            if expr == expr_original:
+                continue
             expr_decoded, _ = _variable_decode(expr)
             if expr == var_name:
                 continue
