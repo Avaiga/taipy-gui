@@ -66,6 +66,7 @@ from .utils import (
     _TaipyData,
     _TaipyLov,
     _TaipyLovValue,
+    _variable_decode,
 )
 from .utils._adapter import _Adapter
 from .utils._bindings import _Bindings
@@ -338,6 +339,7 @@ class Gui:
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
         # TODO: what if _update_function changes 'var_name'... infinite loop?
         on_change_fn = None
+        var_name, module_name = _variable_decode(self._get_expr_from_hash(var_name))
         if on_change:
             on_change_fn = self._get_user_function(on_change)
         if not callable(on_change_fn) and hasattr(self, "on_change") and callable(self.on_change):
@@ -352,6 +354,8 @@ class Gui:
                     args[1] = var_name
                 if argcount > 2:
                     args[2] = value
+                if argcount > 3:
+                    args[3] = module_name
                 on_change_fn(*args)
             except Exception as e:
                 warnings.warn(f"{on_change or 'on_change'}: callback function raised an exception: {e}")

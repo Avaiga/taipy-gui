@@ -82,9 +82,8 @@ class State:
             return gui
         if name not in super().__getattribute__(State.__attrs[1]):
             raise AttributeError(f"Variable '{name}' is not defined.")
-        if not hasattr(gui._bindings(), name):
-            gui._bind_var(name)
-        return getattr(gui._bindings(), name)
+        encoded_name = gui._bind_var(name)
+        return getattr(gui._bindings(), encoded_name)
 
     def __setattr__(self, name: str, value: t.Any) -> None:
         if name in State.__attrs:
@@ -93,9 +92,8 @@ class State:
             if name not in super().__getattribute__(State.__attrs[1]):
                 raise AttributeError(f"Variable '{name}' is not accessible.")
             gui = super().__getattribute__(State.__attrs[0])
-            if not hasattr(gui._bindings(), name):
-                gui._bind_var(name)
-            setattr(gui._bindings(), name, value)
+            encoded_name = gui._bind_var(name)
+            setattr(gui._bindings(), encoded_name, value)
 
     def assign(self, name: str, value: t.Any) -> t.Any:
         """Assign a value to a state variable.
