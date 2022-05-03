@@ -22,7 +22,8 @@ class _VariableDirectory:
     def __init__(self, locals_context: _LocalsContext):
         self._locals_context = locals_context
         self._default_module = ""
-        self._var_dir: t.Dict[str, dict] = {}
+        self._var_dir: t.Dict[str, t.Dict] = {}
+        self._var_head: t.Dict[str, t.List[t.Tuple[str, str]]] = {}
         self._imported_var_dir: t.Dict[str, t.List[t.Tuple[str, str, str]]] = {}
 
     def set_default(self, frame: FrameType) -> None:
@@ -70,13 +71,26 @@ class _VariableDirectory:
             module = self._default_module
         if gv := self.get_var(name, module):
             return gv
+        var_encode = _variable_encode(name, module) if module != self._default_module else name
         if var_name is None:
-            var_name = _variable_encode(name, module) if module != self._default_module else name
+            var_name = var_encode
+        self.__add_var_head(name, module, var_name)
+        if var_encode != var_name:
+            var_name_decode, module_decode = _variable_decode(var_name)
+            if module_decode is None:
+                module_decode = self._default_module
+            self.__add_var_head(var_name_decode, module_decode, var_encode)
         if name not in self._var_dir:
             self._var_dir[name] = {module: var_name}
         else:
             self._var_dir[name][module] = var_name
         return var_name
+
+    def __add_var_head(self, name: str, module: str, var_head: str) -> None:
+        if var_head not in self._var_head:
+            self._var_head[var_head] = [(name, module)]
+        else:
+            self._var_head[var_head].append((name, module))
 
     def get_var(self, name: str, module: str) -> t.Optional[str]:
         if name in self._var_dir and module in self._var_dir[name]:
