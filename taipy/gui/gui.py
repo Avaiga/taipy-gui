@@ -733,6 +733,9 @@ class Gui:
     def _set_flask(self, flask: Flask):
         self._flask = flask
 
+    def _get_default_module_name(self):
+        return self.__default_module_name
+
     @staticmethod
     def _get_timezone() -> str:
         return Gui.__LOCAL_TZ

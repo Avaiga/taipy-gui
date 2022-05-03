@@ -49,3 +49,5 @@ class _Page(object):
                 logging.warn(s)
         if hasattr(self._renderer, "head"):
             self._head = list(self._renderer.head)  # type: ignore
+        # return renderer module_name from frame
+        return self._renderer._get_module_name()

@@ -136,7 +136,7 @@ class _Server:
         return taipy_bp
 
     # Update to render as JSX
-    def _render(self, html_fragment, style, head):
+    def _render(self, html_fragment, style, head, context):
         template_str = _Server.__RE_OPENING_CURLY.sub(_Server.__OPENING_CURLY, html_fragment)
         template_str = _Server.__RE_CLOSING_CURLY.sub(_Server.__CLOSING_CURLY, template_str)
         template_str = template_str.replace('"{!', "{")
@@ -146,7 +146,7 @@ class _Server:
                 "jsx": template_str,
                 "style": (style + os.linesep) if style else "",
                 "head": head or [],
-                "context": self._gui._get_locals_context(),
+                "context": context or self._gui._get_default_module_name(),
             }
         )
 
@@ -166,7 +166,7 @@ class _Server:
         # Make sure that there is a page instance found
         if page is None:
             return (jsonify({"error": "Page doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
-        page.render(self._gui)
+        context = page.render(self._gui)
         if (
             render_path_name == self._root_page_name
             and page._rendered_jsx is not None
@@ -175,7 +175,7 @@ class _Server:
             page._rendered_jsx += "<PageContent />"
         # Return jsx page
         if page._rendered_jsx is not None:
-            return self._render(page._rendered_jsx, page._style if page._style is not None else "", page._head)
+            return self._render(page._rendered_jsx, page._style if page._style is not None else "", page._head, context)
         else:
             return ("No page template", 404)
 
