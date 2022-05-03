@@ -235,7 +235,6 @@ class _Evaluator:
         _setscopeattr_drill(gui, var_name_full, _getscopeattr(gui, var_name_original))
         for expr in self.__var_to_expr_list[var_name]:
             if expr == expr_original or expr.startswith("_Taipy"):
-                print(expr)
                 continue
             expr_decoded, _ = _variable_decode(expr)
             if expr == var_name:

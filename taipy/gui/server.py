@@ -14,9 +14,9 @@ from __future__ import annotations
 import logging
 import os
 import re
+import socket
 import typing as t
 import webbrowser
-import socket
 
 import __main__
 from flask import Blueprint, Flask, json, jsonify, render_template, render_template_string, request, send_from_directory
@@ -87,8 +87,7 @@ class _Server:
             "timeZone": self._gui._config.get_time_zone(),
             "darkMode": self._gui._get_config("dark_mode", True),
         }
-        themes = self._gui._get_themes()
-        if themes:
+        if themes := self._gui._get_themes():
             config["themes"] = themes
         return config
 
@@ -114,8 +113,7 @@ class _Server:
                     favicon=favicon,
                     root_margin=root_margin,
                     watermark=self._gui._get_config("watermark", None),
-                    config=self.__get_client_config()
-
+                    config=self.__get_client_config(),
                 )
             if os.path.isfile(static_folder + os.path.sep + path):
                 return send_from_directory(static_folder + os.path.sep, path)
@@ -148,6 +146,7 @@ class _Server:
                 "jsx": template_str,
                 "style": (style + os.linesep) if style else "",
                 "head": head or [],
+                "context": self._gui._get_locals_context(),
             }
         )
 
@@ -234,10 +233,12 @@ class _Server:
         if debug and not is_running_from_reloader():
             # Check that the port is not already opened
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex((host_value,port))
+            result = sock.connect_ex((host_value, port))
             sock.close()
             if result == 0:
-                raise ConnectionError(f"Port {port} is already opened on {host_value}. You have another server application running on the same port.")
+                raise ConnectionError(
+                    f"Port {port} is already opened on {host_value}. You have another server application running on the same port."
+                )
         if not flask_log:
             log = logging.getLogger("werkzeug")
             log.disabled = True

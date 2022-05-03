@@ -256,6 +256,7 @@ class Gui:
     def _manage_message(self, msg_type: _WsType, message: dict) -> None:
         try:
             self._bindings()._set_client_id(message)
+            self._set_locals_context(message.get("module_context") or None)
             if msg_type == _WsType.UPDATE.value:
                 payload = message.get("payload", {})
                 self.__front_end_update(
@@ -273,6 +274,7 @@ class Gui:
                 self.__request_var_update(message.get("payload"))
             elif msg_type == _WsType.CLIENT_ID.value:
                 self._bindings()._get_or_create_scope(message.get("payload", ""))
+            self._reset_locals_context()
         except Exception as e:
             warnings.warn(f"Decoding Message has failed: {message}\n{e}")
 
