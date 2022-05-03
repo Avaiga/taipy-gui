@@ -50,8 +50,8 @@ class _Evaluator:
         self.__hash_to_expr: t.Dict[str, str] = {}
         # key = variable name of the expression, key = list of related expressions
         # ex: {x + y}
-        # "x": ["{x + y}"],
-        # "y": ["{x + y}"],
+        # "x_TPMDL_module1": ["{x + y}"],
+        # "y_TPMDL_module1": ["{x + y}"],
         self.__var_to_expr_list: t.Dict[str, t.List[str]] = {}
         # key = expression, value = list of related variables
         # "{x + y}": {"x": "x_TPMDL_module1", "y": "y_TPMDL_module1"}
@@ -219,20 +219,25 @@ class _Evaluator:
         """
         modified_vars: t.Set[str] = set()
         # Verify that the current hash is an edge case one (only a single variable inside the original expression)
-        if not var_name.startswith("tpec_"):
+        if var_name.startswith("tp_"):
             return modified_vars
-        # backup for later reference
-        var_name_original = var_name
-        expr_original = self.__hash_to_expr[var_name]
-        # since this is an edge case --> only 1 item in the dict and that item is the original var
-        for _, v in self.__expr_to_var_map[expr_original].items():
-            var_name = v
-        # construct correct var_path to reassign values
-        var_name_full, _ = _variable_decode(expr_original)
-        var_name_full = var_name_full.split(".")
-        var_name_full[0] = var_name
-        var_name_full = ".".join(var_name_full)
-        _setscopeattr_drill(gui, var_name_full, _getscopeattr(gui, var_name_original))
+        expr_original = None
+        # if var_name starts with tpec_ --> it is an edge case with modified var
+        if var_name.startswith("tpec_"):
+            # backup for later reference
+            var_name_original = var_name
+            expr_original = self.__hash_to_expr[var_name]
+            # since this is an edge case --> only 1 item in the dict and that item is the original var
+            for _, v in self.__expr_to_var_map[expr_original].items():
+                var_name = v
+            # construct correct var_path to reassign values
+            var_name_full, _ = _variable_decode(expr_original)
+            var_name_full = var_name_full.split(".")
+            var_name_full[0] = var_name
+            var_name_full = ".".join(var_name_full)
+            _setscopeattr_drill(gui, var_name_full, _getscopeattr(gui, var_name_original))
+        # otherwise, thar var_name is correct and doesn't require any resolution
+
         for expr in self.__var_to_expr_list[var_name]:
             if expr == expr_original or expr.startswith("_Taipy"):
                 continue
