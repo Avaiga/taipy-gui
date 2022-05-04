@@ -237,7 +237,9 @@ class _Evaluator:
             var_name_full = ".".join(var_name_full)
             _setscopeattr_drill(gui, var_name_full, _getscopeattr(gui, var_name_original))
         # otherwise, thar var_name is correct and doesn't require any resolution
-
+        if var_name not in self.__var_to_expr_list:
+            warnings.warn("{var_name} not found")
+            return modified_vars
         for expr in self.__var_to_expr_list[var_name]:
             if expr == expr_original or expr.startswith("_Taipy"):
                 continue

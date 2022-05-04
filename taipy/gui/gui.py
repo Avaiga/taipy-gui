@@ -67,6 +67,7 @@ from .utils import (
     _TaipyLov,
     _TaipyLovValue,
     _variable_decode,
+    _variable_encode,
 )
 from .utils._adapter import _Adapter
 from .utils._bindings import _Bindings
@@ -316,7 +317,10 @@ class Gui:
         propagate=True,
         holder: t.Optional[_TaipyBase] = None,
         on_change: t.Optional[str] = None,
+        from_map_dict: bool = False,
     ) -> None:
+        if from_map_dict:
+            var_name = _variable_encode(var_name, self._get_locals_context())
         if holder:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
@@ -325,8 +329,8 @@ class Gui:
         if propagate:
             _setscopeattr_drill(self, hash_expr, value)
             # In case expression == hash (which is when there is only a single variable in expression)
-            if var_name == hash_expr:
-                modified_vars.update(self._re_evaluate_expr(var_name))
+            if var_name == hash_expr or hash_expr.startswith("tpec_"):
+                modified_vars.update(self._re_evaluate_expr(hash_expr))
         elif holder:
             modified_vars.update(self._evaluate_holders(hash_expr))
         self.__call_on_change(
