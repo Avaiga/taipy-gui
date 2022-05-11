@@ -25,8 +25,8 @@ from types import FrameType
 
 import __main__
 import markdown as md_lib
-from flask import Blueprint, Flask, request, send_from_directory
 import tzlocal
+from flask import Blueprint, Flask, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 if util.find_spec("pyngrok"):
@@ -121,9 +121,7 @@ class Gui:
         self,
         page: t.Optional[t.Union[str, Page]] = None,
         pages: t.Optional[dict] = None,
-        css_file: str = os.path.splitext(os.path.basename(__main__.__file__))[0]
-        if hasattr(__main__, "__file__")
-        else "Taipy",
+        css_file: t.Optional[str] = None,
         path_mapping: t.Optional[dict] = {},
         env_filename: t.Optional[str] = None,
         flask: t.Optional[Flask] = None,
@@ -172,6 +170,8 @@ class Gui:
         # Preserve server config for server initialization
         self._path_mapping = path_mapping
         self._flask = flask
+        if css_file is None:
+            css_file = os.path.splitext(os.path.basename(self.__frame.f_code.co_filename))[0] or "Taipy"
         self._css_file = css_file
 
         self._config = _Config()
@@ -189,6 +189,9 @@ class Gui:
         self.on_action: t.Optional[t.Callable] = None
         self.on_change: t.Optional[t.Callable] = None
         self.on_init: t.Optional[t.Callable] = None
+
+        # gui synchronous state variable
+        self.__modified_vars_update_var: t.Optional[t.Set] = None
 
         # Load default config
         self._flask_blueprint: t.List[Blueprint] = []
@@ -267,6 +270,7 @@ class Gui:
                 self.__request_var_update(message.get("payload"))
             elif msg_type == _WsType.CLIENT_ID.value:
                 self._bindings()._get_or_create_scope(message.get("payload", ""))
+            self._bindings()._reset_client_id()
         except Exception as e:
             warnings.warn(f"Decoding Message has failed: {message}\n{e}")
 
@@ -311,6 +315,9 @@ class Gui:
         if holder:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
+        # if the variable has been evaluated then skip updating to prevent infinite loop
+        if self.__modified_vars_update_var is not None and hash_expr in self.__modified_vars_update_var:
+            return
         modified_vars = {hash_expr}
         # Use custom attrsetter function to allow value binding for _MapDict
         if propagate:
@@ -320,12 +327,20 @@ class Gui:
                 modified_vars.update(self._re_evaluate_expr(var_name))
         elif holder:
             modified_vars.update(self._evaluate_holders(hash_expr))
+        send_var_list = False
+        if self.__modified_vars_update_var is None:
+            self.__modified_vars_update_var = modified_vars
+            send_var_list = True
+        else:
+            self.__modified_vars_update_var.update(modified_vars)
         self.__call_on_change(
             var_name,
             value.get() if isinstance(value, _TaipyBase) else value._dict if isinstance(value, _MapDict) else value,
             on_change,
         )
-        self.__send_var_list_update(list(modified_vars), var_name)
+        if send_var_list:
+            self.__send_var_list_update(list(self.__modified_vars_update_var), var_name)
+            self.__modified_vars_update_var = None
 
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
         # TODO: what if _update_function changes 'var_name'... infinite loop?
