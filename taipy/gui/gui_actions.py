@@ -122,3 +122,28 @@ def navigate(state: State, to: t.Optional[str] = ""):
         state._gui._navigate(to)
     else:
         warnings.warn("'navigate()' must be called in the context of a callback")
+
+
+def get_context_id(state: State) -> t.Optional[str]:
+    """Get the current context identifier (as needed for serializable callbacks).
+
+    Arguments:
+        state (State^): The current user state as received in any callback.
+    """
+    if state and isinstance(state._gui, Gui):
+        return state._gui._get_client_id()
+    return None
+
+def invoke_state_callback(gui: Gui, context_id: str, user_callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
+    """Invoke a user callback with context.
+
+    Arguments:
+        gui (Gui^): The current gui instance.
+        context_id: The context id as returned by get_context_id()^.
+        user_callback (Callable[[State, ...], None): The user-defined function that is invoked. The first parameter of this function must be a `State^`.
+        args: The remaining arguments, as a List or a Tuple.
+    """
+    if isinstance(gui, Gui):
+        return gui._call_user_callback(context_id, user_callback, list(args))
+    else:
+        warnings.warn("'invoke_state_callback()' must be called with a valid Gui instance")

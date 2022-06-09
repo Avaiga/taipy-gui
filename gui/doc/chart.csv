@@ -16,10 +16,10 @@ render,bool,True,"If True, this chart is visible on the page."
 on_range_change,Callback,,"Callback function called when the visible part of the x axis changes.
 The function receives four parameters:
 <ul>
-<li>state (`State^`): state instance.</li>
+<li>state (<code>State^</code>): the state instance.</li>
 <li>id (optional[str]): the identifier of the chart control.</li>
 <li>action (optional[str]): the name of the action that provoked the change.</li>
-<li>payload (dict[str, any]): all the event information, as emitted by <a href=""https://plotly.com/javascript/plotlyjs-events/#update-data"">plotly</a>.</li>
+<li>payload (dict[str, any]): the full details on this callback's invocation, as emitted by <a href=""https://plotly.com/javascript/plotlyjs-events/#update-data"">plotly</a>.</li>
 </ul>"
 columns,"str|List[str]|dict[str, dict[str, str]]",_All columns_,"List of column names
 <ul>
@@ -32,10 +32,11 @@ label,indexed(str),,"The label for the indicated trace.
 This is used when the mouse hovers over a trace."
 name,indexed(str),,The name of the indicated trace.
 selected,dynamic(list[int]|str),,List of the selected point indices.
-color,indexed(str),,The color of the indicated trace.
+color,indexed(str),,The color of the indicated trace (or a column name for scattered).
 selected_color,indexed(str),,The color of the selected points for the indicated trace.
 marker,"indexed(dict[str, any])",,"The type of markers used for the indicated trace.
-See <a href=""https://plotly.com/javascript/reference/scatter/#scatter-marker"">marker</a> for details."
+See <a href=""https://plotly.com/javascript/reference/scatter/#scatter-marker"">marker</a> for details.
+Color and size can be column name."
 line,"indexed(str|dict[str, any])",,"The configuration of the line used for the indicated trace.
 See <a href=""https://plotly.com/javascript/reference/scatter/#scatter-line"">line</a> for details. if str then dash??"
 selected_marker,"indexed(dict[str, any])",,"The type of markers used for selected points in the indicated trace.

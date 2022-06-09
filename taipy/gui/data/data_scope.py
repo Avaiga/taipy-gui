@@ -15,14 +15,15 @@ import typing as t
 import warnings
 from types import SimpleNamespace
 
-from flask import request
-
 
 class _DataScopes:
+
+    _GLOBAL_ID = "global"
+
     def __init__(self) -> None:
         self.__scopes: t.Dict[str, SimpleNamespace] = {}
-        self.__scopes["global"] = SimpleNamespace()
-        self.__single_client = False
+        self.__scopes[_DataScopes._GLOBAL_ID] = SimpleNamespace()
+        self.__single_client = True
 
     def set_single_client(self, value: bool) -> None:
         self.__single_client = value
@@ -30,16 +31,13 @@ class _DataScopes:
     def get_single_client(self) -> bool:
         return self.__single_client
 
-    def get_scope(self) -> SimpleNamespace:
-        if self.__single_client or not request:
-            return self.__scopes["global"]
+    def get_scope(self, client_id: t.Optional[str]) -> SimpleNamespace:
+        if self.__single_client:
+            return self.__scopes[_DataScopes._GLOBAL_ID]
         # global context in case request is not registered or client_id is not available (such as in the context of running tests)
-        client_id = getattr(request, "taipy_client_id", "")
-        if not client_id:
-            client_id = request.args.get("client_id", "")
         if not client_id:
             warnings.warn("Empty session id, using global scope instead")
-            return self.__scopes["global"]
+            return self.__scopes[_DataScopes._GLOBAL_ID]
         if client_id not in self.__scopes:
             warnings.warn(
                 f"session id {client_id} not found in data scope. Taipy will automatically create a scope for this session id but you might have to reload your webpage"
@@ -47,17 +45,13 @@ class _DataScopes:
             self.create_scope(client_id)
         return self.__scopes[client_id]
 
-    def _set_client_id(self, client_id: t.Optional[str]):
-        if client_id:
-            setattr(request, "taipy_client_id", client_id)
-
     def get_all_scopes(self) -> t.Dict[str, SimpleNamespace]:
         return self.__scopes
 
     def broadcast_data(self, name, value):
         if self.__single_client:
             return
-        if not hasattr(request, "taipy_client_id"):
+        if not self.__client_id:
             for _, v in self.__scopes.items():
                 if hasattr(v, name):
                     setattr(v, name, value)

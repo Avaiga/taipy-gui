@@ -26,7 +26,7 @@ from types import FrameType
 import __main__
 import markdown as md_lib
 import tzlocal
-from flask import Blueprint, Flask, request, send_from_directory
+from flask import Blueprint, Flask, g, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 if util.find_spec("pyngrok"):
@@ -38,6 +38,7 @@ from .config import Config, ConfigParameter, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
+from .data.data_scope import _DataScopes
 from .page import Page
 from .partial import Partial
 from .renderers import _EmptyPage
@@ -127,9 +128,7 @@ class Gui:
         self,
         page: t.Optional[t.Union[str, Page]] = None,
         pages: t.Optional[dict] = None,
-        css_file: str = os.path.splitext(os.path.basename(__main__.__file__))[0]
-        if hasattr(__main__, "__file__")
-        else "Taipy",
+        css_file: t.Optional[str] = None,
         path_mapping: t.Optional[dict] = {},
         env_filename: t.Optional[str] = None,
         flask: t.Optional[Flask] = None,
@@ -179,6 +178,8 @@ class Gui:
         # Preserve server config for server initialization
         self._path_mapping = path_mapping
         self._flask = flask
+        if css_file is None:
+            css_file = os.path.splitext(os.path.basename(self.__frame.f_code.co_filename))[0] or "Taipy"
         self._css_file = css_file
 
         self._config = _Config()
@@ -197,6 +198,12 @@ class Gui:
         self.on_action: t.Optional[t.Callable] = None
         self.on_change: t.Optional[t.Callable] = None
         self.on_init: t.Optional[t.Callable] = None
+
+        # gui synchronous state variable
+        self.__modified_vars_update_var: t.Optional[t.Set] = None
+
+        # sid from client_id
+        self.__client_id_2_sid: t.Dict[str, t.Set[str]] = {}
 
         # Load default config
         self._flask_blueprint: t.List[Blueprint] = []
@@ -234,6 +241,9 @@ class Gui:
     def _bindings(self):
         return self.__bindings
 
+    def _get_data_scope(self):
+        return self.__bindings._get_data_scope()
+
     def _get_config(self, name: ConfigParameter, default_value: t.Any) -> t.Any:
         return self._config._get_config(name, default_value)
 
@@ -255,9 +265,30 @@ class Gui:
     def _bind(self, name: str, value: t.Any) -> None:
         self._bindings()._bind(name, value)
 
+    def __get_state(self):
+        return self.__state
+
+    def _get_client_id(self) -> str:
+        return (
+            _DataScopes._GLOBAL_ID if self._bindings()._get_single_client() else getattr(g, "client_id", "unknown id")
+        )
+
+    def __set_client_id_in_context(self, client_id: t.Optional[str] = None):
+        if not client_id and request:
+            client_id = request.args.get("client_id", "")
+        if client_id and request:
+            sid = getattr(request, "sid", None)
+            if sid:
+                sids = self.__client_id_2_sid.get(client_id, None)
+                if sids is None:
+                    sids = set()
+                    self.__client_id_2_sid[client_id] = sids
+                sids.add(sid)
+        g.client_id = client_id
+
     def _manage_message(self, msg_type: _WsType, message: dict) -> None:
         try:
-            self._bindings()._set_client_id(message)
+            self.__set_client_id_in_context(message.get("client_id"))
             self._set_locals_context(message.get("module_context") or None)
             if msg_type == _WsType.UPDATE.value:
                 payload = message.get("payload", {})
@@ -324,6 +355,9 @@ class Gui:
         if holder:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
+        # if the variable has been evaluated then skip updating to prevent infinite loop
+        if self.__modified_vars_update_var is not None and hash_expr in self.__modified_vars_update_var:
+            return
         modified_vars = {hash_expr}
         # Use custom attrsetter function to allow value binding for _MapDict
         if propagate:
@@ -333,12 +367,20 @@ class Gui:
                 modified_vars.update(self._re_evaluate_expr(hash_expr))
         elif holder:
             modified_vars.update(self._evaluate_holders(hash_expr))
+        send_var_list = False
+        if self.__modified_vars_update_var is None:
+            self.__modified_vars_update_var = modified_vars
+            send_var_list = True
+        else:
+            self.__modified_vars_update_var.update(modified_vars)
         self.__call_on_change(
             var_name,
             value.get() if isinstance(value, _TaipyBase) else value._dict if isinstance(value, _MapDict) else value,
             on_change,
         )
-        self.__send_var_list_update(list(modified_vars), var_name)
+        if send_var_list:
+            self.__send_var_list_update(list(self.__modified_vars_update_var), var_name)
+            self.__modified_vars_update_var = None
 
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
         # TODO: what if _update_function changes 'var_name'... infinite loop?
@@ -369,7 +411,7 @@ class Gui:
                 argcount = on_change_fn.__code__.co_argcount
                 args: t.List[t.Any] = [None for _ in range(argcount)]
                 if argcount > 0:
-                    args[0] = self.__state
+                    args[0] = self.__get_state()
                 if argcount > 1:
                     args[1] = var_name
                 if argcount > 2:
@@ -385,6 +427,7 @@ class Gui:
         return Gui.__CONTENT_ROOT + ret_value[0] if isinstance(ret_value, tuple) else ret_value
 
     def __serve_content(self, path: str) -> t.Any:
+        self.__set_client_id_in_context()
         parts = path.split("/")
         if len(parts) > 1:
             file_name = parts[-1]
@@ -396,6 +439,7 @@ class Gui:
         return ("", 404)
 
     def __upload_files(self):
+        self.__set_client_id_in_context()
         if "var_name" not in request.form:
             warnings.warn("No var name")
             return ("No var name", 400)
@@ -581,7 +625,13 @@ class Gui:
         self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
     def __get_ws_receiver(self) -> t.Union[t.List[str], t.Any, None]:
-        return None if self._bindings()._get_single_client() else getattr(request, "sid", None)
+        if self._bindings()._get_single_client():
+            return None
+        sid = getattr(request, "sid", None) if request else None
+        sids = self.__client_id_2_sid.get(self._get_client_id(), set())
+        if sid:
+            sids.add(sid)
+        return list(sids)
 
     def __get_message_grouping(self):
         if not _hasscopeattr(self, Gui.__MESSAGE_GROUPING_NAME):
@@ -644,7 +694,7 @@ class Gui:
                 argcount = action_function.__code__.co_argcount
                 args = [None for _ in range(argcount)]
                 if argcount > 0:
-                    args[0] = self.__state
+                    args[0] = self.__get_state()
                 if argcount > 1:
                     args[1] = id
                 if argcount > 2:
@@ -658,13 +708,22 @@ class Gui:
         return False
 
     def _call_function_with_state(self, user_function: t.Callable, args: t.List[t.Any]) -> t.Any:
-        args.insert(0, self.__state)
+        args.insert(0, self.__get_state())
         arg_count = user_function.__code__.co_argcount
         if arg_count > len(args):
             args += (arg_count - len(args)) * [None]
         else:
             args = args[:arg_count]
         return user_function(*args)
+
+    def _call_user_callback(self, context_id: t.Optional[str], user_callback: t.Callable, args: t.List[t.Any]) -> t.Any:
+        try:
+            with self.get_flask_app().app_context():
+                self.__set_client_id_in_context(context_id)
+                return self._call_function_with_state(user_callback, args)
+        except Exception as e:
+            warnings.warn(f"invoke_state_callback: '{user_callback.__name__}' function invocation exception: {e}")
+        return None
 
     # Proxy methods for Evaluator
     def _evaluate_expr(self, expr: str) -> t.Any:
@@ -1047,6 +1106,7 @@ class Gui:
         self.__send_ws_navigate(to)
 
     def __init_route(self):
+        self.__set_client_id_in_context()
         if hasattr(self, "on_init") and callable(self.on_init):
             if not _hasscopeattr(self, Gui.__ON_INIT_NAME):
                 _setscopeattr(self, Gui.__ON_INIT_NAME, True)
@@ -1054,7 +1114,76 @@ class Gui:
                     self._call_function_with_state(self.on_init, [])
                 except Exception as e:
                     warnings.warn(f"Exception on on_init execution \n{e}")
-        return self._server._render_route()
+        return self._render_route()
+
+    def __render_page(self, page_name: str) -> t.Any:
+        self.__set_client_id_in_context()
+        page = None
+        # Get page instance
+        for page_i in self._config.pages:
+            if page_i._route == page_name:
+                page = page_i
+                break
+        # try partials
+        if page is None:
+            page = self._get_partial(page_name)
+        # Make sure that there is a page instance found
+        if page is None:
+            return (jsonify({"error": "Page doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
+        context = page.render(self)
+        if (
+            page_name == self._server._root_page_name
+            and page._rendered_jsx is not None
+            and "<PageContent" not in page._rendered_jsx
+        ):
+            page._rendered_jsx += "<PageContent />"
+        # Return jsx page
+        if page._rendered_jsx is not None:
+            return self._server._render(
+                page._rendered_jsx, page._style if page._style is not None else "", page._head, context
+            )
+        else:
+            return ("No page template", 404)
+
+    def _render_route(self) -> t.Any:
+        router = '<Routes key="routes">'
+        router += (
+            '<Route path="/" key="'
+            + self._server._root_page_name
+            + '" element={<MainPage key="tr'
+            + self._server._root_page_name
+            + '" path="/'
+            + self._server._root_page_name
+            + '"'
+        )
+        routes = self._config.routes
+        route = next((r for r in routes if r != self._server._root_page_name), None)
+        router += (' route="/' + route + '"') if route else ""
+        router += " />} >"
+        locations = {"/": f"/{self._server._root_page_name}"}
+        for route in routes:
+            if route != self._server._root_page_name:
+                router += (
+                    '<Route path="'
+                    + route
+                    + '" key="'
+                    + route
+                    + '" element={<TaipyRendered key="tr'
+                    + route
+                    + '"/>} />'
+                )
+                locations[f"/{route}"] = f"/{route}"
+        router += '<Route path="*" key="NotFound" element={<NotFound404 />} />'
+        router += "</Route>"
+        router += "</Routes>"
+
+        return self._server._direct_render_json(
+            {
+                "router": router,
+                "locations": locations,
+                "blockUI": self._is_ui_blocked(),
+            }
+        )
 
     def _register_data_accessor(self, data_accessor_class: t.Type[_DataAccessor]) -> None:
         self._accessors._register(data_accessor_class)
@@ -1072,6 +1201,10 @@ class Gui:
             raise RuntimeError("frame must be a FrameType where Gui can collect the local variables.")
         self.__frame = frame
         self.__default_module_name = _get_module_name_from_frame(self.__frame)
+
+    def _set_state(self, state: State):
+        if isinstance(state, State):
+            self.__state = state
 
     def run(
         self,
@@ -1167,7 +1300,8 @@ class Gui:
 
         self.__var_dir.process_imported_var()
 
-        self.__state = State(self, self.__locals_context.get_all_keys())
+        if self.__state is None:
+            self.__state = State(self, self.__locals_context.get_all_keys())
 
         if _is_in_notebook():
             # to allow gui.state.x in notebook mode
@@ -1217,13 +1351,10 @@ class Gui:
         )
 
         # Run parse markdown to force variables binding at runtime
-        # (save rendered html to page.rendered_jsx for optimization)
-        for page in self._config.pages + self._config.partials:  # type: ignore
-            # Server URL Rule for each page jsx
-            pages_bp.add_url_rule(f"/taipy-jsx/{page._route}/", view_func=self._server._render_page)
+        pages_bp.add_url_rule("/taipy-jsx/<path:page_name>", view_func=self.__render_page)
 
         # server URL Rule for flask rendered react-router
-        pages_bp.add_url_rule("/taipy-init/", view_func=self.__init_route)
+        pages_bp.add_url_rule("/taipy-init", view_func=self.__init_route)
 
         # Register Flask Blueprint if available
         for bp in self._flask_blueprint:

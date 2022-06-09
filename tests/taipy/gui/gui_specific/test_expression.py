@@ -16,21 +16,21 @@ import pandas as pd  # type: ignore
 from taipy.gui import Gui
 
 
-def test_expression_text_control_str(gui: Gui, helpers):
+def test_expression_text_control_str(gui: Gui, test_client, helpers):
     gui._bind_var_val("x", "Hello World!")
     md_string = "<|{x}|>"
     expected_list = ["<Field", 'dataType="str"', 'defaultValue="Hello World!"', "value={x}"]
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_text_control_int(gui: Gui, helpers):
+def test_expression_text_control_int(gui: Gui, test_client, helpers):
     gui._bind_var_val("x", 10)
     md_string = "<|{x}|>"
     expected_list = ["<Field", 'dataType="int"', 'defaultValue="10"', "value={x}"]
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_text_control_1(gui: Gui, helpers):
+def test_expression_text_control_1(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
     gui._bind_var_val("x", 10)
     gui._bind_var_val("y", 20)
@@ -44,7 +44,7 @@ def test_expression_text_control_1(gui: Gui, helpers):
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_text_control_2(gui: Gui, helpers):
+def test_expression_text_control_2(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
     gui._bind_var_val("x", 10)
     gui._bind_var_val("y", 20)
@@ -58,7 +58,7 @@ def test_expression_text_control_2(gui: Gui, helpers):
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_text_control_3(gui: Gui, helpers):
+def test_expression_text_control_3(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
     gui._bind_var_val("x", "Mickey Mouse")
     gui._bind_var_val("y", "Donald Duck")
@@ -72,7 +72,7 @@ def test_expression_text_control_3(gui: Gui, helpers):
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_text_gt_operator(gui: Gui, helpers):
+def test_expression_text_gt_operator(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
     gui._bind_var_val("x", 0)
     md_string = "<|{x > 0}|>"
@@ -85,14 +85,14 @@ def test_expression_text_gt_operator(gui: Gui, helpers):
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_button_control(gui: Gui, helpers):
+def test_expression_button_control(gui: Gui, test_client, helpers):
     gui._bind_var_val("label", "A button label")
     md_string = "<|button|label={label}|>"
     expected_list = ["<Button", 'defaultLabel="A button label"', "label={label}"]
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_expression_table_control(gui: Gui, helpers):
+def test_expression_table_control(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
     gui._bind_var_val("pd", pd)
     gui._bind_var_val("series_1", pd.Series(["a", "b", "c"], name="Letters"))
@@ -105,15 +105,10 @@ def test_expression_table_control(gui: Gui, helpers):
         "data={_TpD_tp_pd_concat_series_1_series_2_axis_1_TPMDL_tests_DOT_taipy_DOT_gui_DOT_gui_specific_DOT_test_expression_0}",
     ]
     helpers.test_control_md(gui, md_string, expected_list)
-    assert isinstance(
-        gui._bindings()
-        ._get_data_scope()
-        ._TpD_tp_pd_concat_series_1_series_2_axis_1_TPMDL_tests_DOT_taipy_DOT_gui_DOT_gui_specific_DOT_test_expression_0.get(),
-        pd.DataFrame,
-    )
+    assert isinstance(gui._get_data_scope().tp_pd_concat_series_1_series_2_axis_1__0, pd.DataFrame)
 
 
-def test_lambda_expression_selector(gui: Gui, helpers):
+def test_lambda_expression_selector(gui: Gui, test_client, helpers):
     gui._bind_var_val(
         "lov",
         [

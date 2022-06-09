@@ -25,14 +25,10 @@ def test_variable_binding(helpers):
     z = "button label"
     gui = Gui()
     gui.add_page("test", Markdown("<|{x}|> | <|{y}|> | <|{z}|button|on_action=another_function|>"))
-    gui.run(run_server=False)
+    gui.run(run_server=False, single_client=True)
     client = gui._server.test_client()
-    jsx = client.get("/taipy-jsx/test/").json["jsx"]
-    for expected in [
-        "<Button",
-        f'defaultLabel="{z}"',
-        "label={tpec_z_TPMDL_tests_DOT_taipy_DOT_gui_DOT_gui_specific_DOT_test_variable_binding}",
-    ]:
+    jsx = client.get("/taipy-jsx/test").json["jsx"]
+    for expected in ["<Button", f'defaultLabel="{z}"', "label={z}"]:
         assert expected in jsx
     assert gui._bindings().x == x
     assert gui._bindings().y == y
@@ -48,7 +44,7 @@ def test_properties_binding(helpers):
     gui.add_page("test", Markdown("<|button|properties=button_properties|>"))
     gui.run(run_server=False)
     client = gui._server.test_client()
-    jsx = client.get("/taipy-jsx/test/").json["jsx"]
+    jsx = client.get("/taipy-jsx/test").json["jsx"]
     for expected in ["<Button", 'defaultLabel="A nice button"']:
         assert expected in jsx
     helpers.test_cleanup()
@@ -62,7 +58,7 @@ def test_dict_binding(helpers):
     gui = Gui("<|{d.k}|>")
     gui.run(run_server=False)
     client = gui._server.test_client()
-    jsx = client.get("/taipy-jsx/TaiPy_root_page/").json["jsx"]
+    jsx = client.get("/taipy-jsx/TaiPy_root_page").json["jsx"]
     for expected in ["<Field", 'defaultValue="test"']:
         assert expected in jsx
     helpers.test_cleanup()

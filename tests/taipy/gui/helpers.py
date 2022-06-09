@@ -39,9 +39,9 @@ class Helpers:
 
     @staticmethod
     def _test_control(gui: Gui, expected_values: t.Union[str, t.List]):
-        gui.run(run_server=False)
+        gui.run(run_server=False, single_client=True)
         client = gui._server.test_client()
-        response = client.get("/taipy-jsx/test/")
+        response = client.get("/taipy-jsx/test")
         assert response.status_code == 200
         response_data = json.loads(response.get_data().decode("utf-8", "ignore"))
         assert isinstance(response_data, t.Dict)
@@ -66,6 +66,17 @@ class Helpers:
         assert "name" in payload and payload["name"] == varname
         assert "payload" in payload and "value" in payload["payload"] and payload["payload"]["value"] == value
         logging.getLogger().debug(payload["payload"]["value"])
+
+    @staticmethod
+    def assert_outward_ws_simple_message(received_message, aType, values):
+        assert isinstance(received_message, dict)
+        assert "name" in received_message and received_message["name"] == "message"
+        assert "args" in received_message
+        args = received_message["args"]
+        assert "type" in args and args["type"] == aType
+        for k, v in values.items():
+            assert k in args and args[k] == v
+            logging.getLogger().debug(f"{k}: {args[k]}")
 
     @staticmethod
     def assert_outward_ws_multiple_message(received_message, type, array_len: int):

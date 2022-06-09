@@ -10,15 +10,23 @@
 # specific language governing permissions and limitations under the License.
 
 import inspect
-from taipy.gui import Gui, Html
 
+from taipy.gui import Gui, Markdown, get_context_id
+from flask import g
 
-def test_simple_html(gui: Gui, helpers):
-    # html_string = "<html><head></head><body><h1>test</h1><taipy:field value=\"test\"/></body></html>"
-    html_string = "<html><head></head><body><h1>test</h1></body></html>"
+def test_get_context_id(gui: Gui, helpers):
+    name = "World!"  # noqa: F841
+    btn_id = "button1"  # noqa: F841
+
+    # set gui frame
     gui._set_frame(inspect.currentframe())
-    gui.add_page("test", Html(html_string))
+
+    gui.add_page("test", Markdown("<|Hello {name}|button|id={btn_id}|>"))
     gui.run(run_server=False)
-    client = gui._server.test_client()
-    jsx = client.get("/taipy-jsx/test").json["jsx"]
-    assert jsx == "<h1>test</h1>"
+    flask_client = gui._server.test_client()
+    cid = helpers.create_scope_and_get_sid(gui)
+    # Get the jsx once so that the page will be evaluated -> variable will be registered
+    flask_client.get(f"/taipy-jsx/test?client_id={cid}")
+    with gui.get_flask_app().app_context():
+        g.client_id = cid
+        assert cid == get_context_id(gui._Gui__state)
