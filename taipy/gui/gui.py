@@ -384,7 +384,6 @@ class Gui:
 
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
         # TODO: what if _update_function changes 'var_name'... infinite loop?
-        on_change_fn = None
         var_name_decode, module_name = _variable_decode(self._get_expr_from_hash(var_name))
         current_context = self._get_locals_context()
         if module_name == current_context:
@@ -393,17 +392,16 @@ class Gui:
             if var_name not in self.__var_dir._var_head:
                 warnings.warn(f"Can't find matching variable for {var_name} on {current_context} context")
                 return
-            _founded = False
+            _found = False
             for k, v in self.__var_dir._var_head[var_name]:
                 if v == current_context:
                     var_name = k
-                    _founded = True
+                    _found = True
                     break
-            if not _founded:
+            if not _found:
                 warnings.warn(f"Can't find matching variable for {var_name} on {current_context} context")
                 return
-        if on_change:
-            on_change_fn = self._get_user_function(on_change)
+        on_change_fn = self._get_user_function(on_change) if on_change else None
         if not callable(on_change_fn) and hasattr(self, "on_change") and callable(self.on_change):
             on_change_fn = self.on_change
         if callable(on_change_fn):

@@ -119,7 +119,7 @@ class _Evaluator:
         self.__expr_to_hash[expr] = expr_hash
         gui._bind_var_val(expr_hash, expr_evaluated)
         self.__hash_to_expr[expr_hash] = expr
-        for _, var in var_map.items():
+        for var in var_map.values():
             if var not in self.__global_ctx.keys():
                 lst = self.__var_to_expr_list.get(var)
                 if lst is None:
@@ -228,7 +228,7 @@ class _Evaluator:
             var_name_original = var_name
             expr_original = self.__hash_to_expr[var_name]
             # since this is an edge case --> only 1 item in the dict and that item is the original var
-            for _, v in self.__expr_to_var_map[expr_original].items():
+            for v in self.__expr_to_var_map[expr_original].values():
                 var_name = v
             # construct correct var_path to reassign values
             var_name_full, _ = _variable_decode(expr_original)

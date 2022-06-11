@@ -628,9 +628,9 @@ const sendWsMessage = (
     name: string,
     payload: Record<string, unknown> | unknown,
     id: string,
-    module_context = "",
+    moduleContext = "",
     propagate = true,
 ): void => {
-    const msg: WsMessage = { type: type, name: name, payload: payload, propagate: propagate, client_id: id, module_context: module_context };
+    const msg: WsMessage = { type: type, name: name, payload: payload, propagate: propagate, client_id: id, module_context: moduleContext };
     socket?.emit("message", msg);
 };

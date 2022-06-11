@@ -27,7 +27,7 @@ class _LocalsContext:
 
     def get_all_keys(self) -> t.Set[str]:
         keys = set()
-        for _, v in self._locals_map.items():
+        for v in self._locals_map.values():
             for i in v.keys():
                 keys.add(i)
         return keys

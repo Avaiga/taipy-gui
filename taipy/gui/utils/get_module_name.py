@@ -20,7 +20,9 @@ def _get_module_name_from_frame(frame: FrameType):
 
 
 def _get_module_name_from_imported_var(var_name: str, value: t.Any, sub_module_name: str) -> str:
-    module_list = sys.modules.keys()
+    module_list = sys.modules.copy().keys()
+    # the provided sub_module_name are expected to contain only part of the full module_name provided by sys.modules
+    # --> we can find potential matched modules based on the sub_module_name
     potential_matched_module = [m for m in module_list if m.endswith(sub_module_name)]
     for m in potential_matched_module:
         module = sys.modules[m]

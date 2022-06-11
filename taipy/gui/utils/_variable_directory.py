@@ -98,14 +98,19 @@ class _VariableDirectory:
         return None
 
 
+_MODULE_NAME_MAP: t.List[str] = []
+_RE_TPMDL_DECODE = re.compile(r"(.*?)_TPMDL_(.*)")
+
+
 def _variable_encode(var_name: str, module_name: t.Optional[str]):
     if module_name is None:
         return var_name
-    module_name = module_name.replace(".", "_DOT_")
-    return f"{var_name}_TPMDL_{module_name}"
+    if module_name not in _MODULE_NAME_MAP:
+        _MODULE_NAME_MAP.append(module_name)
+    return f"{var_name}_TPMDL_{_MODULE_NAME_MAP.index(module_name)}"
 
 
 def _variable_decode(var_name: str):
-    if result := re.compile(r"(.*?)_TPMDL_(.*)").match(var_name):
-        return str(result[1]), str(result[2]).replace("_DOT_", ".")
+    if result := _RE_TPMDL_DECODE.match(var_name):
+        return str(result[1]), _MODULE_NAME_MAP[int(result[2])]
     return var_name, None
