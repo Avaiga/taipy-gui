@@ -1296,8 +1296,6 @@ class Gui:
 
         self.__var_dir.set_default(self.__frame)
 
-        self.__var_dir.process_imported_var()
-
         if self.__state is None:
             self.__state = State(self, self.__locals_context.get_all_keys())
 
@@ -1305,15 +1303,17 @@ class Gui:
             # to allow gui.state.x in notebook mode
             self.state = self.__state
 
+        with self.get_flask_app().app_context():
+            self.__var_dir.process_imported_var()
+            # bind on_change and on_action function if available
+            self.__bind_local_func("on_init")
+            self.__bind_local_func("on_change")
+            self.__bind_local_func("on_action")
+
         # base global ctx is TaipyHolder classes + script modules and callables
         glob_ctx = {t.__name__: t for t in _TaipyBase.__subclasses__()}
         glob_ctx.update({k: v for k, v in locals_bind.items() if inspect.ismodule(v) or callable(v)})
         self.__evaluator = _Evaluator(glob_ctx)
-
-        # bind on_change and on_action function if available
-        self.__bind_local_func("on_init")
-        self.__bind_local_func("on_change")
-        self.__bind_local_func("on_action")
 
         # add en empty main page if it is not defined
         if Gui.__root_page_name not in self._config.routes:

@@ -9,14 +9,20 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from __future__ import annotations
+
 import typing as t
+
+from flask import g
 
 
 class _LocalsContext:
+
+    __ctx_g_name = "locals_context"
+
     def __init__(self) -> None:
         self.__default_module: str = ""
         self._locals_map: t.Dict[str, t.Dict[str, t.Any]] = {}
-        self.__current_context: t.Optional[str] = None
 
     def set_default(self, default: t.Dict[str, t.Any]) -> None:
         self.__default_module = default.get("__name__", "")
@@ -38,16 +44,17 @@ class _LocalsContext:
 
     def set_locals_context(self, context: t.Optional[str]) -> None:
         if context in self._locals_map:
-            self.__current_context = context
+            setattr(g, _LocalsContext.__ctx_g_name, context)
 
     def get_locals(self) -> t.Dict[str, t.Any]:
         return self.get_default() if (context := self.get_context()) is None else self._locals_map[context]
 
     def get_context(self) -> t.Optional[str]:
-        return self.__current_context
+        return getattr(g, _LocalsContext.__ctx_g_name) if hasattr(g, _LocalsContext.__ctx_g_name) else None
 
     def is_default(self) -> bool:
         return self.get_default == self.get_locals()
 
     def reset_locals_context(self) -> None:
-        self.__current_context = None
+        if hasattr(g, _LocalsContext.__ctx_g_name):
+            delattr(g, _LocalsContext.__ctx_g_name)
