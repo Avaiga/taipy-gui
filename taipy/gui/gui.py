@@ -277,8 +277,7 @@ class Gui:
         if not client_id and request:
             client_id = request.args.get("client_id", "")
         if client_id and request:
-            sid = getattr(request, "sid", None)
-            if sid:
+            if sid := getattr(request, "sid", None):
                 sids = self.__client_id_2_sid.get(client_id, None)
                 if sids is None:
                     sids = set()
@@ -1116,12 +1115,8 @@ class Gui:
 
     def __render_page(self, page_name: str) -> t.Any:
         self.__set_client_id_in_context()
-        page = None
-        # Get page instance
-        for page_i in self._config.pages:
-            if page_i._route == page_name:
-                page = page_i
-                break
+        page = next((page_i for page_i in self._config.pages if page_i._route == page_name), None)
+
         # try partials
         if page is None:
             page = self._get_partial(page_name)
