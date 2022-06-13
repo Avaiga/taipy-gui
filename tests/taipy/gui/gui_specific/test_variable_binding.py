@@ -28,12 +28,13 @@ def test_variable_binding(helpers):
     gui.run(run_server=False, single_client=True)
     client = gui._server.test_client()
     jsx = client.get("/taipy-jsx/test").json["jsx"]
-    for expected in ["<Button", f'defaultLabel="{z}"', "label={z}"]:
+    for expected in ["<Button", f'defaultLabel="button label"', "label={tpec_z_TPMDL_0}"]:
         assert expected in jsx
     assert gui._bindings().x == x
     assert gui._bindings().y == y
     assert gui._bindings().z == z
-    assert callable(gui._get_user_function("another_function"))
+    with gui.get_flask_app().app_context():
+        assert callable(gui._get_user_function("another_function"))
     helpers.test_cleanup()
 
 

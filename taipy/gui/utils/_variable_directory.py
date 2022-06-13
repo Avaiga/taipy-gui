@@ -114,3 +114,7 @@ def _variable_decode(var_name: str):
     if result := _RE_TPMDL_DECODE.match(var_name):
         return str(result[1]), _MODULE_NAME_MAP[int(result[2])]
     return var_name, None
+
+
+def _reset_name_map():
+    _MODULE_NAME_MAP.clear()
