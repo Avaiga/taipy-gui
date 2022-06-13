@@ -202,9 +202,9 @@ class _Evaluator:
         try:
             # evaluate expressions
             ctx: t.Dict[str, t.Any] = {}
-            ctx |= self.__global_ctx
+            ctx.update(self.__global_ctx)
             # entries in var_val are not always seen (NameError) when passed as locals
-            ctx |= var_val
+            ctx.update(var_val)
             expr_evaluated = eval(not_encoded_expr if is_edge_case else expr_string, ctx)
         except Exception as e:
             warnings.warn(f"Cannot evaluate expression '{not_encoded_expr if is_edge_case else expr_string}': {e}")
@@ -258,8 +258,8 @@ class _Evaluator:
                 expr_string = expr_decoded
             try:
                 ctx: t.Dict[str, t.Any] = {}
-                ctx |= self.__global_ctx
-                ctx |= eval_dict
+                ctx.update(self.__global_ctx)
+                ctx.update(eval_dict)
                 expr_evaluated = eval(expr_string, ctx)
                 _setscopeattr(gui, hash_expr, expr_evaluated)
             except Exception as e:
