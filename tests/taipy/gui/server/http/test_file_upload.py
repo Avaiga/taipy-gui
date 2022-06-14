@@ -101,7 +101,6 @@ def test_file_upload_multi_part(gui: Gui, helpers):
     assert file_path.exists()
 
 
-@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_file_upload_multiple(gui: Gui, helpers):
     var_name = "varname"
     gui._set_frame(inspect.currentframe())
