@@ -12,7 +12,7 @@
 from taipy.gui import Gui
 
 
-def test_pane_md(gui: Gui, helpers):
+def test_pane_md(gui: Gui, test_client, helpers):
     gui._bind_var_val("show_pane", False)
     md_string = """
 <|{show_pane}|pane|not persistent|
@@ -22,15 +22,15 @@ def test_pane_md(gui: Gui, helpers):
     expected_list = [
         "<Pane",
         'anchor="left"',
-        'updateVarName="_TpB_show_pane"',
-        "open={_TpB_show_pane}",
+        'updateVarName="_TpB_tpec_show_pane_TPMDL_0"',
+        "open={_TpB_tpec_show_pane_TPMDL_0}",
         "<h1",
         "This is a Pane</h1></Pane>",
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_pane_persistent_md(gui: Gui, helpers):
+def test_pane_persistent_md(gui: Gui, test_client, helpers):
     gui._bind_var_val("show_pane", False)
     md_string = """
 <|{show_pane}|pane|persistent|
@@ -41,22 +41,22 @@ def test_pane_persistent_md(gui: Gui, helpers):
         "<Pane",
         'anchor="left"',
         "persistent={true}",
-        'updateVarName="_TpB_show_pane"',
-        "open={_TpB_show_pane}",
+        'updateVarName="_TpB_tpec_show_pane_TPMDL_0"',
+        "open={_TpB_tpec_show_pane_TPMDL_0}",
         "<h1",
         "This is a Pane</h1></Pane>",
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
 
-def test_pane_html(gui: Gui, helpers):
+def test_pane_html(gui: Gui, test_client, helpers):
     gui._bind_var_val("show_pane", False)
     html_string = '<taipy:pane open="{show_pane}" persistent="false"><h1>This is a Pane</h1></taipy:pane>'
     expected_list = [
         "<Pane",
         'anchor="left"',
-        'updateVarName="_TpB_show_pane"',
-        "open={_TpB_show_pane}",
+        'updateVarName="_TpB_tpec_show_pane_TPMDL_0"',
+        "open={_TpB_tpec_show_pane_TPMDL_0}",
         "<h1",
         "This is a Pane</h1></Pane>",
     ]

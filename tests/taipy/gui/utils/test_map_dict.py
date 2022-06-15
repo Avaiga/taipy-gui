@@ -83,7 +83,6 @@ def test_map_dict_update():
     md.__setitem__("a", 3)
     assert update_values[0] == "a"
     assert update_values[1] == 3
-    print("")
     pass
 
 
@@ -114,15 +113,14 @@ def test_map_dict_update_full_dictionary_2():
     assert temp_values["b"] == 5
 
 
-def test_map_dict_set(gui: Gui, helpers):
+def test_map_dict_set(gui: Gui, test_client):
     d = {"a": 1}  # noqa: F841
 
     # set gui frame
     gui._set_frame(inspect.currentframe())
 
-    gui.run(run_server=False)
-    sid = helpers.create_scope_and_get_sid(gui)
-    with gui.get_flask_app().test_request_context(f"/taipy-jsx/test/?client_id={sid}", data={"client_id": sid}):
+    gui.run(run_server=False, single_client=True)
+    with gui.get_flask_app().app_context():
         assert isinstance(gui._Gui__state.d, _MapDict)
         gui._Gui__state.d = {"b": 2}
         assert isinstance(gui._Gui__state.d, _MapDict)

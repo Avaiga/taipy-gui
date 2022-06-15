@@ -224,6 +224,8 @@ class _Factory:
                 ("format",),
                 ("orientation"),
                 ("hover_text", _AttributeType.dynamic_string),
+                ("width",),
+                ("height",),
             ]
         ),
         "input": lambda gui, control_type, attrs: _Builder(
@@ -243,7 +245,8 @@ class _Factory:
                 ("hover_text", _AttributeType.dynamic_string),
                 ("on_change", _AttributeType.function),
                 ("on_action", _AttributeType.function),
-                ("action_keys", ),
+                ("action_keys",),
+                ("label",),
             ]
         ),
         "layout": lambda gui, control_type, attrs: _Builder(
@@ -299,7 +302,7 @@ class _Factory:
             default_value=0,
         )
         .set_input_type("number")
-        .set_value_and_default()
+        .set_value_and_default(var_type=_AttributeType.dynamic_number)
         .set_change_delay()
         .set_propagate()
         .set_attributes(
@@ -309,6 +312,7 @@ class _Factory:
                 ("hover_text", _AttributeType.dynamic_string),
                 ("on_change", _AttributeType.function),
                 ("on_action", _AttributeType.function),
+                ("label",),
             ]
         ),
         "pane": lambda gui, control_type, attrs: _Builder(
@@ -343,10 +347,7 @@ class _Factory:
             ]
         ),
         "selector": lambda gui, control_type, attrs: _Builder(
-            gui=gui,
-            control_type=control_type,
-            element_name="Selector",
-            attributes=attrs,
+            gui=gui, control_type=control_type, element_name="Selector", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_default=False, var_type=_AttributeType.lov_value)
         .get_adapter("lov")  # need to be called before set_lov
@@ -363,6 +364,7 @@ class _Factory:
                 ("multiple", _AttributeType.boolean),
                 ("width", _AttributeType.string_or_number),
                 ("on_change", _AttributeType.function),
+                ("label",),
             ]
         )
         .set_refresh_on_update()

@@ -20,21 +20,23 @@ from types import FrameType
 
 from taipy.gui import Gui, Html, Markdown
 from taipy.gui.renderers.builder import _Builder
+from taipy.gui.utils._variable_directory import _reset_name_map
 
 
 class Helpers:
     @staticmethod
     def test_cleanup():
         _Builder._reset_key()
+        _reset_name_map()
 
     @staticmethod
     def test_control_md(gui: Gui, md_string: str, expected_values: t.Union[str, t.List]):
-        gui.add_page("test", Markdown(md_string))
+        gui.add_page("test", Markdown(md_string, frame=None))
         Helpers._test_control(gui, expected_values)
 
     @staticmethod
     def test_control_html(gui: Gui, html_string: str, expected_values: t.Union[str, t.List]):
-        gui.add_page("test", Html(html_string))
+        gui.add_page("test", Html(html_string, frame=None))
         Helpers._test_control(gui, expected_values)
 
     @staticmethod
@@ -63,9 +65,20 @@ class Helpers:
         assert "type" in args and args["type"] == type
         assert "payload" in args
         payload = args["payload"][0]
-        assert "name" in payload and payload["name"] == varname
+        assert "name" in payload and varname in payload["name"]
         assert "payload" in payload and "value" in payload["payload"] and payload["payload"]["value"] == value
         logging.getLogger().debug(payload["payload"]["value"])
+
+    @staticmethod
+    def assert_outward_ws_simple_message(received_message, aType, values):
+        assert isinstance(received_message, dict)
+        assert "name" in received_message and received_message["name"] == "message"
+        assert "args" in received_message
+        args = received_message["args"]
+        assert "type" in args and args["type"] == aType
+        for k, v in values.items():
+            assert k in args and args[k] == v
+            logging.getLogger().debug(f"{k}: {args[k]}")
 
     @staticmethod
     def assert_outward_ws_multiple_message(received_message, type, array_len: int):

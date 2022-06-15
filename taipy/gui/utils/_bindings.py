@@ -46,7 +46,7 @@ class _Bindings:
         def __getter(ud: _Bindings) -> t.Any:
             value = getattr(ud._get_data_scope(), name)
             if isinstance(value, _MapDict):
-                return _MapDict(value._dict, lambda k, v: ud.__gui._update_var(f"{name}.{k}", v))
+                return _MapDict(value._dict, lambda k, v: ud.__gui._update_var(f"{name}.{k}", v, from_map_dict=True))
             else:
                 return value
 
@@ -58,12 +58,6 @@ class _Bindings:
     def _get_single_client(self) -> bool:
         return self.__scopes.get_single_client()
 
-    def _set_client_id(self, message: dict):
-        self.__scopes._set_client_id(message.get("client_id"))
-
-    def _reset_client_id(self):
-        self.__scopes._reset_client_id()
-
     def _get_or_create_scope(self, id: str):
         if not id:
             id = f"{datetime.now().strftime('%Y%m%d%H%M%S%f')}-{random()}"
@@ -74,7 +68,7 @@ class _Bindings:
         self.__scopes = _DataScopes()
 
     def _get_data_scope(self):
-        return self.__scopes.get_scope()
+        return self.__scopes.get_scope(self.__gui._get_client_id())
 
     def _get_all_scopes(self):
         return self.__scopes.get_all_scopes()
