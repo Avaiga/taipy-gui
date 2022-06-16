@@ -42,6 +42,18 @@ Here is how you can create your first Taipy User Interface:
 
 Your browser opens a new page, showing the content of your graphical
 application.
+
+!!! Note "Optional packages"
+
+    There are Python packages that you can install in your environment to
+    add functionality to Taipy GUI:
+
+    - [`python-magic`](https://pypi.org/project/python-magic/): identifies image format from
+      byte buffers so the [`image`](../../gui/viselements/image.md) control can display them.
+    - [`pyarrow`](https://pypi.org/project/pyarrow/): can improve the performance of your
+      application by reducing the volume of data transferred between the Web server and the
+      clients. This is relevant if your application uses large tabular data.
+
 """
 
 from .gui import Gui
