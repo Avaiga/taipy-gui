@@ -49,7 +49,9 @@ application.
     add functionality to Taipy GUI:
 
     - [`python-magic`](https://pypi.org/project/python-magic/): identifies image format from
-      byte buffers so the [`image`](../../gui/viselements/image.md) control can display them.
+      byte buffers so the [`image`](../../gui/viselements/image.md) control can display them,
+      and so that [`file_download`](../../gui/viselements/file_download.md) can request
+      the browser to display the image content when relevant.
     - [`pyarrow`](https://pypi.org/project/pyarrow/): can improve the performance of your
       application by reducing the volume of data transferred between the Web server and the
       clients. This is relevant if your application uses large tabular data.
