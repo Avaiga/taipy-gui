@@ -240,30 +240,30 @@ class _Evaluator:
         if var_name not in self.__var_to_expr_list:
             # warnings.warn("{var_name} not found")
             return modified_vars
+        # refresh expressions and holders
         for expr in self.__var_to_expr_list[var_name]:
             if expr == expr_original or expr.startswith("_Taipy"):
                 continue
             expr_decoded, _ = _variable_decode(expr)
-            if expr == var_name:
-                continue
             hash_expr = self.__expr_to_hash.get(expr, "UnknownExpr")
-            expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
-            if expr_var_map is None:
-                warnings.warn(f"Someting is amiss with expression list for {expr}")
-                continue
-            eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
-            if self._is_expression(expr_decoded):
-                expr_string = 'f"' + expr.replace('"', '\\"') + '"'
-            else:
-                expr_string = expr_decoded
-            try:
-                ctx: t.Dict[str, t.Any] = {}
-                ctx.update(self.__global_ctx)
-                ctx.update(eval_dict)
-                expr_evaluated = eval(expr_string, ctx)
-                _setscopeattr(gui, hash_expr, expr_evaluated)
-            except Exception as e:
-                warnings.warn(f"Problem evaluating {expr_string}: {e}")
+            if expr != var_name:
+                expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
+                if expr_var_map is None:
+                    warnings.warn(f"Someting is amiss with expression list for {expr}")
+                    continue
+                eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
+                if self._is_expression(expr_decoded):
+                    expr_string = 'f"' + expr.replace('"', '\\"') + '"'
+                else:
+                    expr_string = expr_decoded
+                try:
+                    ctx: t.Dict[str, t.Any] = {}
+                    ctx.update(self.__global_ctx)
+                    ctx.update(eval_dict)
+                    expr_evaluated = eval(expr_string, ctx)
+                    _setscopeattr(gui, hash_expr, expr_evaluated)
+                except Exception as e:
+                    warnings.warn(f"Problem evaluating {expr_string}: {e}")
             # refresh holders if any
             for h in self.__expr_to_holders.get(expr, []):
                 holder_hash = self.__get_holder_hash(h, self.get_hash_from_expr(expr))
