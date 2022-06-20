@@ -23,3 +23,7 @@ def _get_expr_var_name(expr: str) -> str:
         index = __expr_var_name_index[var_name]
     __expr_var_name_index[var_name] = index + 1
     return f"tp_{var_name}_{index}"
+
+
+def _reset_expr_var_name():
+    __expr_var_name_index.clear()
