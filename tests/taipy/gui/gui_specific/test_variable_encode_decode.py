@@ -18,6 +18,6 @@ def test_variable_encode_decode():
     assert _variable_decode("x_TPMDL_0") == ("x", "module")
     assert _variable_encode("x", None) == "x"
     assert _variable_decode("x") == ("x", None)
-    assert _variable_encode("TaIpY_EXPR_x", "module1") == "TaIpY_EXPR_x_TPMDL_1"
+    assert _variable_encode("TpExPr_x", "module1") == "TpExPr_x_TPMDL_1"
     assert _MODULE_NAME_MAP[1] == "module1"
-    assert _variable_decode("TaIpY_EXPR_x_TPMDL_1") == ("x", "module1")
+    assert _variable_decode("TpExPr_x_TPMDL_1") == ("x", "module1")

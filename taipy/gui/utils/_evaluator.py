@@ -42,7 +42,7 @@ class _Evaluator:
     __EXPR_IS_EDGE_CASE = re.compile(r"^\s*{([^}]*)}\s*$")
     __EXPR_VALID_VAR_EDGE_CASE = re.compile(r"^([a-zA-Z\.\_0-9]*)$")
     __EXPR_EDGE_CASE_F_STRING = re.compile(r"[\{]*[a-zA-Z_][a-zA-Z0-9_]*:.+")
-    __IS_TAIPYEXPR_RE = re.compile(r"TaIpY_EXPR_(.*)")
+    __IS_TAIPYEXPR_RE = re.compile(r"TpExPr_(.*)")
 
     def __init__(self, default_bindings: t.Dict[str, t.Any]) -> None:
         # key = expression, value = hashed value of the expression
@@ -201,7 +201,7 @@ class _Evaluator:
         # validate whether expression has already been evaluated
         module_name = gui._get_locals_context()
         not_encoded_expr = expr
-        expr = f"TaIpY_EXPR_{_variable_encode(expr, module_name)}"
+        expr = f"TpExPr_{_variable_encode(expr, module_name)}"
         if expr in self.__expr_to_hash and _hasscopeattr(gui, self.__expr_to_hash[expr]):
             return self.__expr_to_hash[expr]
         try:
