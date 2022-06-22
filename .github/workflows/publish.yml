@@ -55,6 +55,8 @@ jobs:
           rm -rf taipy
           pip install dist/*.tar.gz
           pip install pytest pytest-mock pytest-playwright pytest-timeout testbook
+          pip install ipython ipykernel
+          ipython kernel install --name "python3" --user
           playwright install chromium
           pytest
 
@@ -117,6 +119,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install pytest pytest-mock pytest-playwright pytest-timeout testbook
+          pip install ipython ipykernel
+          ipython kernel install --name "python3" --user
           playwright install chromium
 
       - name: Install and test package

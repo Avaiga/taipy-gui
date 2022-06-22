@@ -36,6 +36,8 @@ jobs:
           # Run tests
           echo "installing playwright"
           pip install pytest pytest-mock pytest-playwright pytest-timeout testbook
+          pip install ipython ipykernel
+          ipython kernel install --name "python3" --user
           playwright install chromium
 
           echo "running pytest"
@@ -80,6 +82,8 @@ jobs:
           # Run test with optionals packages installed
           echo "installing playwright"
           pip install pytest pytest-mock pytest-playwright pytest-timeout testbook
+          pip install ipython ipykernel
+          ipython kernel install --name "python3" --user
           playwright install chromium
 
           echo "running pytest"
