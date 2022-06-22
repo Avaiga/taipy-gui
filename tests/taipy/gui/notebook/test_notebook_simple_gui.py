@@ -12,9 +12,11 @@
 import time
 from urllib.request import urlopen
 
+import pytest
 from testbook import testbook
 
 
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 @testbook("tests/taipy/gui/notebook/simple_gui.ipynb")
 def test_notebook_simple_gui(tb, helpers):
     tb.execute_cell("import")
