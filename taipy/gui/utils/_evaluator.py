@@ -251,21 +251,21 @@ class _Evaluator:
             if expr != var_name and not expr.startswith("_Taipy"):
                 expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
                 if expr_var_map is None:
-                    warnings.warn(f"Someting is amiss with expression list for {expr}")
-                    continue
-                eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
-                if self._is_expression(expr_decoded):
-                    expr_string = 'f"' + _variable_decode(expr)[0].replace('"', '\\"') + '"'
+                    warnings.warn(f"Something is amiss with expression list for {expr}")
                 else:
-                    expr_string = expr_decoded
-                try:
-                    ctx: t.Dict[str, t.Any] = {}
-                    ctx.update(self.__global_ctx)
-                    ctx.update(eval_dict)
-                    expr_evaluated = eval(expr_string, ctx)
-                    _setscopeattr(gui, hash_expr, expr_evaluated)
-                except Exception as e:
-                    warnings.warn(f"Problem evaluating {expr_string}: {e}")
+                    eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
+                    if self._is_expression(expr_decoded):
+                        expr_string = 'f"' + _variable_decode(expr)[0].replace('"', '\\"') + '"'
+                    else:
+                        expr_string = expr_decoded
+                    try:
+                        ctx: t.Dict[str, t.Any] = {}
+                        ctx.update(self.__global_ctx)
+                        ctx.update(eval_dict)
+                        expr_evaluated = eval(expr_string, ctx)
+                        _setscopeattr(gui, hash_expr, expr_evaluated)
+                    except Exception as e:
+                        warnings.warn(f"Problem evaluating {expr_string}: {e}")
             # refresh holders if any
             for h in self.__expr_to_holders.get(expr, []):
                 holder_hash = self.__get_holder_hash(h, self.get_hash_from_expr(expr))
