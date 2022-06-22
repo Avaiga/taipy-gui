@@ -112,9 +112,8 @@ class _Evaluator:
         var_map: t.Dict[str, str],
     ):
         if expr in self.__expr_to_hash:
-            if expr_hash is None:
-                expr_hash = self.__expr_to_hash[expr]
-                gui._bind_var_val(expr_hash, expr_evaluated)
+            expr_hash = self.__expr_to_hash[expr]
+            gui._bind_var_val(expr_hash, expr_evaluated)
             return expr_hash
         if expr_hash is None:
             expr_hash = _get_expr_var_name(expr)
