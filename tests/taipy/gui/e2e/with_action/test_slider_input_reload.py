@@ -49,12 +49,14 @@ def edit_and_assert_page(page: "Page"):
 
 
 def assert_input(page: "Page", val: str):
-    assert val in page.query_selector("#val1").inner_text()
-    assert f"Val: {val}" in page.query_selector("#val2").inner_text()
+    val1 = page.query_selector("#val1").inner_text()
+    assert str(val1).startswith(val)
+    val2 = page.query_selector("#val2").inner_text()
+    assert str(val2).startswith(f"Val: {val}")
     inp1 = page.input_value("input#input1")
-    assert val in inp1
+    assert str(inp1).startswith(val)
     inp2 = page.input_value("#input2 input")
-    assert val in inp2
+    assert str(inp2).startswith(val)
 
 
 @pytest.mark.filterwarnings("ignore::Warning")
