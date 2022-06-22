@@ -247,18 +247,16 @@ class _Evaluator:
             return modified_vars
         # refresh expressions and holders
         for expr in self.__var_to_expr_list[var_name]:
-            if expr == expr_original or expr.startswith("_Taipy"):
-                continue
             expr_decoded, _ = _variable_decode(expr)
             hash_expr = self.__expr_to_hash.get(expr, "UnknownExpr")
-            if expr != var_name:
+            if expr != var_name and not expr.startswith("_Taipy"):
                 expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
                 if expr_var_map is None:
                     warnings.warn(f"Someting is amiss with expression list for {expr}")
                     continue
                 eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
                 if self._is_expression(expr_decoded):
-                    expr_string = 'f"' + expr.replace('"', '\\"') + '"'
+                    expr_string = 'f"' + _variable_decode(expr)[0].replace('"', '\\"') + '"'
                 else:
                     expr_string = expr_decoded
                 try:
