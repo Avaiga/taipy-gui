@@ -49,16 +49,15 @@ def edit_and_assert_page(page: "Page"):
 
 
 def assert_input(page: "Page", val: str):
-    val1 = page.query_selector("#val1").inner_text()
-    assert val in val1
-    val2 = page.query_selector("#val2").inner_text()
-    assert f"Val: {val}" in val2
+    assert val in page.query_selector("#val1").inner_text()
+    assert f"Val: {val}" in page.query_selector("#val2").inner_text()
     inp1 = page.input_value("input#input1")
     assert val in inp1
     inp2 = page.input_value("#input2 input")
     assert val in inp2
 
 
+@pytest.mark.filterwarnings("ignore::Warning")
 @pytest.mark.teste2e
 def test_slider_input_reload(page: "Page", gui: Gui, helpers):
     page_md = """
@@ -75,7 +74,7 @@ def test_slider_input_reload(page: "Page", gui: Gui, helpers):
     val = 0
     gui._set_frame(inspect.currentframe())
     gui.add_page(name="page1", page=page_md)
-    helpers.run_e2e(gui)
+    helpers.run_e2e_multi_client(gui)
     page.goto("/page1")
     page.expect_websocket()
     page.wait_for_selector("#val1")
@@ -86,9 +85,9 @@ def test_slider_input_reload(page: "Page", gui: Gui, helpers):
     page.wait_for_selector("#val1")
     assert_input(page, "30")
 
-    # page.evaluate('window.localStorage.removeItem("TaipyClientId")')
+    page.evaluate("window.localStorage.removeItem('TaipyClientId')")
 
-    # page.reload()
-    # page.expect_websocket()
-    # page.wait_for_selector("#val1")
-    # edit_and_assert_page(page)
+    page.reload()
+    page.expect_websocket()
+    page.wait_for_selector("#val1")
+    assert_input(page, "0")
