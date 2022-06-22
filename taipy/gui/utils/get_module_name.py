@@ -16,7 +16,7 @@ from types import FrameType, ModuleType
 
 
 def _get_module_name_from_frame(frame: FrameType):
-    return t.cast(ModuleType, inspect.getmodule(frame)).__name__
+    return frame.f_locals["__name__"] if "__name__" in frame.f_locals else None
 
 
 def _get_module_name_from_imported_var(var_name: str, value: t.Any, sub_module_name: str) -> str:
