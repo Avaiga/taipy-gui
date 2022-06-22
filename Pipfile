@@ -51,6 +51,8 @@ pandas-stubs = "*"
 pyopenssl = "*"
 pytest-timeout = "*"
 testbook = "*"
+ipython = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3"
