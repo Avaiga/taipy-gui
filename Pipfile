@@ -50,6 +50,7 @@ types-Flask-Cors = "*"
 pandas-stubs = "*"
 pyopenssl = "*"
 pytest-timeout = "*"
+testbook = "*"
 
 [requires]
 python_version = "3"
