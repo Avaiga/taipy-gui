@@ -31,7 +31,8 @@ requirements = [
     "pandas>=1.3.4,<2.0",
     "python-dotenv>=0.19,<0.21",
     "pytz>=2021.3,<2022.2",
-    "simple-websocket>=0.3,<0.6",
+    "gevent>=21.12.0,<22.0",
+    "gevent-websocket>=0.10.1,<0.11",
     "tzlocal>=3.0,<5.0",
     "backports.zoneinfo>=0.2.1,<0.3;python_version<'3.9'",
     "flask-talisman>=1.0,<2.0",
@@ -41,7 +42,10 @@ test_requirements = ["pytest>=3.8"]
 
 extras_require = {
     "ngrok": ["pyngrok>=5.1,<6.0"],
-    "image": ["python-magic>=0.4.24,<0.5;platform_system!='Windows'", "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'"],
+    "image": [
+        "python-magic>=0.4.24,<0.5;platform_system!='Windows'",
+        "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'",
+    ],
     "rdp": ["rdp>=0.8"],
     "arrow": ["pyarrow>=7.0,<9.0"],
 }
