@@ -1285,6 +1285,7 @@ class Gui:
 
         # Stop and reinitialize the server if it is still running as a thread
         if (_is_in_notebook() or run_in_thread) and hasattr(self._server, "_thread"):
+            self._server._ws.stop()
             self._server._thread.kill()
             self._server._thread.join()
             self._flask_blueprint = []
@@ -1408,6 +1409,7 @@ class Gui:
         context.
         """
         if hasattr(self, "_server") and hasattr(self._server, "_thread"):
+            self._server._ws.stop()
             self._server._thread.kill()
             self._server._thread.join()
             print("Gui server has been stopped")
