@@ -67,7 +67,6 @@ class State:
     """
 
     __gui_attr = "_gui"
-    __module_attr = "_module"
     __attrs = (__gui_attr, "_user_var_list")
     __methods = ("assign", "_get_placeholder", "_set_placeholder", "_get_gui_attr", "_get_placeholder_attrs")
     __placeholder_attrs = ("_taipy_p1",)
@@ -84,11 +83,9 @@ class State:
     def __getattribute__(self, name: str) -> t.Any:
         if name in State.__methods:
             return super().__getattribute__(name)
-        gui: Gui = super().__getattribute__(State.__gui_attr)
+        gui = super().__getattribute__(State.__gui_attr)
         if name == State.__gui_attr:
             return gui
-        if name == State.__module_attr:
-            return gui._get_locals_context()
         if name in State.__excluded_attrs:
             raise AttributeError(f"Variable '{name}' is protected and is not accessible.")
         if name not in super().__getattribute__(State.__attrs[1]):
