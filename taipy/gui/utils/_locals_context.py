@@ -55,6 +55,11 @@ class _LocalsContext:
     def is_default(self) -> bool:
         return self.get_default() == self.get_locals()
 
+    def _get_locals_bind_from_context(self, context: t.Optional[str]):
+        if context is None:
+            context = self.__default_module
+        return self._locals_map[context]
+
     def reset_locals_context(self) -> None:
         if hasattr(g, _LocalsContext.__ctx_g_name):
             delattr(g, _LocalsContext.__ctx_g_name)

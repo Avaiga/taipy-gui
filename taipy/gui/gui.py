@@ -815,6 +815,12 @@ class Gui:
     def _get_locals_bind(self) -> t.Dict[str, t.Any]:
         return self.__locals_context.get_locals()
 
+    def _get_default_locals_bind(self) -> t.Dict[str, t.Any]:
+        return self.__locals_context.get_default()
+
+    def _get_locals_bind_from_context(self, context: t.Optional[str]) -> t.Dict[str, t.Any]:
+        return self.__locals_context._get_locals_bind_from_context(context)
+
     def _get_locals_context(self) -> str:
         current_context = self.__locals_context.get_context()
         return current_context if current_context is not None else self.__default_module_name
@@ -1050,9 +1056,19 @@ class Gui:
 
     # Main binding method (bind in markdown declaration)
     def _bind_var(self, var_name: str) -> str:
-        encoded_var_name = self.__var_dir.add_var(var_name, self._get_locals_context())
-        if not hasattr(self._bindings(), encoded_var_name) and var_name in self._get_locals_bind().keys():
-            self._bind(encoded_var_name, self._get_locals_bind()[var_name])
+        bind_context = None
+        if var_name in self._get_locals_bind().keys():
+            bind_context = self._get_locals_context()
+        elif var_name not in self._get_default_locals_bind().keys():
+            raise RuntimeError(
+                f"Variable '{var_name}' is not available in both '{self._get_locals_context()}' module and '__main__' module"
+            )
+        if bind_context is None:
+            encoded_var_name = self.__var_dir.add_var(var_name, self._get_locals_context(), var_name)
+        else:
+            encoded_var_name = self.__var_dir.add_var(var_name, self._get_locals_context())
+        if not hasattr(self._bindings(), encoded_var_name):
+            self._bind(encoded_var_name, self._get_locals_bind_from_context(bind_context)[var_name])
         return encoded_var_name
 
     def _bind_var_val(self, var_name: str, value: t.Any) -> bool:
