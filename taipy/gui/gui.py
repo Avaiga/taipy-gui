@@ -1069,7 +1069,7 @@ class Gui:
                 self._bind(encoded_var_name, bind_locals[var_name])
             else:
                 warnings.warn(
-                    f"Variable '{var_name}' is not available in both '{self._get_locals_context()}' module and '__main__' module"
+                    f"Variable '{var_name}' is not available in either '{self._get_locals_context()}' module and '__main__' module"
                 )
         return encoded_var_name
 
