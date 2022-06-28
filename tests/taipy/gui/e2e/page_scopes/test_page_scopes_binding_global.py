@@ -35,6 +35,7 @@ def helpers_assert_value(page, s1, s2, v1):
 
 @pytest.mark.timeout(300)
 @pytest.mark.teste2e
+@pytest.mark.filterwarnings("ignore::Warning")
 def test_page_scopes_binding(page: "Page", gui: Gui, helpers):
     gui._set_frame(inspect.currentframe())
     operand_1 = 0
