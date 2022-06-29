@@ -135,7 +135,7 @@ def get_context_id(state: State) -> t.Optional[str]:
     return None
 
 
-def get_page_scope(state: State) -> t.Optional[str]:
+def get_module_name_from_state(state: State) -> t.Optional[str]:
     if state and isinstance(state._gui, Gui):
         return state._gui._get_locals_context()
     return None

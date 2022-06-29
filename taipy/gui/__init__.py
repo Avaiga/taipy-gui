@@ -67,7 +67,7 @@ from .gui import Gui
 from .gui_actions import (
     download,
     get_context_id,
-    get_page_scope,
+    get_module_name_from_state,
     hold_control,
     invoke_state_callback,
     navigate,
