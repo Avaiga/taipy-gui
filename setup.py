@@ -72,7 +72,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    description="An Open Source Web-based GUI generator for Python that need no knowledge of Web application development.",
+    description="An Open Source GUI generator for Python that need no knowledge of Web application development.",
     long_description=readme,
     long_description_content_type="text/markdown",
     install_requires=requirements,
