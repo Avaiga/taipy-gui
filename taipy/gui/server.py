@@ -199,7 +199,7 @@ class _Server:
         self._ws.run(self._flask, host=host, port=port, debug=debug, use_reloader=use_reloader)
 
     def stop_thread(self):
-        if hasattr(self._server, "_thread"):
+        if hasattr(self, "_thread"):
             if self._get_async_mode() != "threading":
                 self._ws.stop()
             self._thread.kill()
