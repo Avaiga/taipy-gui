@@ -1247,6 +1247,7 @@ class Gui:
         run_server: bool = True,
         run_in_thread: bool = False,
         ssl_context: t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal["adhoc"]]] = None,
+        async_mode: t.Optional[str] = None,
         **kwargs,
     ) -> t.Optional[Flask]:
         """
@@ -1270,6 +1271,11 @@ class Gui:
                 Configure TLS to serve over HTTPS. Can be an ssl.SSLContext object, a (cert_file, key_file) tuple to
                 create a typical context, or the string 'adhoc' to generate a temporary self-signed certificate.</br>
                 The default value is None.
+            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are `threading`, `eventlet`,
+                `gevent` and `gevent_uwsgi`.If this argument is not given, `eventlet` is tried first, then `gevent_uwsgi`,
+                then `gevent`, and finally `threading`. The first async mode that has all its dependencies installed is
+                then one that is chosen. Use `threading` to use Flask Development Server. Only `threading` option supports
+                development reloader functionality. Other options will ignore `use_reloader` configuration.
             **kwargs: Additional keyword arguments that configure how this `Gui` is run.
                 Please refer to the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance)
@@ -1299,13 +1305,12 @@ class Gui:
                 css_file=self._css_file,
                 content_security_policy=self._get_config("content_security_policy", None),
                 force_https=self._get_config("force_https", False),
+                async_mode=async_mode,
             )
 
         # Stop and reinitialize the server if it is still running as a thread
         if (_is_in_notebook() or run_in_thread) and hasattr(self._server, "_thread"):
-            self._server._ws.stop()
-            self._server._thread.kill()
-            self._server._thread.join()
+            self._server.stop_thread()
             self._flask_blueprint = []
             self._server = _Server(
                 self,
@@ -1314,6 +1319,7 @@ class Gui:
                 css_file=self._css_file,
                 content_security_policy=self._get_config("content_security_policy", None),
                 force_https=self._get_config("force_https", False),
+                async_mode=async_mode,
             )
             self._bindings()._new_scopes()
 
@@ -1427,7 +1433,5 @@ class Gui:
         context.
         """
         if hasattr(self, "_server") and hasattr(self._server, "_thread"):
-            self._server._ws.stop()
-            self._server._thread.kill()
-            self._server._thread.join()
+            self._server.stop_thread()
             print("Gui server has been stopped")
