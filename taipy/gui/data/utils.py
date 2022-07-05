@@ -16,6 +16,8 @@ from importlib import util
 
 import numpy as np
 
+from ..utils.rdp import rdp_numpy
+
 _has_rdp_module = False
 
 if util.find_spec("rdp"):
@@ -50,6 +52,21 @@ def _df_data_filter(
         expected_row_count = int(__df_row_count(df) * 0.1)
     points = df[[x_column_name, y_column_name]].to_numpy()
     return df[__np_filter(points, int(expected_row_count), margin_of_error)], x_column_name, y_column_name
+
+
+def _df_data_filter_epsilon(
+    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, epsilon: int
+):
+    df = dataframe.copy()
+    if not x_column_name:
+        index = 0
+        while f"tAiPy_index_{index}" in df.columns:
+            index += 1
+        x_column_name = f"tAiPy_index_{index}"
+        df[x_column_name] = df.index
+    points = df[[x_column_name, y_column_name]].to_numpy()
+    mask = rdp_numpy(points, epsilon=epsilon)
+    return df[mask], x_column_name, y_column_name
 
 
 def __np_filter(points: np.ndarray, expected_row_count: int, margin_of_error: float) -> np.ndarray:
