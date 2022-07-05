@@ -41,16 +41,23 @@ test_requirements = ["pytest>=3.8"]
 
 extras_require = {
     "ngrok": ["pyngrok>=5.1,<6.0"],
-    "image": ["python-magic>=0.4.24,<0.5;platform_system!='Windows'", "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'"],
+    "image": [
+        "python-magic>=0.4.24,<0.5;platform_system!='Windows'",
+        "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'",
+    ],
     "rdp": ["rdp>=0.8"],
     "arrow": ["pyarrow>=7.0,<9.0"],
+    "gevent": [
+        "gevent>=21.12.0,<22.0",
+        "gevent-websocket>=0.10.1,<0.11",
+    ],
 }
 
 
 def _build_webapp():
     already_exists = Path(f"./taipy/gui/webapp/index.html").exists()
     if not already_exists:
-        os.system("cd gui && npm ci && npm run build")
+        os.system("cd gui && npm ci --omit=optional && npm run build")
 
 
 class NPMInstall(build_py):
