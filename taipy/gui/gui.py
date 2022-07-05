@@ -1271,11 +1271,15 @@ class Gui:
                 Configure TLS to serve over HTTPS. Can be an ssl.SSLContext object, a (cert_file, key_file) tuple to
                 create a typical context, or the string 'adhoc' to generate a temporary self-signed certificate.</br>
                 The default value is None.
-            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are `threading`, `eventlet`,
-                `gevent` and `gevent_uwsgi`. If this argument is not given, `eventlet` is tried first, then `gevent_uwsgi`,
-                then `gevent`, and finally `threading`. The first async mode that has all its dependencies installed will
-                be the chosen one. Use `threading` to use Flask Development Server. Only `threading` option supports
-                development reloader functionality. Other options will ignore `use_reloader` configuration.
+            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are: </br>
+                - `threading`: Use Flask Development Server. This will allow you to use Flask reloader and debug mode.</br>
+                - `eventlet`: Use eventlet server.</br>
+                - `gevent`: Use gevent server.</br>
+                - `gevent_uwsgi`: Use uwsgi server.</br>
+                If this argument is not given, `eventlet` is tried first, then `gevent_uwsgi`, then `gevent`,
+                and finally `threading`. The first async mode that has all its dependencies installed will
+                be the chosen one. Only `threading` option supports development reloader functionality.
+                Other options will ignore `use_reloader` configuration.
             **kwargs: Additional keyword arguments that configure how this `Gui` is run.
                 Please refer to the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance)
