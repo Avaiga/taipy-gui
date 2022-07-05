@@ -1271,7 +1271,7 @@ class Gui:
                 Configure TLS to serve over HTTPS. Can be an ssl.SSLContext object, a (cert_file, key_file) tuple to
                 create a typical context, or the string 'adhoc' to generate a temporary self-signed certificate.</br>
                 The default value is None.
-            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are: </br>
+            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are:</br>
                 - `threading`: Use Flask Development Server. This will allow you to use Flask reloader and debug mode.</br>
                 - `eventlet`: Use eventlet server.</br>
                 - `gevent`: Use gevent server.</br>
