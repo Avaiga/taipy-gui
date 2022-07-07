@@ -241,8 +241,9 @@ class _PandasDataAccessor(_DataAccessor):
             if nb_rows_max and nb_rows_max < len(value) / 2:
                 x_column, y_column = columns[1] if len(columns) > 1 else None, columns[0]
                 try:
-                    threshold = payload.get("limitThreshold", 50)
-                    value = _df_data_filter(value, x_column, y_column, epsilon=threshold)
+                    threshold = payload.get("limitThreshold", gui._get_config("chart_limit_threshold", None))
+                    if threshold is not None:
+                        value = _df_data_filter(value, x_column, y_column, epsilon=threshold)
                 except Exception as e:
                     warnings.warn(f"Limit rows error for dataframe: {e}")
             value = self.__build_transferred_cols(gui, columns, value)

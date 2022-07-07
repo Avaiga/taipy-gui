@@ -123,7 +123,7 @@ const Chart = (props: ChartProp) => {
         tp_onRangeChange,
         propagate = true,
         limitRows = false,
-        limitThreshold = undefined,
+        limitThreshold,
     } = props;
     const { dispatch } = useContext(TaipyContext);
     const [selected, setSelected] = useState<number[][]>([]);
