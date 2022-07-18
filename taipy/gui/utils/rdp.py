@@ -12,16 +12,18 @@
 import numpy as np
 
 
+def dsquared_line_points(P1, P2, points):
+    """
+    Calculate only squared distance, only needed for comparison
+    """
+    xdiff = P2[0] - P1[0]
+    ydiff = P2[1] - P1[1]
+    nom = (ydiff * points[:, 0] - xdiff * points[:, 1] + P2[0] * P1[1] - P2[1] * P1[0]) ** 2
+    denom = ydiff**2 + xdiff**2
+    return np.divide(nom, denom)
+
+
 def rdp_numpy(M, epsilon=0):
-    def dsquared_line_points(P1, P2, points):
-        """
-        Calculate only squared distance, only needed for comparison
-        """
-        xdiff = P2[0] - P1[0]
-        ydiff = P2[1] - P1[1]
-        nom = (ydiff * points[:, 0] - xdiff * points[:, 1] + P2[0] * P1[1] - P2[1] * P1[0]) ** 2
-        denom = ydiff**2 + xdiff**2
-        return np.divide(nom, denom)
 
     # initiate mask array
     # same amount of points
@@ -63,3 +65,33 @@ def rdp_numpy(M, epsilon=0):
             mask[start + 1 : end] = False
 
     return mask
+
+
+def rdp_numpy_points(M, pointsToKeep):
+    M_len = M.shape[0]
+
+    if M_len <= pointsToKeep:
+        mask = np.empty(M_len, dtype=bool)
+        mask.fill(True)
+        return mask
+
+    weights = np.empty(M_len)
+    # weights.fill(0)
+    weights[0] = float("inf")
+    weights[M_len - 1] = float("inf")
+
+    stack = [(0, M_len - 1)]
+
+    while stack:
+        (start, end) = stack.pop()
+        if end - start <= 1:
+            continue
+        dsq = dsquared_line_points(M[start], M[end], M[start + 1 : end])
+        max_dist_index = np.argmax(dsq) + start + 1
+        weights[max_dist_index] = np.amax(dsq)
+        stack.append((start, max_dist_index))
+        stack.append((max_dist_index, end))
+
+    maxTolerance = np.sort(weights)[M_len - pointsToKeep]
+
+    return weights >= maxTolerance
