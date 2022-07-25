@@ -204,7 +204,7 @@ class _Config(object):
 
         # Taipy-config
         if find_spec("taipy") and find_spec("taipy.config"):
-            from taipy import Config as TaipyConfig
+            from taipy.config import Config as TaipyConfig
 
             try:
                 section = TaipyConfig.sections["gui"]
@@ -217,7 +217,8 @@ def _register_gui_config():
     if find_spec("taipy") and find_spec("taipy.config"):
         from copy import copy
 
-        from taipy.config import Config, Section
+        from taipy.config import Config as TaipyConfig
+        from taipy.config import Section
 
         from ._default_config import default_config
 
@@ -251,8 +252,8 @@ def _register_gui_config():
             @staticmethod
             def _configure(**properties):
                 section = _GuiSection(**properties)
-                Config._register(section)
-                return Config.sections[_GuiSection.name]
+                TaipyConfig._register(section)
+                return TaipyConfig.sections[_GuiSection.name]
 
-        Config._register_default(_GuiSection(property_list=list(default_config)))
-        Config.configure_gui = _GuiSection._configure
+        TaipyConfig._register_default(_GuiSection(property_list=list(default_config)))
+        TaipyConfig.configure_gui = _GuiSection._configure
