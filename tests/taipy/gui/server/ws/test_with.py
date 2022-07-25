@@ -11,8 +11,8 @@
 
 import inspect
 
-from taipy.gui import Gui, Markdown
-from taipy.gui.data.data_scope import _DataScopes
+from src.taipy.gui import Gui, Markdown
+from src.taipy.gui.data.data_scope import _DataScopes
 
 
 def test_sending_messages_in_group(gui: Gui, helpers):

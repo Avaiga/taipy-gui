@@ -10,15 +10,22 @@
 # specific language governing permissions and limitations under the License.
 
 import os
+import sys
 from pathlib import Path
 
 import pandas as pd  # type: ignore
 import pytest
 from flask import Flask, g
 
-from taipy.gui import Gui
+from src.taipy.gui import Gui
 
 from .helpers import Helpers
+
+
+def pytest_configure(config):
+    if "taipy.gui" in sys.modules and "src.taipy.gui" not in sys.modules:
+        sys.modules["src.taipy.gui"] = sys.modules["taipy.gui"]
+
 
 csv = pd.read_csv(
     f"{Path(Path(__file__).parent.resolve())}{os.path.sep}current-covid-patients-hospital.csv", parse_dates=["Day"]
@@ -38,6 +45,8 @@ def small_dataframe():
 
 @pytest.fixture(scope="function")
 def gui(helpers):
+    from src.taipy.gui import Gui
+
     gui = Gui()
     yield gui
     # Delete Gui instance and state of some classes after each test

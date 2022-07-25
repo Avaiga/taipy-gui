@@ -13,7 +13,7 @@ from email import message
 
 import pytest
 
-from taipy.gui._page import _Page
+from src.taipy.gui._page import _Page
 
 
 def test_exception_page(gui):

@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from taipy.gui import Gui, Markdown, hold_control
+from src.taipy.gui import Gui, Markdown, hold_control
 
 
 def test_hold_control(gui: Gui, helpers):

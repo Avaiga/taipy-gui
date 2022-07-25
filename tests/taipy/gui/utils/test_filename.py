@@ -12,8 +12,8 @@
 import pathlib
 import tempfile
 
-from taipy.gui import Gui
-from taipy.gui.utils import _get_non_existent_file_path
+from src.taipy.gui import Gui
+from src.taipy.gui.utils import _get_non_existent_file_path
 
 
 def test_empty_file_name(gui: Gui, helpers):

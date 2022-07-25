@@ -11,7 +11,7 @@
 
 import inspect
 
-from taipy.gui import Gui, Markdown
+from src.taipy.gui import Gui, Markdown
 
 
 def ws_u_assert_template(gui: Gui, helpers, value_before_update, value_after_update, payload):

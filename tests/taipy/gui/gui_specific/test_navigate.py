@@ -13,7 +13,7 @@ import inspect
 import json
 import warnings
 
-from taipy.gui import Gui, Markdown, State, navigate
+from src.taipy.gui import Gui, Markdown, State, navigate
 
 
 def test_navigate(gui: Gui, helpers):

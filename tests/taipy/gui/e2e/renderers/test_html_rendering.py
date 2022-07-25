@@ -21,8 +21,8 @@ import pytest
 if util.find_spec("playwright"):
     from playwright._impl._page import Page
 
-from taipy.gui import Gui, Html
-from taipy.gui.server import _Server
+from src.taipy.gui import Gui, Html
+from src.taipy.gui.server import _Server
 
 
 @pytest.mark.teste2e

@@ -11,7 +11,7 @@
 
 import inspect
 
-from taipy.gui.utils.get_module_name import _get_module_name_from_frame, _get_module_name_from_imported_var
+from src.taipy.gui.utils.get_module_name import _get_module_name_from_frame, _get_module_name_from_imported_var
 
 x = 10
 

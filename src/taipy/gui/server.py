@@ -111,7 +111,7 @@ class _Server:
                     watermark=self._gui._get_config("watermark", None),
                     config=self.__get_client_config(),
                     scripts=scripts,
-                    styles=styles
+                    styles=styles,
                 )
             if os.path.isfile(static_folder + os.path.sep + path):
                 return send_from_directory(static_folder + os.path.sep, path)

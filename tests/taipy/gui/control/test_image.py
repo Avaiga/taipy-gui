@@ -13,7 +13,7 @@ import os
 import pathlib
 from importlib import util
 
-from taipy.gui import Gui
+from src.taipy.gui import Gui
 
 
 def test_image_url_md(gui: Gui, test_client, helpers):

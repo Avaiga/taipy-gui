@@ -13,7 +13,7 @@ import inspect
 
 import pytest
 
-from taipy.gui import Gui, Markdown
+from src.taipy.gui import Gui, Markdown
 
 
 def test_ru_selector(gui: Gui, helpers, csvdata):

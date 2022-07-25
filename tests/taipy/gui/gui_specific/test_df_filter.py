@@ -12,7 +12,7 @@
 import numpy as np
 import pandas as pd
 
-from taipy.gui.data.utils import _df_data_filter
+from src.taipy.gui.data.utils import _df_data_filter
 
 
 def test_data_filter_1(csvdata):

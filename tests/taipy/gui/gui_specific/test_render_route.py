@@ -13,7 +13,7 @@ import inspect
 import json
 import warnings
 
-from taipy.gui import Gui
+from src.taipy.gui import Gui
 
 
 def test_render_route(gui: Gui):

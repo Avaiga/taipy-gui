@@ -11,7 +11,7 @@
 
 import pytest
 
-from taipy.gui.utils._bindings import _Bindings
+from src.taipy.gui.utils._bindings import _Bindings
 
 
 def test_exception_binding_twice(gui, test_client):

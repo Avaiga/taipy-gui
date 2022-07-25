@@ -17,8 +17,8 @@ import pytest
 if util.find_spec("playwright"):
     from playwright._impl._page import Page
 
-from taipy.gui import Gui
-from taipy.gui.utils.date import _ISO_to_date
+from src.taipy.gui import Gui
+from src.taipy.gui.utils.date import _ISO_to_date
 
 
 @pytest.mark.teste2e

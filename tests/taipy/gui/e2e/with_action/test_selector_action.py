@@ -18,7 +18,7 @@ import pytest
 if util.find_spec("playwright"):
     from playwright._impl._page import Page
 
-from taipy.gui import Gui, State
+from src.taipy.gui import Gui, State
 
 
 @pytest.mark.teste2e

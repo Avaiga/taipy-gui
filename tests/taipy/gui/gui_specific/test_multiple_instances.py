@@ -11,7 +11,7 @@
 
 import json
 
-from taipy.gui.gui import Gui
+from src.taipy.gui.gui import Gui
 
 
 def test_multiple_instance():

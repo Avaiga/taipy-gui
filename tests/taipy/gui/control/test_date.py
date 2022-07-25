@@ -11,7 +11,7 @@
 
 from datetime import datetime
 
-from taipy.gui import Gui
+from src.taipy.gui import Gui
 
 
 def test_date_md_1(gui: Gui, test_client, helpers):

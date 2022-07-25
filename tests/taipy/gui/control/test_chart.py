@@ -11,7 +11,7 @@
 
 import inspect
 
-from taipy.gui import Gui
+from src.taipy.gui import Gui
 
 
 def test_chart_md_1(gui: Gui, helpers, csvdata):

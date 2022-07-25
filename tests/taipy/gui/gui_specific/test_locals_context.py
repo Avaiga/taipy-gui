@@ -11,8 +11,8 @@
 
 import pytest
 
-from taipy.gui import Gui
-from taipy.gui.utils._locals_context import _LocalsContext
+from src.taipy.gui import Gui
+from src.taipy.gui.utils._locals_context import _LocalsContext
 
 
 def test_locals_context(gui: Gui):

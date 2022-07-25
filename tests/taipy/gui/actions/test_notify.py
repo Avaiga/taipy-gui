@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from taipy.gui import Gui, Markdown, notify
+from src.taipy.gui import Gui, Markdown, notify
 
 
 def test_notify(gui: Gui, helpers):

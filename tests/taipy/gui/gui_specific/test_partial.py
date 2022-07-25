@@ -13,7 +13,7 @@ import json
 import warnings
 from types import SimpleNamespace
 
-from taipy.gui import Gui, Markdown
+from src.taipy.gui import Gui, Markdown
 
 
 def test_partial(gui: Gui):
