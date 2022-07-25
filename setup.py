@@ -85,6 +85,7 @@ setup(
     include_package_data=True,
     keywords="taipy-gui",
     name="taipy-gui",
+    package_dir={"": "src"},
     packages=find_namespace_packages(where="src") + find_packages(include=["taipy", "taipy.gui", "taipy.gui.*"]),
     test_suite="tests",
     tests_require=test_requirements,
