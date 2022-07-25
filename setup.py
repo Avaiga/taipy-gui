@@ -16,7 +16,7 @@
 import os
 from pathlib import Path
 
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, find_packages, setup
 from setuptools.command.build_py import build_py
 
 with open("README.md") as readme_file:
@@ -85,7 +85,7 @@ setup(
     include_package_data=True,
     keywords="taipy-gui",
     name="taipy-gui",
-    packages=find_packages(include=["src.taipy", "src.taipy.gui", "src.taipy.gui.*"]),
+    packages=find_namespace_packages(where="src") + find_packages(include=["taipy", "taipy.gui", "taipy.gui.*"]),
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/avaiga/taipy-gui",
