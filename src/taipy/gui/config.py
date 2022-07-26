@@ -235,7 +235,7 @@ def _register_gui_config():
 
             def _to_dict(self):
                 as_dict = {}
-                as_dict |= self._properties
+                as_dict.update(self._properties)
                 return as_dict
 
             @classmethod
