@@ -11,7 +11,7 @@
 
 import inspect
 
-from src.taipy.gui import Gui, Markdown
+from taipy.gui import Gui, Markdown
 
 
 def test_dialog_md_1(gui: Gui, helpers):

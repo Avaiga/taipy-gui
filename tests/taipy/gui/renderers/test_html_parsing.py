@@ -11,7 +11,7 @@
 
 import inspect
 
-from src.taipy.gui import Gui, Html
+from taipy.gui import Gui, Html
 
 
 def test_simple_html(gui: Gui, helpers):

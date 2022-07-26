@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from src.taipy.gui import Gui, Markdown, State, download
+from taipy.gui import Gui, Markdown, State, download
 
 
 def test_download(gui: Gui, helpers):

@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from src.taipy.gui import Gui, Markdown, State, get_context_id, invoke_state_callback
+from taipy.gui import Gui, Markdown, State, get_context_id, invoke_state_callback
 
 
 def test_invoke_state_callback(gui: Gui, helpers):

@@ -13,7 +13,7 @@ import pathlib
 
 import pytest
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_image_path_not_found(gui: Gui, helpers):

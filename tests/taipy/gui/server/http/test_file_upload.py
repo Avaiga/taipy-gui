@@ -16,9 +16,9 @@ import tempfile
 
 import pytest
 
-from src.taipy.gui import Gui
-from src.taipy.gui.data.data_scope import _DataScopes
-from src.taipy.gui.utils import _get_non_existent_file_path
+from taipy.gui import Gui
+from taipy.gui.data.data_scope import _DataScopes
+from taipy.gui.utils import _get_non_existent_file_path
 
 
 def test_file_upload_no_varname(gui: Gui, helpers):

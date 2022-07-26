@@ -14,9 +14,9 @@ from importlib import util
 
 import pandas  # type: ignore
 
-from src.taipy.gui import Gui
-from src.taipy.gui.data.data_format import _DataFormat
-from src.taipy.gui.data.pandas_data_accessor import _PandasDataAccessor
+from taipy.gui import Gui
+from taipy.gui.data.data_format import _DataFormat
+from taipy.gui.data.pandas_data_accessor import _PandasDataAccessor
 
 
 def test_simple_data(gui: Gui, helpers, small_dataframe):

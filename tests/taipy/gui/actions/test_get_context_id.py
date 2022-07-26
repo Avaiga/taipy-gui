@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from src.taipy.gui import Gui, Markdown, get_context_id
+from taipy.gui import Gui, Markdown, get_context_id
 
 
 def test_get_context_id(gui: Gui, helpers):

@@ -9,6 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from importlib.util import find_spec
 import os
 import sys
 from pathlib import Path
@@ -17,14 +18,11 @@ import pandas as pd  # type: ignore
 import pytest
 from flask import Flask, g
 
-from src.taipy.gui import Gui
-
-from .helpers import Helpers
-
 
 def pytest_configure(config):
-    if "taipy.gui" in sys.modules and "src.taipy.gui" not in sys.modules:
-        sys.modules["src.taipy.gui"] = sys.modules["taipy.gui"]
+    if find_spec("src") and find_spec("src.taipy") and not find_spec("taipy") and not find_spec("taipy.gui"):
+        import src.taipy.gui
+        sys.modules["taipy.gui"] = sys.modules["src.taipy.gui"]
 
 
 csv = pd.read_csv(
@@ -45,7 +43,7 @@ def small_dataframe():
 
 @pytest.fixture(scope="function")
 def gui(helpers):
-    from src.taipy.gui import Gui
+    from taipy.gui import Gui
 
     gui = Gui()
     yield gui
@@ -56,6 +54,8 @@ def gui(helpers):
 
 @pytest.fixture
 def helpers():
+    from .helpers import Helpers
+
     return Helpers
 
 

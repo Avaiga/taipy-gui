@@ -13,7 +13,7 @@ import inspect
 
 import pandas as pd  # type: ignore
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_expression_text_control_str(gui: Gui, test_client, helpers):

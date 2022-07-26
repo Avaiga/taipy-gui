@@ -12,8 +12,8 @@
 import inspect
 import warnings
 
-from src.taipy.gui import Gui
-from src.taipy.gui.utils.types import _TaipyNumber
+from taipy.gui import Gui
+from taipy.gui.utils.types import _TaipyNumber
 
 
 def test_unbind_variable_in_expression(gui: Gui):

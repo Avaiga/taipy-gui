@@ -13,7 +13,7 @@ import inspect
 import os
 from pathlib import Path
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_folder_pages_binding(gui: Gui):

@@ -11,7 +11,7 @@
 
 import pytest
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_invalid_control_name(gui: Gui, helpers):

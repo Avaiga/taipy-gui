@@ -13,7 +13,7 @@ import os
 import pathlib
 from importlib import util
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_file_download_url_md(gui: Gui, test_client, helpers):

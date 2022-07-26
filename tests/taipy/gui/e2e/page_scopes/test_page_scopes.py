@@ -15,7 +15,7 @@ from importlib import util
 
 import pytest
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 if util.find_spec("playwright"):
     from playwright._impl._page import Page

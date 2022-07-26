@@ -11,7 +11,7 @@
 
 import inspect
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_status_md(gui: Gui, helpers):

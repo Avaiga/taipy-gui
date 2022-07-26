@@ -13,7 +13,7 @@ import inspect
 import time
 from urllib.request import urlopen
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 # this hangs in github

@@ -18,7 +18,7 @@ import pytest
 if util.find_spec("playwright"):
     from playwright._impl._page import Page
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def edit_and_assert_page(page: "Page"):

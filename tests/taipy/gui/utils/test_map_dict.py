@@ -13,8 +13,8 @@ import inspect
 
 import pytest
 
-from src.taipy.gui.gui import Gui
-from src.taipy.gui.utils import _MapDict
+from taipy.gui.gui import Gui
+from taipy.gui.utils import _MapDict
 
 
 def test_map_dict():

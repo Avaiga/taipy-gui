@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from src.taipy.gui import Gui, Markdown, resume_control
+from taipy.gui import Gui, Markdown, resume_control
 
 
 def test_resume_control(gui: Gui, helpers):

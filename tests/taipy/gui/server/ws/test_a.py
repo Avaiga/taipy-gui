@@ -12,7 +12,7 @@
 import inspect
 import time
 
-from src.taipy.gui import Gui, Markdown
+from taipy.gui import Gui, Markdown
 
 
 def test_a_button_pressed(gui: Gui, helpers):

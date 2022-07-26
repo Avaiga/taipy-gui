@@ -15,7 +15,7 @@ import pathlib
 
 import pytest
 
-from src.taipy.gui import Gui, download
+from taipy.gui import Gui, download
 
 
 def test_download_file(gui: Gui, helpers):

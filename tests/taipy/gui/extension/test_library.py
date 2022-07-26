@@ -12,8 +12,8 @@ import inspect
 import typing as t
 from pathlib import Path
 
-from src.taipy.gui import Gui
-from src.taipy.gui.extension import Element, ElementAttribute, ElementLibrary, PropertyType
+from taipy.gui import Gui
+from taipy.gui.extension import Element, ElementAttribute, ElementLibrary, PropertyType
 
 
 class MyLibrary(ElementLibrary):

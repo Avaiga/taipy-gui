@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from src.taipy.gui import Gui
+from taipy.gui import Gui
 
 
 def test_expandable_md_1(gui: Gui, helpers):

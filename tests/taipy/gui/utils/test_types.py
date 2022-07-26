@@ -13,8 +13,8 @@ import warnings
 
 import pytest
 
-from src.taipy.gui.utils.date import _ISO_to_date
-from src.taipy.gui.utils.types import _TaipyBase, _TaipyBool, _TaipyDate, _TaipyNumber
+from taipy.gui.utils.date import _ISO_to_date
+from taipy.gui.utils.types import _TaipyBase, _TaipyBool, _TaipyDate, _TaipyNumber
 
 
 def test_taipy_base():

@@ -13,7 +13,7 @@ import inspect
 
 from flask import g
 
-from src.taipy.gui import Gui, Markdown, navigate
+from taipy.gui import Gui, Markdown, navigate
 
 
 def test_navigate(gui: Gui, helpers):
