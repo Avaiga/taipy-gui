@@ -20,8 +20,9 @@ from flask import Flask, g
 
 
 def pytest_configure(config):
-    if find_spec("src") and find_spec("src.taipy") and not find_spec("taipy") and not find_spec("taipy.gui"):
+    if (find_spec("src") and find_spec("src.taipy")) and (find_spec("taipy") and not find_spec("taipy.gui")):
         import src.taipy.gui
+        
         sys.modules["taipy.gui"] = sys.modules["src.taipy.gui"]
 
 
