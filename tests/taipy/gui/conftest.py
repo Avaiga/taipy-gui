@@ -9,9 +9,9 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from importlib.util import find_spec
 import os
 import sys
+from importlib.util import find_spec
 from pathlib import Path
 
 import pandas as pd  # type: ignore
@@ -20,11 +20,19 @@ from flask import Flask, g
 
 
 def pytest_configure(config):
-    if (find_spec("src") and find_spec("src.taipy")) and (
-        not find_spec("taipy") or (find_spec("taipy") and not find_spec("taipy.gui"))
-    ):
+    if (find_spec("src") and find_spec("src.taipy")) and (not find_spec("taipy") or not find_spec("taipy.gui")):
         import src.taipy.gui
+        import src.taipy.gui.extension
+        import src.taipy.gui.renderers.builder
+        import src.taipy.gui.utils._map_dict
+        import src.taipy.gui.utils._variable_directory
+        import src.taipy.gui.utils.expr_var_name
 
+        sys.modules["taipy.gui.renderers.builder"] = sys.modules["src.taipy.gui.renderers.builder"]
+        sys.modules["taipy.gui.utils._variable_directory"] = sys.modules["src.taipy.gui.utils._variable_directory"]
+        sys.modules["taipy.gui.utils.expr_var_name"] = sys.modules["src.taipy.gui.utils.expr_var_name"]
+        sys.modules["taipy.gui.utils._map_dict"] = sys.modules["src.taipy.gui.utils._map_dict"]
+        sys.modules["taipy.gui.extension"] = sys.modules["src.taipy.gui.extension"]
         sys.modules["taipy.gui"] = sys.modules["src.taipy.gui"]
 
 
