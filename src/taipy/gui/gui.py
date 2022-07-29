@@ -1301,19 +1301,31 @@ class Gui:
                 Note that if you are running in an IPython notebook context, the Web
                 server is always run in a separate thread.
             ssl_context (Optional[Union[ssl.SSLContext, Tuple[str, Optional[str]], te.Literal['adhoc']]]):
-                Configure TLS to serve over HTTPS. Can be an ssl.SSLContext object, a (cert_file, key_file) tuple to
-                create a typical context, or the string 'adhoc' to generate a temporary self-signed certificate.</br>
+                Configures TLS to serve over HTTPS. This value can be:
+
+                - An `ssl.SSLContext` object
+                - A `(cert_file, key_file)` tuple to create a typical context
+                - The string "adhoc" to generate a temporary self-signed certificate.
+
                 The default value is None.
-            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are:</br>
-                - `threading`: Use Flask Development Server. This will allow you to use Flask reloader and debug mode.</br>
-                - `eventlet`: Use eventlet server.</br>
-                - `gevent`: Use gevent server.</br>
-                - `gevent_uwsgi`: Use uwsgi server.</br>
-                If this argument is not given, `eventlet` is tried first, then `gevent_uwsgi`, then `gevent`,
-                and finally `threading`. The first async mode that has all its dependencies installed will
-                be the chosen one. Only `threading` option supports development reloader functionality.
-                Other options will ignore `use_reloader` configuration.
-            **kwargs: Additional keyword arguments that configure how this `Gui` is run.
+            async_mode (Optional[str]): The asynchronous model to use for the Flask-SocketIO.
+                Valid values are:</br>
+
+                - `"threading"`: Use the Flask Development Server. This allows the application to use
+                  the Flask reloader and Debug mode.
+                - `"eventlet"`: Use eventlet server.
+                - `"gevent"`: Use gevent server.
+                - `"gevent_uwsgi"`: Use uwsgi server.
+
+                If this argument is not set, Taipy uses, in that order: `"eventlet"`, `"gevent_uwsgi"`,
+                `"gevent"`, and finally `"threading"`. The first async mode value that can be used
+                (that is all the relevant dependencies are installed) is used.<br/>
+                See [SocketIO Deployment Strategies](https://python-socketio.readthedocs.io/en/latest/server.html#deployment-strategies)
+                for more information.</br>
+                Note that only the `"threading"` value provides support for the development reloader
+                functionality. All the other values make the *use_reloader* configuration
+                element ignored.
+            **kwargs (Dict[str, Any]): Additional keyword arguments that configure how this `Gui` is run.
                 Please refer to the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance)
                 section in the User Manual for more information.
