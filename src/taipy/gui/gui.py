@@ -1279,7 +1279,6 @@ class Gui:
         self,
         run_server: bool = True,
         run_in_thread: bool = False,
-        ssl_context: t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal["adhoc"]]] = None,
         async_mode: t.Optional[str] = None,
         **kwargs,
     ) -> t.Optional[Flask]:
@@ -1300,14 +1299,6 @@ class Gui:
                 If set to _True_, the Web server is run is a separated thread.
                 Note that if you are running in an IPython notebook context, the Web
                 server is always run in a separate thread.
-            ssl_context (Optional[Union[ssl.SSLContext, Tuple[str, Optional[str]], te.Literal['adhoc']]]):
-                Configures TLS to serve over HTTPS. This value can be:
-
-                - An `ssl.SSLContext` object
-                - A `(cert_file, key_file)` tuple to create a typical context
-                - The string "adhoc" to generate a temporary self-signed certificate.
-
-                The default value is None.
             async_mode (Optional[str]): The asynchronous model to use for the Flask-SocketIO.
                 Valid values are:</br>
 
@@ -1333,7 +1324,20 @@ class Gui:
         Returns:
             The Flask instance if _run_server_ is _False_ else _None_.
         """
-
+        # --------------------------------------------------------------------------------
+        # The ssl_context argument was removed just after 1.1. It was defined as:
+        # t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal["adhoc"]]] = None
+        #
+        # With the doc:
+        #     ssl_context (Optional[Union[ssl.SSLContext, Tuple[str, Optional[str]], te.Literal['adhoc']]]):
+        #         Configures TLS to serve over HTTPS. This value can be:
+        #
+        #         - An `ssl.SSLContext` object
+        #         - A `(cert_file, key_file)` tuple to create a typical context
+        #         - The string "adhoc" to generate a temporary self-signed certificate.
+        #
+        #         The default value is None.
+        # --------------------------------------------------------------------------------
         app_config = self._config.config
 
         run_root_dir = os.path.dirname(inspect.getabsfile(self.__frame))
