@@ -26,7 +26,7 @@ from flask_talisman import Talisman
 from werkzeug.serving import is_running_from_reloader
 
 from .renderers.jsonencoder import _TaipyJsonEncoder
-from .utils import _is_in_notebook, _KillableThread
+from .utils import _is_in_notebook, _KillableThread, _RuntimeManager
 
 if t.TYPE_CHECKING:
     from .gui import Gui
@@ -94,7 +94,7 @@ class _Server:
         root_margin: str,
         scripts: t.List[str],
         styles: t.List[str],
-        version: str
+        version: str,
     ) -> Blueprint:
         taipy_bp = Blueprint("Taipy", __name__, static_folder=static_folder, template_folder=template_folder)
         # Serve static react build
@@ -113,7 +113,7 @@ class _Server:
                     config=self.__get_client_config(),
                     scripts=scripts,
                     styles=styles,
-                    version=version
+                    version=version,
                 )
             if str(os.path.normpath(file_path := ((base_path := static_folder + os.path.sep) + path))).startswith(
                 base_path
@@ -183,6 +183,9 @@ class _Server:
 
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread, ssl_context):
         host_value = host if host != "0.0.0.0" else "localhost"
+        if _is_in_notebook() or run_in_thread:
+            runtime_manager = _RuntimeManager()
+            runtime_manager.add_gui(self._gui, port)
         if debug and not is_running_from_reloader():
             # Check that the port is not already opened
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
