@@ -95,7 +95,16 @@ class Gui:
             anything.
         on_init (Callable): The function that is called on the first connection of a new user.<br/>
             It defaults to the `on_init()` global function defined in the Python
-            application.
+            application. If there is no such function, the first connection will not trigger
+            anything.
+        on_navigate (Callable): The function that is called when a page is requested.<br/>
+            It defaults to the `on_navigate()` global function defined in the Python
+            application. If there is no such function, page requests will not trigger
+            anything.
+        on_exception (Callable): The function that is called an exception occurs on user code.<br/>
+            It defaults to the `on_exception()` global function defined in the Python
+            application. If there is no such function, exceptions will not trigger
+            anything.
         state (State^): **Only defined when running in an IPython notebook context.**<br/>
             The unique instance of `State^` that you can use to change bound variables
             directly, potentially impacting the interface in real-time.
@@ -204,6 +213,8 @@ class Gui:
         self.on_action: t.Optional[t.Callable] = None
         self.on_change: t.Optional[t.Callable] = None
         self.on_init: t.Optional[t.Callable] = None
+        self.on_navigate: t.Optional[t.Callable] = None
+        self.on_exception: t.Optional[t.Callable] = None
 
         # sid from client_id
         self.__client_id_2_sid: t.Dict[str, t.Set[str]] = {}
@@ -425,7 +436,6 @@ class Gui:
             self.__send_var_list_update(list(derived_modified), var_name)
 
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
-        # TODO: what if _update_function changes 'var_name'... infinite loop?
         var_name_decode, module_name = _variable_decode(self._get_expr_from_hash(var_name))
         current_context = self._get_locals_context()
         if module_name == current_context:
@@ -460,7 +470,8 @@ class Gui:
                     args[3] = current_context
                 on_change_fn(*args)
             except Exception as e:
-                warnings.warn(f"{on_change or 'on_change'}: callback function raised an exception: {e}")
+                if not self.__call_on_exception(on_change or "on_change", e):
+                    warnings.warn(f"{on_change or 'on_change'}: callback function raised an exception: {e}")
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
         ret_value = self.__get_content_accessor().get_info(var_name, value, image)
@@ -731,7 +742,7 @@ class Gui:
             ):
                 return
             else:
-                warnings.warn(f"on_action: '{action}' is not a function")
+                warnings.warn(f"on_action: '{action}' is not a valid function")
         if hasattr(self, "on_action"):
             self.__call_function_with_args(action_function=self.on_action, id=id, payload=payload, action=action)
 
@@ -756,7 +767,8 @@ class Gui:
                 action_function(*args)
                 return True
             except Exception as e:
-                warnings.warn(f"on_action: '{action_function.__name__}' function invocation exception: {e}")
+                if not self.__call_on_exception(action_function.__name__, e):
+                    warnings.warn(f"on_action: '{action_function.__name__}' function invocation exception: {e}")
         return False
 
     def _call_function_with_state(self, user_function: t.Callable, args: t.List[t.Any]) -> t.Any:
@@ -1186,22 +1198,42 @@ class Gui:
                 try:
                     self._call_function_with_state(self.on_init, [])
                 except Exception as e:
-                    warnings.warn(f"Exception on on_init execution \n{e}")
+                    if not self.__call_on_exception("on_init", e):
+                        warnings.warn(f"Exception raised in on_init\n{e}")
         return self._render_route()
+
+    def __call_on_exception(self, function_name: str, exception: Exception) -> bool:
+        if hasattr(self, "on_exception") and callable(self.on_exception):
+            try:
+                self.on_exception(self.__get_state(), str(function_name), exception)
+            except Exception as e:
+                warnings.warn(f"Exception raised in on_exception\n{e}")
+            return True
+        return False
 
     def __render_page(self, page_name: str) -> t.Any:
         self.__set_client_id_in_context()
-        page = next((page_i for page_i in self._config.pages if page_i._route == page_name), None)
+        nav_page = page_name
+        if hasattr(self, "on_navigate") and callable(self.on_navigate):
+            try:
+                nav_page = self.on_navigate(self.__get_state(), page_name)
+                if not isinstance(nav_page, str):
+                    warnings.warn(f"on_navigate returned a invalid page name '{nav_page}'")
+                    nav_page = page_name
+            except Exception as e:
+                if not self.__call_on_exception("on_navigate", e):
+                    warnings.warn(f"Exception raised in on_navigate\n{e}")
+        page = next((page_i for page_i in self._config.pages if page_i._route == nav_page), None)
 
         # try partials
         if page is None:
-            page = self._get_partial(page_name)
+            page = self._get_partial(nav_page)
         # Make sure that there is a page instance found
         if page is None:
-            return (jsonify({"error": "Page doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
+            return (jsonify({"error": f"Page '{nav_page}' doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
         context = page.render(self)
         if (
-            page_name == Gui.__root_page_name
+            nav_page == Gui.__root_page_name
             and page._rendered_jsx is not None
             and "<PageContent" not in page._rendered_jsx
         ):
@@ -1279,7 +1311,6 @@ class Gui:
         self,
         run_server: bool = True,
         run_in_thread: bool = False,
-        ssl_context: t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal["adhoc"]]] = None,
         async_mode: t.Optional[str] = None,
         **kwargs,
     ) -> t.Optional[Flask]:
@@ -1300,20 +1331,24 @@ class Gui:
                 If set to _True_, the Web server is run is a separated thread.
                 Note that if you are running in an IPython notebook context, the Web
                 server is always run in a separate thread.
-            ssl_context (Optional[Union[ssl.SSLContext, Tuple[str, Optional[str]], te.Literal['adhoc']]]):
-                Configure TLS to serve over HTTPS. Can be an ssl.SSLContext object, a (cert_file, key_file) tuple to
-                create a typical context, or the string 'adhoc' to generate a temporary self-signed certificate.</br>
-                The default value is None.
-            async_mode (Optional[str]): A configuration of Flask-SocketIO. Valid async modes are:</br>
-                - `threading`: Use Flask Development Server. This will allow you to use Flask reloader and debug mode.</br>
-                - `eventlet`: Use eventlet server.</br>
-                - `gevent`: Use gevent server.</br>
-                - `gevent_uwsgi`: Use uwsgi server.</br>
-                If this argument is not given, `eventlet` is tried first, then `gevent_uwsgi`, then `gevent`,
-                and finally `threading`. The first async mode that has all its dependencies installed will
-                be the chosen one. Only `threading` option supports development reloader functionality.
-                Other options will ignore `use_reloader` configuration.
-            **kwargs: Additional keyword arguments that configure how this `Gui` is run.
+            async_mode (Optional[str]): The asynchronous model to use for the Flask-SocketIO.
+                Valid values are:</br>
+
+                - `"threading"`: Use the Flask Development Server. This allows the application to use
+                  the Flask reloader and Debug mode.
+                - `"eventlet"`: Use eventlet server.
+                - `"gevent"`: Use gevent server.
+                - `"gevent_uwsgi"`: Use uwsgi server.
+
+                If this argument is not set, Taipy uses, in that order: `"eventlet"`, `"gevent_uwsgi"`,
+                `"gevent"`, and finally `"threading"`. The first async mode value that can be used
+                (that is all the relevant dependencies are installed) is used.<br/>
+                See [SocketIO Deployment Strategies](https://python-socketio.readthedocs.io/en/latest/server.html#deployment-strategies)
+                for more information.</br>
+                Note that only the `"threading"` value provides support for the development reloader
+                functionality. All the other values make the *use_reloader* configuration
+                element ignored.
+            **kwargs (Dict[str, Any]): Additional keyword arguments that configure how this `Gui` is run.
                 Please refer to the
                 [Configuration](../gui/configuration.md#configuring-the-gui-instance)
                 section in the User Manual for more information.
@@ -1321,7 +1356,20 @@ class Gui:
         Returns:
             The Flask instance if _run_server_ is _False_ else _None_.
         """
-
+        # --------------------------------------------------------------------------------
+        # The ssl_context argument was removed just after 1.1. It was defined as:
+        # t.Optional[t.Union[ssl.SSLContext, t.Tuple[str, t.Optional[str]], t.Literal["adhoc"]]] = None
+        #
+        # With the doc:
+        #     ssl_context (Optional[Union[ssl.SSLContext, Tuple[str, Optional[str]], te.Literal['adhoc']]]):
+        #         Configures TLS to serve over HTTPS. This value can be:
+        #
+        #         - An `ssl.SSLContext` object
+        #         - A `(cert_file, key_file)` tuple to create a typical context
+        #         - The string "adhoc" to generate a temporary self-signed certificate.
+        #
+        #         The default value is None.
+        # --------------------------------------------------------------------------------
         app_config = self._config.config
 
         run_root_dir = os.path.dirname(inspect.getabsfile(self.__frame))
@@ -1387,10 +1435,12 @@ class Gui:
 
         with self.get_flask_app().app_context():
             self.__var_dir.process_imported_var()
-            # bind on_change and on_action function if available
+            # bind on_* function if available
             self.__bind_local_func("on_init")
             self.__bind_local_func("on_change")
             self.__bind_local_func("on_action")
+            self.__bind_local_func("on_navigate")
+            self.__bind_local_func("on_exception")
 
         # base global ctx is TaipyHolder classes + script modules and callables
         glob_ctx = {t.__name__: t for t in _TaipyBase.__subclasses__()}
@@ -1474,7 +1524,7 @@ class Gui:
             use_reloader=app_config["use_reloader"],
             flask_log=app_config["flask_log"],
             run_in_thread=run_in_thread,
-            ssl_context=ssl_context,
+            ssl_context=None, # ssl_context,
         )
 
     def stop(self):
