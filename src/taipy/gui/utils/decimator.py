@@ -144,7 +144,7 @@ class RDP(Decimator):
 class MinMaxDecimator(Decimator):
     def __init__(self, n_out: int, applied_threshold: t.Optional[int] = None):
         super().__init__(applied_threshold)
-        self._n_out = n_out
+        self._n_out = n_out // 2
 
     def decimate(self, data: np.ndarray) -> np.ndarray:
         if self._n_out >= data.shape[0]:

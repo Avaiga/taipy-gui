@@ -26,6 +26,7 @@ def pytest_configure(config):
         import src.taipy.gui.renderers.builder
         import src.taipy.gui.utils._map_dict
         import src.taipy.gui.utils._variable_directory
+        import src.taipy.gui.utils.decimator
         import src.taipy.gui.utils.expr_var_name
 
         sys.modules["taipy.gui.renderers.builder"] = sys.modules["src.taipy.gui.renderers.builder"]
@@ -33,6 +34,7 @@ def pytest_configure(config):
         sys.modules["taipy.gui.utils.expr_var_name"] = sys.modules["src.taipy.gui.utils.expr_var_name"]
         sys.modules["taipy.gui.utils._map_dict"] = sys.modules["src.taipy.gui.utils._map_dict"]
         sys.modules["taipy.gui.extension"] = sys.modules["src.taipy.gui.extension"]
+        sys.modules["taipy.gui.utils.decimator"] = sys.modules["src.taipy.gui.utils.decimator"]
         sys.modules["taipy.gui"] = sys.modules["src.taipy.gui"]
 
 
