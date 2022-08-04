@@ -13,15 +13,15 @@ from __future__ import annotations
 
 import typing as t
 
-import numpy as np
-
-from ..utils.rdp import rdp_numpy
+from ..utils import Decimator
 
 if t.TYPE_CHECKING:
     import pandas as pd
 
 
-def _df_data_filter(dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, epsilon: int):
+def _df_data_filter(
+    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, decimator: Decimator
+):
     df = dataframe.copy()
     if not x_column_name:
         index = 0
@@ -30,5 +30,5 @@ def _df_data_filter(dataframe: pd.DataFrame, x_column_name: t.Union[None, str], 
         x_column_name = f"tAiPy_index_{index}"
         df[x_column_name] = df.index
     points = df[[x_column_name, y_column_name]].to_numpy()
-    mask = rdp_numpy(points, epsilon=epsilon)
+    mask = decimator.decimate(points)
     return df[mask]

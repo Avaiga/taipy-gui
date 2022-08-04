@@ -24,6 +24,7 @@ from .boolean import _is_boolean, _is_boolean_true
 from .clientvarname import _get_client_var_name
 from .datatype import _get_data_type
 from .date import _date_to_ISO, _ISO_to_date
+from .decimator import LTTB, RDP, Decimator, MinMaxDecimator
 from .expr_var_name import _get_expr_var_name
 from .filename import _get_non_existent_file_path
 from .filter_locals import _filter_locals

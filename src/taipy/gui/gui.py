@@ -723,6 +723,16 @@ class Gui:
             return func
         return func_name
 
+    def _get_user_class(self, class_name: str, class_type: type) -> t.Union[object, str]:
+        cls = _getscopeattr(self, class_name, None)
+        if not isinstance(cls, class_type):
+            cls = self._get_locals_bind().get(class_name)
+        if not isinstance(cls, class_type):
+            cls = self.__locals_context.get_default().get(class_name)
+        if isinstance(cls, class_type):
+            return cls
+        return class_name
+
     def __on_action(self, id: t.Optional[str], payload: t.Any) -> None:
         action = payload.get("action") if isinstance(payload, dict) else str(payload)
         if action:
@@ -1443,7 +1453,7 @@ class Gui:
                 root_margin=self._get_config("margin", None),
                 scripts=scripts,
                 styles=styles,
-                version=f'{self.__version.get("major", 0)}.{self.__version.get("minor", 0)}.{self.__version.get("patch", 0)}'
+                version=f'{self.__version.get("major", 0)}.{self.__version.get("minor", 0)}.{self.__version.get("patch", 0)}',
             )
         )
 

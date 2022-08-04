@@ -97,7 +97,7 @@ class _Factory:
                 ("on_range_change", PropertyType.function),
                 ("active", PropertyType.dynamic_boolean, True),
                 ("limit_rows", PropertyType.boolean),
-                ("limit_threshold", PropertyType.number),
+                ("decimator", PropertyType.decimator),
                 ("render", PropertyType.dynamic_boolean, True),
                 ("hover_text", PropertyType.dynamic_string),
                 ("on_change", PropertyType.function),
