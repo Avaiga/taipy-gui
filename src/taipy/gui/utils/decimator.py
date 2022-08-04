@@ -42,9 +42,12 @@ class Decimator(ABC):
 
 
 class RDP(Decimator):
-    def __init__(self, epsilon: int, applied_threshold: t.Optional[int] = None):
+    def __init__(
+        self, epsilon: t.Optional[int] = None, n_out: t.Optional[int] = None, applied_threshold: t.Optional[int] = None
+    ):
         super().__init__(applied_threshold)
         self._epsilon = epsilon
+        self._n_out = n_out
 
     @staticmethod
     def dsquared_line_points(P1, P2, points):
@@ -57,7 +60,8 @@ class RDP(Decimator):
         denom = ydiff**2 + xdiff**2
         return np.divide(nom, denom)
 
-    def decimate(self, data: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __rdp_epsilon(data, epsilon: int):
         # initiate mask array
         # same amount of points
         mask = np.empty(data.shape[0], dtype=bool)
@@ -82,7 +86,7 @@ class RDP(Decimator):
             points = data[start + 1 : end]
             dsq = RDP.dsquared_line_points(P1, P2, points)
 
-            mask_eps = dsq > self._epsilon**2
+            mask_eps = dsq > epsilon**2
 
             if mask_eps.any():
                 # max point outside eps
@@ -98,6 +102,43 @@ class RDP(Decimator):
                 mask[start + 1 : end] = False
 
         return mask
+
+    @staticmethod
+    def __rdp_points(M, n_out):
+        M_len = M.shape[0]
+
+        if M_len <= n_out:
+            mask = np.empty(M_len, dtype=bool)
+            mask.fill(True)
+            return mask
+
+        weights = np.empty(M_len)
+        # weights.fill(0)
+        weights[0] = float("inf")
+        weights[M_len - 1] = float("inf")
+
+        stack = [(0, M_len - 1)]
+
+        while stack:
+            (start, end) = stack.pop()
+            if end - start <= 1:
+                continue
+            dsq = RDP.dsquared_line_points(M[start], M[end], M[start + 1 : end])
+            max_dist_index = np.argmax(dsq) + start + 1
+            weights[max_dist_index] = np.amax(dsq)
+            stack.append((start, max_dist_index))
+            stack.append((max_dist_index, end))
+
+        maxTolerance = np.sort(weights)[M_len - n_out]
+
+        return weights >= maxTolerance
+
+    def decimate(self, data: np.ndarray) -> np.ndarray:
+        if self._epsilon:
+            return RDP.__rdp_epsilon(data, self._epsilon)
+        elif self._n_out:
+            return RDP.__rdp_points(data, self._n_out)
+        raise RuntimeError("RDP Decimator failed to run. Fill in either 'epsilon' or 'n_out' value")
 
 
 class MinMaxDecimator(Decimator):
