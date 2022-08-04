@@ -12,15 +12,42 @@
 from __future__ import annotations
 
 import typing as t
+from abc import ABC, abstractmethod
 
-from ..utils import Decimator
+import numpy as np
 
 if t.TYPE_CHECKING:
     import pandas as pd
 
 
+class DecimatorABC(ABC):
+    def __init__(self, applied_threshold: t.Optional[int]) -> None:
+        self.applied_threshold = applied_threshold
+        super().__init__()
+
+    def _is_applicable(self, data: t.Any, nb_rows_max: int):
+        if self.applied_threshold is None:
+            if nb_rows_max < len(data):
+                return True
+        elif self.applied_threshold < len(data):
+            return True
+        return False
+
+    @abstractmethod
+    def decimate(self, data: np.ndarray) -> np.ndarray:
+        """Decimate function for decimator
+        Arguments:
+            data (numpy.array): A 2-dimensional array. This will be provided by taipy
+            during runtime
+
+        Returns:
+            A boolean mask array for the original data
+        """
+        return NotImplemented
+
+
 def _df_data_filter(
-    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, decimator: Decimator
+    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, decimator: DecimatorABC
 ):
     df = dataframe.copy()
     if not x_column_name:

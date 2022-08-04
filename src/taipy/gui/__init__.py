@@ -78,6 +78,5 @@ from .gui_actions import (
 from .icon import Icon
 from .renderers import Html, Markdown
 from .state import State
-from .utils import LTTB, RDP, MinMaxDecimator
 
 _register_gui_config()

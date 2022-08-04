@@ -12,8 +12,8 @@
 import typing as t
 from enum import Enum
 
+from .data import DecimatorABC
 from .utils import (
-    Decimator,
     _TaipyBase,
     _TaipyBool,
     _TaipyContent,
@@ -66,7 +66,7 @@ class PropertyType(Enum):
     boolean_or_list = "boolean|list"
     number_or_lov_value = "number|lovValue"
     string_list = "stringlist"
-    decimator = Decimator
+    decimator = DecimatorABC
 
 
 def _get_taipy_type(a_type: t.Optional[PropertyType]) -> t.Optional[t.Type[_TaipyBase]]:

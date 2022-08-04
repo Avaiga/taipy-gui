@@ -22,11 +22,13 @@ from flask import Flask, g
 def pytest_configure(config):
     if (find_spec("src") and find_spec("src.taipy")) and (not find_spec("taipy") or not find_spec("taipy.gui")):
         import src.taipy.gui
+        import src.taipy.gui.data.decimator.lttb
+        import src.taipy.gui.data.decimator.minmax
+        import src.taipy.gui.data.decimator.rdp
         import src.taipy.gui.extension
         import src.taipy.gui.renderers.builder
         import src.taipy.gui.utils._map_dict
         import src.taipy.gui.utils._variable_directory
-        import src.taipy.gui.utils.decimator
         import src.taipy.gui.utils.expr_var_name
 
         sys.modules["taipy.gui.renderers.builder"] = sys.modules["src.taipy.gui.renderers.builder"]
@@ -34,7 +36,9 @@ def pytest_configure(config):
         sys.modules["taipy.gui.utils.expr_var_name"] = sys.modules["src.taipy.gui.utils.expr_var_name"]
         sys.modules["taipy.gui.utils._map_dict"] = sys.modules["src.taipy.gui.utils._map_dict"]
         sys.modules["taipy.gui.extension"] = sys.modules["src.taipy.gui.extension"]
-        sys.modules["taipy.gui.utils.decimator"] = sys.modules["src.taipy.gui.utils.decimator"]
+        sys.modules["taipy.gui.data.decimator.lttb"] = sys.modules["src.taipy.gui.data.decimator.lttb"]
+        sys.modules["taipy.gui.data.decimator.rdp"] = sys.modules["src.taipy.gui.data.decimator.rdp"]
+        sys.modules["taipy.gui.data.decimator.minmax"] = sys.modules["src.taipy.gui.data.decimator.minmax"]
         sys.modules["taipy.gui"] = sys.modules["src.taipy.gui"]
 
 
