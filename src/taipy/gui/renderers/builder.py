@@ -255,7 +255,7 @@ class _Builder:
 
     def __set_decimator_attribute(self, attr_name: str):
         strattr = self.__attributes.get(attr_name)
-        cls = self.__gui._get_user_class(class_name=str(strattr), class_type=PropertyType.decimator.value)
+        cls = self.__gui._get_user_instance(class_name=str(strattr), class_type=PropertyType.decimator.value)
         if isinstance(cls, PropertyType.decimator.value):
             self.__set_string_or_number_attribute(attr_name, strattr)
 

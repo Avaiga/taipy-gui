@@ -266,18 +266,18 @@ class _PandasDataAccessor(_DataAccessor):
         else:
             ret_payload["alldata"] = True
             decimator = payload.get("decimator", None)
-            decimator_class = (
-                gui._get_user_class(decimator, PropertyType.decimator.value) if decimator is not None else None
+            decimator_instance = (
+                gui._get_user_instance(decimator, PropertyType.decimator.value) if decimator is not None else None
             )
             nb_rows_max = payload.get("width")
             if (
                 nb_rows_max
-                and isinstance(decimator_class, PropertyType.decimator.value)
-                and decimator_class._is_applicable(value, nb_rows_max)
+                and isinstance(decimator_instance, PropertyType.decimator.value)
+                and decimator_instance._is_applicable(value, nb_rows_max)
             ):
                 try:
                     x_column, y_column = columns[1] if len(columns) > 1 else None, columns[0]
-                    value = _df_data_filter(value, x_column, y_column, decimator=decimator_class)
+                    value = _df_data_filter(value, x_column, y_column, decimator=decimator_instance)
                 except Exception as e:
                     warnings.warn(f"Limit rows error for dataframe: {e}")
             value = self.__build_transferred_cols(gui, columns, value)

@@ -734,7 +734,7 @@ class Gui:
             return func
         return func_name
 
-    def _get_user_class(self, class_name: str, class_type: type) -> t.Union[object, str]:
+    def _get_user_instance(self, class_name: str, class_type: type) -> t.Union[object, str]:
         cls = _getscopeattr(self, class_name, None)
         if not isinstance(cls, class_type):
             cls = self._get_locals_bind().get(class_name)
@@ -1240,7 +1240,11 @@ class Gui:
             page = self._get_partial(nav_page)
         # Make sure that there is a page instance found
         if page is None:
-            return (jsonify({"error": f"Page '{nav_page}' doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
+            return (
+                jsonify({"error": f"Page '{nav_page}' doesn't exist!"}),
+                400,
+                {"Content-Type": "application/json; charset=utf-8"},
+            )
         context = page.render(self)
         if (
             nav_page == Gui.__root_page_name
@@ -1534,7 +1538,7 @@ class Gui:
             use_reloader=app_config["use_reloader"],
             flask_log=app_config["flask_log"],
             run_in_thread=run_in_thread,
-            ssl_context=None, # ssl_context,
+            ssl_context=None,  # ssl_context,
         )
 
     def stop(self):
