@@ -70,7 +70,7 @@ class RDP(Decimator):
         mask.fill(True)
 
         # The stack to select start and end index
-        stack: t.List[t.Tuple[int, int]] = [(0, data.shape[0] - 1)]
+        stack: t.List[t.Tuple[int, int]] = [(0, data.shape[0] - 1)]  # type: ignore
 
         while stack:
             # Pop the last item
@@ -94,8 +94,8 @@ class RDP(Decimator):
                 # Also include the start index to get absolute index
                 # And not relative
                 mid = np.argmax(dsq) + 1 + start
-                stack.append((start, mid))
-                stack.append((mid, end))
+                stack.append((start, mid))  # type: ignore
+                stack.append((mid, end))  # type: ignore
 
             else:
                 # Points in between are redundant
