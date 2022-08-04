@@ -70,7 +70,7 @@ class RDP(Decimator):
         mask.fill(True)
 
         # The stack to select start and end index
-        stack = [(0, data.shape[0] - 1)]
+        stack: t.List[t.Tuple[int, int]] = [(0, data.shape[0] - 1)]
 
         while stack:
             # Pop the last item
