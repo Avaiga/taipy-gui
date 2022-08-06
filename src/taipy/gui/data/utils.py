@@ -20,8 +20,9 @@ if t.TYPE_CHECKING:
     import pandas as pd
 
 
-class DecimatorABC(ABC):
+class Decimator(ABC):
     def __init__(self, applied_threshold: t.Optional[int]) -> None:
+        """TODO: Decimator class description"""
         self.applied_threshold = applied_threshold
         super().__init__()
 
@@ -35,7 +36,10 @@ class DecimatorABC(ABC):
 
     @abstractmethod
     def decimate(self, data: np.ndarray) -> np.ndarray:
-        """Decimate function for decimator
+        """Decimate function for decimator. This function will be executed during runtime when the appropriate conditions
+        are met.
+        TODO: Further explanation
+
         Arguments:
             data (numpy.array): A 2-dimensional array. This will be provided by taipy
             during runtime
@@ -47,7 +51,7 @@ class DecimatorABC(ABC):
 
 
 def _df_data_filter(
-    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, decimator: DecimatorABC
+    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, decimator: Decimator
 ):
     df = dataframe.copy()
     if not x_column_name:

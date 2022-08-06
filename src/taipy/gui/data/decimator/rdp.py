@@ -13,10 +13,10 @@ import typing as t
 
 import numpy as np
 
-from ..utils import DecimatorABC
+from ..utils import Decimator
 
 
-class RDP(DecimatorABC):
+class RDP(Decimator):
     def __init__(
         self, epsilon: t.Optional[int] = None, n_out: t.Optional[int] = None, applied_threshold: t.Optional[int] = None
     ):

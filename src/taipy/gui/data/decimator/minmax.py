@@ -13,10 +13,10 @@ import typing as t
 
 import numpy as np
 
-from ..utils import DecimatorABC
+from ..utils import Decimator
 
 
-class MinMaxDecimator(DecimatorABC):
+class MinMaxDecimator(Decimator):
     def __init__(self, n_out: int, applied_threshold: t.Optional[int] = None):
         super().__init__(applied_threshold)
         self._n_out = n_out // 2

@@ -96,7 +96,6 @@ class _Factory:
                 ("plot_config", PropertyType.dict),
                 ("on_range_change", PropertyType.function),
                 ("active", PropertyType.dynamic_boolean, True),
-                ("limit_rows", PropertyType.boolean),
                 ("decimator", PropertyType.decimator),
                 ("render", PropertyType.dynamic_boolean, True),
                 ("hover_text", PropertyType.dynamic_string),
