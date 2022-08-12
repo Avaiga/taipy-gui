@@ -240,6 +240,9 @@ class _Evaluator:
             var_name_full[0] = var_name
             var_name_full = ".".join(var_name_full)
             _setscopeattr_drill(gui, var_name_full, _getscopeattr(gui, var_name_original))
+        # A middle check to see if var_name is from _MapDict
+        if "." in var_name:
+            var_name = var_name[: var_name.index(".")]
         # otherwise, thar var_name is correct and doesn't require any resolution
         if var_name not in self.__var_to_expr_list:
             # warnings.warn("{var_name} not found")
