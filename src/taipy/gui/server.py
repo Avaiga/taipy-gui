@@ -23,10 +23,11 @@ from flask import Blueprint, Flask, json, jsonify, render_template, send_from_di
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_talisman import Talisman
+from kthread import KThread
 from werkzeug.serving import is_running_from_reloader
 
 from .renderers.jsonencoder import _TaipyJsonEncoder
-from .utils import _is_in_notebook, _KillableThread
+from .utils import _is_in_notebook
 
 if t.TYPE_CHECKING:
     from .gui import Gui
@@ -87,7 +88,7 @@ class _Server:
         styles: t.List[str],
         version: str,
         client_config: t.Dict[str, t.Any],
-        watermark: t.Union[str, None]
+        watermark: t.Union[str, None],
     ) -> Blueprint:
         taipy_bp = Blueprint("Taipy", __name__, static_folder=static_folder, template_folder=template_folder)
         # Serve static react build
@@ -106,7 +107,7 @@ class _Server:
                     config=client_config,
                     scripts=scripts,
                     styles=styles,
-                    version=version
+                    version=version,
                 )
             if str(os.path.normpath(file_path := ((base_path := static_folder + os.path.sep) + path))).startswith(
                 base_path
@@ -198,7 +199,7 @@ class _Server:
         if _is_in_notebook() or run_in_thread:
             self._host = host
             self._port = port
-            self._thread = _KillableThread(target=self._run_notebook)
+            self._thread = KThread(target=self._run_notebook)
             self._thread.start()
             return
         if self._get_async_mode() != "threading":
@@ -206,8 +207,6 @@ class _Server:
         self._ws.run(self._flask, host=host, port=port, debug=debug, use_reloader=use_reloader)
 
     def stop_thread(self):
-        if hasattr(self, "_thread"):
-            if self._get_async_mode() != "threading":
-                self._ws.stop()
+        if hasattr(self, "_thread") and self._thread.is_alive():
             self._thread.kill()
             self._thread.join()
