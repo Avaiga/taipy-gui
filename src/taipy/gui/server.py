@@ -15,6 +15,7 @@ import logging
 import os
 import re
 import socket
+import time
 import typing as t
 import webbrowser
 
@@ -175,14 +176,17 @@ class _Server:
     def _get_async_mode(self) -> str:
         return self._ws.async_mode
 
+    def _is_port_open(self, host, port) -> bool:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        return result == 0
+
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread, ssl_context):
         host_value = host if host != "0.0.0.0" else "localhost"
         if debug and not is_running_from_reloader():
             # Check that the port is not already opened
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex((host_value, port))
-            sock.close()
-            if result == 0:
+            if self._is_port_open(host_value, port):
                 raise ConnectionError(
                     f"Port {port} is already opened on {host_value}. You have another server application running on the same port."
                 )
@@ -209,4 +213,5 @@ class _Server:
     def stop_thread(self):
         if hasattr(self, "_thread") and self._thread.is_alive():
             self._thread.kill()
-            self._thread.join()
+            while self._is_port_open(self._host, self._port):
+                time.sleep(0.1)
