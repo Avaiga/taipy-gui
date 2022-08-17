@@ -88,6 +88,8 @@ class _Server:
         scripts: t.List[str],
         styles: t.List[str],
         version: str,
+        client_config: t.Dict[str, t.Any],
+        watermark: t.Union[str, None],
     ) -> Blueprint:
         taipy_bp = Blueprint("Taipy", __name__, static_folder=static_folder, template_folder=template_folder)
         # Serve static react build
