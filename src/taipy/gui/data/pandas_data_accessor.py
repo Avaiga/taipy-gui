@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 
 from ..gui import Gui
+from ..types import PropertyType
 from ..utils import _RE_PD_TYPE, _get_date_col_str_name
 from .data_accessor import _DataAccessor
 from .data_format import _DataFormat
@@ -35,7 +36,7 @@ class _PandasDataAccessor(_DataAccessor):
 
     @staticmethod
     def get_supported_classes() -> t.List[str]:
-        return [t.__name__ for t in _PandasDataAccessor.__types]
+        return [t.__name__ for t in _PandasDataAccessor.__types]  # type: ignore
 
     @staticmethod
     def __style_function(
@@ -162,7 +163,7 @@ class _PandasDataAccessor(_DataAccessor):
         return ret
 
     def get_col_types(self, var_name: str, value: t.Any) -> t.Union[None, t.Dict[str, str]]:  # type: ignore
-        if isinstance(value, _PandasDataAccessor.__types):
+        if isinstance(value, _PandasDataAccessor.__types):  # type: ignore
             return value.dtypes.apply(lambda x: x.name).to_dict()
         elif isinstance(value, list):
             ret_dict: t.Dict[str, str] = {}
@@ -264,14 +265,19 @@ class _PandasDataAccessor(_DataAccessor):
             )
         else:
             ret_payload["alldata"] = True
+            decimator = payload.get("decimator", None)
+            decimator_instance = (
+                gui._get_user_instance(decimator, PropertyType.decimator.value) if decimator is not None else None
+            )
             nb_rows_max = payload.get("width")
-            # view with the requested columns
-            if nb_rows_max and nb_rows_max < len(value) / 2:
-                x_column, y_column = columns[1] if len(columns) > 1 else None, columns[0]
+            if (
+                nb_rows_max
+                and isinstance(decimator_instance, PropertyType.decimator.value)
+                and decimator_instance._is_applicable(value, nb_rows_max)
+            ):
                 try:
-                    threshold = payload.get("limitThreshold", gui._get_config("chart_limit_threshold", None))
-                    if threshold is not None:
-                        value = _df_data_filter(value, x_column, y_column, epsilon=threshold)
+                    x_column, y_column = columns[1] if len(columns) > 1 else None, columns[0]
+                    value = _df_data_filter(value, x_column, y_column, decimator=decimator_instance)
                 except Exception as e:
                     warnings.warn(f"Limit rows error for dataframe: {e}")
             value = self.__build_transferred_cols(gui, columns, value)
@@ -304,6 +310,6 @@ class _PandasDataAccessor(_DataAccessor):
                 return ret_payload
             else:
                 value = value[0]
-        if isinstance(value, _PandasDataAccessor.__types):
+        if isinstance(value, _PandasDataAccessor.__types):  # type: ignore
             return self.__get_data(gui, var_name, value, payload, data_format)
         return {}

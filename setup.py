@@ -13,9 +13,9 @@
 
 """The setup script."""
 
+import json
 import os
 from pathlib import Path
-import json
 
 from setuptools import find_namespace_packages, find_packages, setup
 from setuptools.command.build_py import build_py
@@ -30,7 +30,7 @@ with open(f"src{os.sep}taipy{os.sep}gui{os.sep}version.json") as version_file:
         version_string = f"{version_string}.{vext}"
 
 requirements = [
-    "flask>=2.1,<3.0",
+    "flask>=2.1,<2.2",
     "flask-cors>=3.0.10,<4.0",
     "flask-socketio>=5.1.1,<6.0",
     "markdown>=3.3.4,<4.0",
@@ -43,6 +43,8 @@ requirements = [
     "flask-talisman>=1.0,<2.0",
     "gevent>=21.12.0,<22.0",
     "gevent-websocket>=0.10.1,<0.11",
+    "kthread>=0.2.3,<0.3",
+    "werkzeug>=2.0,<2.1",
     "taipy-config@git+https://git@github.com/Avaiga/taipy-config.git@develop",
 ]
 
@@ -61,6 +63,7 @@ extras_require = {
 def _build_webapp():
     already_exists = Path(f"./src/taipy/gui/webapp/index.html").exists()
     if not already_exists:
+        os.system("cd gui/dom && npm ci")
         os.system("cd gui && npm ci --omit=optional && npm run build")
 
 
