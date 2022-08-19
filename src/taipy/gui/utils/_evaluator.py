@@ -232,10 +232,10 @@ class _Evaluator:
             # backup for later reference
             var_name_original = var_name
             expr_original = self.__hash_to_expr[var_name]
-            expr_var_map = self.__expr_to_var_map[expr_original]
-            if len(expr_var_map) <= 1:
+            temp_expr_var_map = self.__expr_to_var_map[expr_original]
+            if len(temp_expr_var_map) <= 1:
                 # since this is an edge case --> only 1 item in the dict and that item is the original var
-                for v in expr_var_map.values():
+                for v in temp_expr_var_map.values():
                     var_name = v
                 # construct correct var_path to reassign values
                 var_name_full, _ = _variable_decode(expr_original)
@@ -246,7 +246,7 @@ class _Evaluator:
             else:
                 # multiple key-value pair in expr_var_map --> expr is special case a["b"]
                 key = ""
-                for v in expr_var_map.values():
+                for v in temp_expr_var_map.values():
                     if isinstance(_getscopeattr(gui, v), _MapDict):
                         var_name = v
                     else:
@@ -266,7 +266,7 @@ class _Evaluator:
             expr_decoded, _ = _variable_decode(expr)
             hash_expr = self.__expr_to_hash.get(expr, "UnknownExpr")
             if expr != var_name and not expr.startswith("_Taipy"):
-                expr_var_map = self.__expr_to_var_map.get(expr, {})  # ["x", "y"]
+                expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
                 if expr_var_map is None:
                     warnings.warn(f"Something is amiss with expression list for {expr}")
                 else:
