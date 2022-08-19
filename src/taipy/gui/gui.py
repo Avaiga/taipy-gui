@@ -436,8 +436,9 @@ class Gui:
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
         suffix_var_name = ""
         if "." in var_name:
-            suffix_var_name = var_name[var_name.index(".") + 1 :]
-            var_name = var_name[: var_name.index(".")]
+            first_dot_index = var_name.index(".")
+            suffix_var_name = var_name[first_dot_index + 1 :]
+            var_name = var_name[:first_dot_index]
         var_name_decode, module_name = _variable_decode(self._get_expr_from_hash(var_name))
         current_context = self._get_locals_context()
         if module_name == current_context:
@@ -1332,7 +1333,10 @@ class Gui:
         if themes := self._get_themes():
             config["themes"] = themes
         if len(self.__extensions):
-            config["extensions"] = {f".{Gui.__EXTENSION_ROOT}{k}/{v.get_scripts()[0]}": v.get_register_js_function() for k, v in self.__extensions.items()}
+            config["extensions"] = {
+                f".{Gui.__EXTENSION_ROOT}{k}/{v.get_scripts()[0]}": v.get_register_js_function()
+                for k, v in self.__extensions.items()
+            }
         return config
 
     def run(
