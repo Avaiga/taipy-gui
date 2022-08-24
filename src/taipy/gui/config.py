@@ -216,7 +216,7 @@ def _register_gui_config():
         from copy import copy
 
         from taipy.config import Config as TaipyConfig
-        from taipy.config import Section
+        from taipy.config import UniqueSection
 
         from ._default_config import default_config
 
