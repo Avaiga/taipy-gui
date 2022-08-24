@@ -9,11 +9,19 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import typing as t
 
-_replace_dict = {".": "__", "[": "_SqrOp_", "]": "_SqrCl_"}
+from .singleton import _Singleton
+
+if t.TYPE_CHECKING:
+    from ..gui import Gui
 
 
-def _get_client_var_name(s: str) -> str:
-    for k, v in _replace_dict.items():
-        s = s.replace(k, v)
-    return s
+class _RuntimeManager(object, metaclass=_Singleton):
+    def __init__(self):
+        self.__port_gui: t.Dict[int, "Gui"] = {}
+
+    def add_gui(self, gui: "Gui", port: int):
+        if port in self.__port_gui:
+            self.__port_gui[port].stop()
+        self.__port_gui[port] = gui

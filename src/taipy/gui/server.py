@@ -15,6 +15,7 @@ import logging
 import os
 import re
 import socket
+import time
 import typing as t
 import webbrowser
 
@@ -23,10 +24,11 @@ from flask import Blueprint, Flask, json, jsonify, render_template, send_from_di
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_talisman import Talisman
+from kthread import KThread
 from werkzeug.serving import is_running_from_reloader
 
 from .renderers.jsonencoder import _TaipyJsonEncoder
-from .utils import _is_in_notebook, _KillableThread
+from .utils import _is_in_notebook, _RuntimeManager
 
 if t.TYPE_CHECKING:
     from .gui import Gui
@@ -76,15 +78,6 @@ class _Server:
             elif "type" in message:
                 gui._manage_message(message["type"], message)
 
-    def __get_client_config(self) -> t.Dict[str, t.Any]:
-        config = {
-            "timeZone": self._gui._config.get_time_zone(),
-            "darkMode": self._gui._get_config("dark_mode", True),
-        }
-        if themes := self._gui._get_themes():
-            config["themes"] = themes
-        return config
-
     def _get_default_blueprint(
         self,
         static_folder: str,
@@ -94,7 +87,9 @@ class _Server:
         root_margin: str,
         scripts: t.List[str],
         styles: t.List[str],
-        version: str
+        version: str,
+        client_config: t.Dict[str, t.Any],
+        watermark: t.Union[str, None],
     ) -> Blueprint:
         taipy_bp = Blueprint("Taipy", __name__, static_folder=static_folder, template_folder=template_folder)
         # Serve static react build
@@ -109,11 +104,11 @@ class _Server:
                     title=title,
                     favicon=favicon,
                     root_margin=root_margin,
-                    watermark=self._gui._get_config("watermark", None),
-                    config=self.__get_client_config(),
+                    watermark=watermark,
+                    config=client_config,
                     scripts=scripts,
                     styles=styles,
-                    version=version
+                    version=version,
                 )
             if str(os.path.normpath(file_path := ((base_path := static_folder + os.path.sep) + path))).startswith(
                 base_path
@@ -181,14 +176,20 @@ class _Server:
     def _get_async_mode(self) -> str:
         return self._ws.async_mode
 
+    def _is_port_open(self, host, port) -> bool:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((host, port))
+        sock.close()
+        return result == 0
+
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread, ssl_context):
         host_value = host if host != "0.0.0.0" else "localhost"
+        if _is_in_notebook() or run_in_thread:
+            runtime_manager = _RuntimeManager()
+            runtime_manager.add_gui(self._gui, port)
         if debug and not is_running_from_reloader():
             # Check that the port is not already opened
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex((host_value, port))
-            sock.close()
-            if result == 0:
+            if self._is_port_open(host_value, port):
                 raise ConnectionError(
                     f"Port {port} is already opened on {host_value}. You have another server application running on the same port."
                 )
@@ -205,7 +206,7 @@ class _Server:
         if _is_in_notebook() or run_in_thread:
             self._host = host
             self._port = port
-            self._thread = _KillableThread(target=self._run_notebook)
+            self._thread = KThread(target=self._run_notebook)
             self._thread.start()
             return
         if self._get_async_mode() != "threading":
@@ -213,8 +214,7 @@ class _Server:
         self._ws.run(self._flask, host=host, port=port, debug=debug, use_reloader=use_reloader)
 
     def stop_thread(self):
-        if hasattr(self, "_thread"):
-            if self._get_async_mode() != "threading":
-                self._ws.stop()
+        if hasattr(self, "_thread") and self._thread.is_alive():
             self._thread.kill()
-            self._thread.join()
+            while self._is_port_open(self._host, self._port):
+                time.sleep(0.1)

@@ -229,7 +229,7 @@ class Gui:
             with open(gui_file.parent / "version.json") as version_file:
                 self.__version = json.load(version_file)
         except Exception as e:
-            warnings.warn(f"Cannot retrieve version.json file: {e}")
+            warnings.warn(f"Cannot retrieve version.json file:\n{e}")
             self.__version = {}
 
         # Load Markdown extension
@@ -262,7 +262,8 @@ class Gui:
         TODO
         """
         _Factory.set_library(library)
-        Gui.__extensions[library.get_name()] = library
+        if len(library.get_scripts()) != 0:
+            Gui.__extensions[library.get_name()] = library
 
     def __get_content_accessor(self):
         if self.__content_accessor is None:
@@ -407,10 +408,7 @@ class Gui:
         propagate=True,
         holder: t.Optional[_TaipyBase] = None,
         on_change: t.Optional[str] = None,
-        from_map_dict: bool = False,
     ) -> None:
-        if from_map_dict:
-            var_name = _variable_encode(var_name, self._get_locals_context())
         if holder:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
@@ -436,6 +434,11 @@ class Gui:
             self.__send_var_list_update(list(derived_modified), var_name)
 
     def __call_on_change(self, var_name: str, value: t.Any, on_change: t.Optional[str] = None):
+        suffix_var_name = ""
+        if "." in var_name:
+            first_dot_index = var_name.index(".")
+            suffix_var_name = var_name[first_dot_index + 1 :]
+            var_name = var_name[:first_dot_index]
         var_name_decode, module_name = _variable_decode(self._get_expr_from_hash(var_name))
         current_context = self._get_locals_context()
         if module_name == current_context:
@@ -453,6 +456,7 @@ class Gui:
             if not _found:
                 warnings.warn(f"Can't find matching variable for {var_name} on {current_context} context")
                 return
+        var_name = f"{var_name}.{suffix_var_name}" if suffix_var_name else var_name
         on_change_fn = self._get_user_function(on_change) if on_change else None
         if not callable(on_change_fn):
             on_change_fn = self._get_user_function("on_change")
@@ -471,7 +475,7 @@ class Gui:
                 on_change_fn(*args)
             except Exception as e:
                 if not self.__call_on_exception(on_change or "on_change", e):
-                    warnings.warn(f"{on_change or 'on_change'}: callback function raised an exception: {e}")
+                    warnings.warn(f"{on_change or 'on_change'}: callback function raised an exception:\n{e}")
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
         ret_value = self.__get_content_accessor().get_info(var_name, value, image)
@@ -536,7 +540,7 @@ class Gui:
                                 with open(upload_path / f"{file_path.name}.part.{nb}", "rb") as part_file:
                                     grouped_file.write(part_file.read())
                     except EnvironmentError as ee:
-                        warnings.warn(f"cannot group file after chunk upload {ee}")
+                        warnings.warn(f"cannot group file after chunk upload:\n{ee}")
                         return
                 # notify the file is uploaded
                 newvalue = str(file_path)
@@ -599,7 +603,19 @@ class Gui:
         # Use custom attrgetter function to allow value binding for _MapDict
         newvalue = _getscopeattr_drill(self, var_name)
         if isinstance(newvalue, _TaipyData):
-            ret_payload = self._accessors._get_data(self, var_name, newvalue, payload)
+            ret_payload = None
+            if isinstance(payload, dict):
+                lib_name = payload.get("library")
+                if isinstance(lib_name, str):
+                    lib = self.__extensions.get(lib_name)
+                    if isinstance(lib, ElementLibrary):
+                        try:
+                            # TODO need the "real" var name
+                            ret_payload = lib.get_data(lib_name, payload, var_name, newvalue)
+                        except Exception as e:
+                            warnings.warn(f"Exception raised in '{lib_name}.get_data({lib_name}, payload, {var_name}, value)':\n{e}")
+            if not isinstance(ret_payload, dict):
+                ret_payload = self._accessors._get_data(self, var_name, newvalue, payload)
             self.__send_ws_update_with_dict({var_name: ret_payload})
 
     def __request_var_update(self, payload: t.Any):
@@ -616,7 +632,7 @@ class Gui:
                     to=self.__get_ws_receiver(),
                 )
             except Exception as e:
-                warnings.warn(f"Web Socket communication error in {self.__frame.f_code.co_name}\n{e}")
+                warnings.warn(f"Exception raised in Web Socket communication in '{self.__frame.f_code.co_name}':\n{e}")
         else:
             grouping_message.append(payload)
 
@@ -707,7 +723,7 @@ class Gui:
         try:
             self.__send_messages()
         except Exception as e:
-            warnings.warn(f"An exception was raised while sending messages: {e}")
+            warnings.warn(f"Exception raised while sending messages:\n{e}")
         if exc_value:
             warnings.warn(f"An {exc_type or 'Exception'} was raised: {exc_value}")
         return True
@@ -733,6 +749,16 @@ class Gui:
         if callable(func):
             return func
         return func_name
+
+    def _get_user_instance(self, class_name: str, class_type: type) -> t.Union[object, str]:
+        cls = _getscopeattr(self, class_name, None)
+        if not isinstance(cls, class_type):
+            cls = self._get_locals_bind().get(class_name)
+        if not isinstance(cls, class_type):
+            cls = self.__locals_context.get_default().get(class_name)
+        if isinstance(cls, class_type):
+            return cls
+        return class_name
 
     def __on_action(self, id: t.Optional[str], payload: t.Any) -> None:
         action = payload.get("action") if isinstance(payload, dict) else str(payload)
@@ -768,7 +794,7 @@ class Gui:
                 return True
             except Exception as e:
                 if not self.__call_on_exception(action_function.__name__, e):
-                    warnings.warn(f"on_action: '{action_function.__name__}' function invocation exception: {e}")
+                    warnings.warn(f"on_action: Exception raised in function '{action_function.__name__}':\n{e}")
         return False
 
     def _call_function_with_state(self, user_function: t.Callable, args: t.List[t.Any]) -> t.Any:
@@ -786,7 +812,7 @@ class Gui:
                 self.__set_client_id_in_context(context_id)
                 return self._call_function_with_state(user_callback, args)
         except Exception as e:
-            warnings.warn(f"invoke_state_callback: '{user_callback.__name__}' function invocation exception: {e}")
+            warnings.warn(f"Exception raised in invoke_state_callback: '{user_callback.__name__}':\n{e}")
         return None
 
     # Proxy methods for Evaluator
@@ -1230,7 +1256,11 @@ class Gui:
             page = self._get_partial(nav_page)
         # Make sure that there is a page instance found
         if page is None:
-            return (jsonify({"error": f"Page '{nav_page}' doesn't exist!"}), 400, {"Content-Type": "application/json; charset=utf-8"})
+            return (
+                jsonify({"error": f"Page '{nav_page}' doesn't exist!"}),
+                400,
+                {"Content-Type": "application/json; charset=utf-8"},
+            )
         context = page.render(self)
         if (
             nav_page == Gui.__root_page_name
@@ -1306,6 +1336,20 @@ class Gui:
     def _set_state(self, state: State):
         if isinstance(state, State):
             self.__state = state
+
+    def __get_client_config(self) -> t.Dict[str, t.Any]:
+        config = {
+            "timeZone": self._config.get_time_zone(),
+            "darkMode": self._get_config("dark_mode", True),
+        }
+        if themes := self._get_themes():
+            config["themes"] = themes
+        if len(self.__extensions):
+            config["extensions"] = {
+                f".{Gui.__EXTENSION_ROOT}{k}/{v.get_scripts()[0]}": v.get_register_js_function()
+                for k, v in self.__extensions.items()
+            }
+        return config
 
     def run(
         self,
@@ -1493,7 +1537,9 @@ class Gui:
                 root_margin=self._get_config("margin", None),
                 scripts=scripts,
                 styles=styles,
-                version=f'{self.__version.get("major", 0)}.{self.__version.get("minor", 0)}.{self.__version.get("patch", 0)}'
+                version=f'{self.__version.get("major", 0)}.{self.__version.get("minor", 0)}.{self.__version.get("patch", 0)}',
+                client_config=self.__get_client_config(),
+                watermark=self._get_config("watermark", None),
             )
         )
 
@@ -1524,7 +1570,7 @@ class Gui:
             use_reloader=app_config["use_reloader"],
             flask_log=app_config["flask_log"],
             run_in_thread=run_in_thread,
-            ssl_context=None, # ssl_context,
+            ssl_context=None,  # ssl_context,
         )
 
     def stop(self):

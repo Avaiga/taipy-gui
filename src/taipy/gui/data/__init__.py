@@ -10,3 +10,4 @@
 # specific language governing permissions and limitations under the License.
 
 from .data_accessor import _DataAccessor
+from .utils import Decimator

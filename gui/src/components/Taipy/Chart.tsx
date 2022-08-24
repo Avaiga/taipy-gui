@@ -22,6 +22,7 @@ import {
 import Skeleton from "@mui/material/Skeleton";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
+import { useTheme } from "@mui/system";
 
 import { TaipyContext } from "../../context/taipyContext";
 import { getArrayValue, getUpdateVar, TaipyActiveProps, TaipyChangeProps } from "./utils";
@@ -32,7 +33,6 @@ import {
 } from "../../context/taipyReducers";
 import { ColumnDesc } from "./tableUtils";
 import { useDispatchRequestUpdateOnFirstRender, useDynamicProperty } from "../../utils/hooks";
-import { useTheme } from "@mui/system";
 
 const Plot = lazy(() => import("react-plotly.js"));
 
@@ -45,11 +45,10 @@ interface ChartProp extends TaipyActiveProps, TaipyChangeProps {
     layout?: string;
     plotConfig?: string;
     tp_onRangeChange?: string;
-    limitRows?: boolean;
     testId?: string;
     render?: boolean;
     defaultRender?: boolean;
-    limitThreshold?: number;
+    decimator?: string;
     //[key: `selected_${number}`]: number[];
 }
 
@@ -122,8 +121,7 @@ const Chart = (props: ChartProp) => {
         data = {},
         tp_onRangeChange,
         propagate = true,
-        limitRows = false,
-        limitThreshold,
+        decimator,
     } = props;
     const { dispatch } = useContext(TaipyContext);
     const [selected, setSelected] = useState<number[][]>([]);
@@ -201,20 +199,20 @@ const Chart = (props: ChartProp) => {
     useEffect(() => {
         if (refresh || !data[dataKey.current]) {
             const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
-            dataKey.current = backCols.join("-") + (limitRows ? `--${limitThreshold}` : "");
+            dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "");
             dispatch(
                 createRequestChartUpdateAction(
                     updateVarName,
                     id,
-                    dataKey.current,
                     backCols,
-                    limitRows ? plotRef.current?.clientWidth : undefined,
-                    limitThreshold
+                    dataKey.current,
+                    decimator ? plotRef.current?.clientWidth : undefined,
+                    decimator
                 )
             );
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [refresh, dispatch, config.columns, updateVarName, id, limitRows, limitThreshold]);
+    }, [refresh, dispatch, config.columns, updateVarName, id, decimator]);
 
     useDispatchRequestUpdateOnFirstRender(dispatch, id, updateVars);
 

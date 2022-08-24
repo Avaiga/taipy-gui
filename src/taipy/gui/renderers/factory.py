@@ -96,16 +96,14 @@ class _Factory:
                 ("plot_config", PropertyType.dict),
                 ("on_range_change", PropertyType.function),
                 ("active", PropertyType.dynamic_boolean, True),
-                ("limit_rows", PropertyType.boolean),
-                ("limit_threshold", PropertyType.number),
+                ("decimator", PropertyType.decimator),
                 ("render", PropertyType.dynamic_boolean, True),
                 ("hover_text", PropertyType.dynamic_string),
                 ("on_change", PropertyType.function),
             ]
         )
         .get_chart_config("scatter", "lines+markers")
-        .set_propagate()
-        .set_refresh_on_update(),
+        .set_propagate(),
         "content": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="PageContent", attributes=attrs
         ),
@@ -249,7 +247,6 @@ class _Factory:
         )
         .set_input_type("text", True)
         .set_value_and_default()
-        .set_change_delay()
         .set_propagate()
         .set_attributes(
             [
@@ -260,6 +257,9 @@ class _Factory:
                 ("on_action", PropertyType.function),
                 ("action_keys",),
                 ("label",),
+                ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
+                ("multiline", PropertyType.boolean, False),
+                ("lines_shown", PropertyType.number, 5),
             ]
         ),
         "layout": lambda gui, control_type, attrs: _Builder(
@@ -293,7 +293,6 @@ class _Factory:
                 ("hover_text", PropertyType.dynamic_string),
             ]
         )
-        .set_refresh_on_update()
         .set_propagate(),
         "navbar": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="NavBar", attributes=attrs, default_value=None
@@ -316,7 +315,6 @@ class _Factory:
         )
         .set_input_type("number")
         .set_value_and_default(var_type=PropertyType.dynamic_number)
-        .set_change_delay()
         .set_propagate()
         .set_attributes(
             [
@@ -326,6 +324,7 @@ class _Factory:
                 ("on_change", PropertyType.function),
                 ("on_action", PropertyType.function),
                 ("label",),
+                ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
             ]
         ),
         "pane": lambda gui, control_type, attrs: _Builder(
@@ -380,7 +379,6 @@ class _Factory:
                 ("label",),
             ]
         )
-        .set_refresh_on_update()
         .set_propagate(),
         "slider": lambda gui, control_type, attrs: _Builder(
             gui=gui,
@@ -390,7 +388,6 @@ class _Factory:
             default_value=0,
         )
         .set_value_and_default(native_type=True, var_type=PropertyType.number_or_lov_value)
-        .set_change_delay()
         .set_attributes(
             [
                 ("active", PropertyType.dynamic_boolean, True),
@@ -404,13 +401,12 @@ class _Factory:
                 ("width", PropertyType.string, "300px"),
                 ("on_change", PropertyType.function),
                 ("continuous", PropertyType.boolean, True),
+                ("lov", PropertyType.lov),
+                ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
             ]
         )
-        .get_adapter("lov")  # need to be called before set_lov
-        .set_lov()
         .set_labels()
         .set_string_with_check("text_anchor", _Factory.__TEXT_ANCHORS + [_Factory.__TEXT_ANCHOR_NONE], "bottom")
-        .set_refresh_on_update()
         .set_propagate(),
         "status": lambda gui, control_type, attrs: _Builder(
             gui=gui,
@@ -425,8 +421,7 @@ class _Factory:
                 ("without_close", PropertyType.boolean, False),
                 ("hover_text", PropertyType.dynamic_string),
             ]
-        )
-        .set_refresh_on_update(),
+        ),
         "table": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -452,11 +447,11 @@ class _Factory:
                 ("nan_value",),
                 ("filter", PropertyType.boolean),
                 ("hover_text", PropertyType.dynamic_string),
+                ("size",)
             ]
         )
         .set_propagate()
         .get_list_attribute("selected", PropertyType.number)
-        .set_refresh_on_update()
         .set_table_pagesize_options(),
         "text": lambda gui, control_type, attrs: _Builder(
             gui=gui,
@@ -491,7 +486,6 @@ class _Factory:
             ]
         )
         .set_kind()
-        .set_refresh_on_update()
         .set_propagate(),
         "tree": lambda gui, control_type, attrs: _Builder(
             gui=gui,
@@ -500,8 +494,6 @@ class _Factory:
             attributes=attrs,
         )
         .set_value_and_default(with_default=False, var_type=PropertyType.lov_value)
-        .get_adapter("lov")  # need to be called before set_lov
-        .set_lov()
         .set_attributes(
             [
                 ("active", PropertyType.dynamic_boolean, True),
@@ -516,9 +508,9 @@ class _Factory:
                 ("on_change", PropertyType.function),
                 ("select_leafs_only", PropertyType.boolean),
                 ("row_height", PropertyType.string),
+                ("lov", PropertyType.lov)
             ]
         )
-        .set_refresh_on_update()
         .set_propagate(),
     }
 
