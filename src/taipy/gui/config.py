@@ -138,7 +138,9 @@ class _Config(object):
         parser.add_argument("-H", "--host", nargs="?", default="", const="", help="Specify server host")
 
         parser.add_argument("--ngrok-token", nargs="?", default="", const="", help="Specify NGROK Authtoken")
-        parser.add_argument("--force-https", action="store_true", help="Force HTTPS on all connections")
+
+        https_group = parser.add_argument_group()
+        https_group.add_argument("--use-https", action="store_true", help="Force HTTPS on all connections", default=False)
 
         debug_group = parser.add_mutually_exclusive_group()
         debug_group.add_argument("--debug", help="Turn on debug", action="store_true")
@@ -170,7 +172,7 @@ class _Config(object):
             config["use_reloader"] = False
         if args.ngrok_token:
             config["ngrok_token"] = args.ngrok_token
-        if args.force_https:
+        if args.use_https:
             config["force_https"] = True
 
     def _build_config(self, root_dir, env_filename, kwargs):  # pragma: no cover
