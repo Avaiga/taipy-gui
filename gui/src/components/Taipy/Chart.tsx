@@ -28,7 +28,6 @@ import { TaipyContext } from "../../context/taipyContext";
 import { getArrayValue, getUpdateVar, TaipyActiveProps, TaipyChangeProps } from "./utils";
 import {
     createRequestChartUpdateAction,
-    createSendActionNameAction,
     createSendUpdateAction,
 } from "../../context/taipyReducers";
 import { ColumnDesc } from "./tableUtils";
@@ -342,9 +341,25 @@ const Chart = (props: ChartProp) => {
     }, [active, props.plotConfig]);
 
     const onRelayout = useCallback(
-        (eventData: PlotRelayoutEvent) =>
-            tp_onRangeChange && dispatch(createSendActionNameAction(id, { action: tp_onRangeChange, ...eventData })),
-        [dispatch, tp_onRangeChange, id]
+        (eventData: PlotRelayoutEvent) => {
+            const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
+            const eventDataKey = Object.keys(eventData).map(v => v + "=" + eventData[v as keyof typeof eventData]).join("-");
+            dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "") + eventDataKey;
+            dispatch(
+                createRequestChartUpdateAction(
+                    updateVarName,
+                    id,
+                    backCols,
+                    dataKey.current,
+                    decimator ? plotRef.current?.clientWidth : undefined,
+                    decimator,
+                    config.modes,
+                    tp_onRangeChange,
+                    eventData,
+                )
+            );
+        },
+        [dispatch, tp_onRangeChange, id, config.modes, config.columns, updateVarName, decimator]
     );
 
     const onAfterPlot = useCallback(() => {

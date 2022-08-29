@@ -63,3 +63,36 @@ def _df_data_filter(
     points = df[[x_column_name, y_column_name]].to_numpy()
     mask = decimator.decimate(points)
     return df[mask]
+
+
+def _df_relayout(
+    dataframe: pd.DataFrame,
+    columns: t.List[str],
+    chart_modes: t.List[str],
+    x0: t.Optional[float],
+    x1: t.Optional[float],
+    y0: t.Optional[float],
+    y1: t.Optional[float],
+):
+    print("hey")
+    print(chart_modes)
+    chart_mode = chart_modes[0]
+    # if chart data is invalid
+    if x0 is None or x1 is None or y0 is None or y1 is None or len(columns) < 2:
+        return dataframe
+    # if chart_mode is empty
+    df = dataframe.copy()
+    x_column, y_column = columns[1], columns[0]
+    if chart_mode == "lines+markers":
+        # only filter by x column
+        print("dealing", x_column)
+        # mask1 = df[x_column] > x0
+        # mask2 = df[x_column] < x1
+        df = df.loc[(df[x_column] > x0) & (df[x_column] < x1)]
+    else:
+        # filter by both x and y columns
+        df = df[df[x_column] > x0]
+        df = df[df[x_column] < x1]
+        df = df[df[y_column] > y0]
+        df = df[df[y_column] < y1]
+    return df

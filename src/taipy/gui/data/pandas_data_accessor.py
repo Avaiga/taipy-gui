@@ -22,7 +22,7 @@ from ..types import PropertyType
 from ..utils import _RE_PD_TYPE, _get_date_col_str_name
 from .data_accessor import _DataAccessor
 from .data_format import _DataFormat
-from .utils import _df_data_filter
+from .utils import _df_data_filter, _df_relayout
 
 _has_arrow_module = False
 if util.find_spec("pyarrow"):
@@ -187,6 +187,8 @@ class _PandasDataAccessor(_DataAccessor):
             columns = [c[len(col_prefix) :] if c.startswith(col_prefix) else c for c in columns]
         ret_payload = {"pagekey": payload.get("pagekey", "unknown page")}
         paged = not payload.get("alldata", False)
+        hasRelayout = "relayoutData" in payload
+        print(payload)
         # filtering
         filters = payload.get("filters")
         if isinstance(filters, list) and len(filters) > 0:
@@ -209,6 +211,19 @@ class _PandasDataAccessor(_DataAccessor):
                 value = value.query(query)
             except Exception as e:
                 warnings.warn(f"Dataframe filtering: invalid query '{query}' on {value.head()}\n{e}")
+
+        if hasRelayout:
+            chart_modes = payload.get("chartModes", [])
+            relayoutData = payload.get("relayoutData", {})
+            x0 = relayoutData.get("xaxis.range[0]")
+            x1 = relayoutData.get("xaxis.range[1]")
+            y0 = relayoutData.get("yaxis.range[0]")
+            y1 = relayoutData.get("yaxis.range[0]")
+
+            # TODO: Handle user own relayout function if they have one
+
+            value = _df_relayout(value, columns, chart_modes, x0, x1, y0, y1)
+            print(value)
 
         if paged:
             aggregates = payload.get("aggregates")
