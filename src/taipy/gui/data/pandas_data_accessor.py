@@ -188,7 +188,6 @@ class _PandasDataAccessor(_DataAccessor):
         ret_payload = {"pagekey": payload.get("pagekey", "unknown page")}
         paged = not payload.get("alldata", False)
         hasRelayout = "relayoutData" in payload
-        print(payload)
         # filtering
         filters = payload.get("filters")
         if isinstance(filters, list) and len(filters) > 0:
@@ -223,7 +222,6 @@ class _PandasDataAccessor(_DataAccessor):
             # TODO: Handle user own relayout function if they have one
 
             value = _df_relayout(value, columns, chart_modes, x0, x1, y0, y1)
-            print(value)
 
         if paged:
             aggregates = payload.get("aggregates")
