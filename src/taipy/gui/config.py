@@ -50,6 +50,7 @@ ConfigParameter = t.Literal[
     "force_https",
     "watermark",
     "change_delay",
+    "extended_status"
 ]
 
 Config = t.TypedDict(
@@ -81,6 +82,7 @@ Config = t.TypedDict(
         "force_https": bool,
         "watermark": t.Union[str, None],
         "change_delay": t.Union[int, None],
+        "extended_status": bool,
     },
     total=False,
 )
@@ -208,7 +210,7 @@ class _Config(object):
 
             try:
                 section = TaipyConfig.sections["gui"]
-                self.config.update(section._to_dict())
+                self.config.update(section)
             except KeyError:
                 warnings.warn("taipy-config section for taipy-gui is not initialized")
 
@@ -228,7 +230,7 @@ def _register_gui_config():
 
             def __init__(self, property_list: t.Optional[t.List] = None, **properties):
                 self._property_list = property_list
-                super().__init__(**properties)
+                super().__init__(id=_GuiSection.name, **properties)
 
             def __copy__(self):
                 return _GuiSection(property_list=copy(self._property_list), **copy(self._properties))
