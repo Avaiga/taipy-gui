@@ -209,12 +209,16 @@ const Chart = (props: ChartProp) => {
     useEffect(() => {
         if (refresh || !data[dataKey.current]) {
             const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
+            const xAxis = layout.xaxis.title instanceof Object && "text" in layout.xaxis.title ? layout.xaxis.title.text : layout.xaxis.title;
+            const yAxis = layout.yaxis.title instanceof Object && "text" in layout.yaxis.title ? layout.yaxis.title.text : layout.yaxis.title;
             dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "");
             dispatch(
                 createRequestChartUpdateAction(
                     updateVarName,
                     id,
                     backCols,
+                    xAxis,
+                    yAxis,
                     dataKey.current,
                     decimator ? plotRef.current?.clientWidth : undefined,
                     decimator
@@ -353,21 +357,27 @@ const Chart = (props: ChartProp) => {
 
     const onRelayout = useCallback(
         (eventData: PlotRelayoutEvent) => {
-            const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
-            const eventDataKey = Object.keys(eventData).map(v => v + "=" + eventData[v as keyof typeof eventData]).join("-");
-            dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "") + eventDataKey;
-            dispatch(
-                createRequestChartUpdateAction(
-                    updateVarName,
-                    id,
-                    backCols,
-                    dataKey.current,
-                    decimator ? plotRef.current?.clientWidth : undefined,
-                    decimator,
-                    config.modes,
-                    eventData,
-                )
-            );
+            if (decimator) {
+                const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
+                const xAxis = layout.xaxis.title instanceof Object && "text" in layout.xaxis.title ? layout.xaxis.title.text : layout.xaxis.title;
+                const yAxis = layout.yaxis.title instanceof Object && "text" in layout.yaxis.title ? layout.yaxis.title.text : layout.yaxis.title;
+                const eventDataKey = Object.keys(eventData).map(v => v + "=" + eventData[v as keyof typeof eventData]).join("-");
+                dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "") + "--" + eventDataKey;
+                dispatch(
+                    createRequestChartUpdateAction(
+                        updateVarName,
+                        id,
+                        backCols,
+                        xAxis,
+                        yAxis,
+                        dataKey.current,
+                        decimator ? plotRef.current?.clientWidth : undefined,
+                        decimator,
+                        config.modes,
+                        eventData,
+                    )
+                );
+            }
         },
         [dispatch, id, config.modes, config.columns, updateVarName, decimator]
     );

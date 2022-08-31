@@ -187,7 +187,6 @@ class _PandasDataAccessor(_DataAccessor):
             columns = [c[len(col_prefix) :] if c.startswith(col_prefix) else c for c in columns]
         ret_payload = {"pagekey": payload.get("pagekey", "unknown page")}
         paged = not payload.get("alldata", False)
-        hasRelayout = "relayoutData" in payload
         # filtering
         filters = payload.get("filters")
         if isinstance(filters, list) and len(filters) > 0:
@@ -210,18 +209,6 @@ class _PandasDataAccessor(_DataAccessor):
                 value = value.query(query)
             except Exception as e:
                 warnings.warn(f"Dataframe filtering: invalid query '{query}' on {value.head()}\n{e}")
-
-        if hasRelayout:
-            chart_modes = payload.get("chartModes", [])
-            relayoutData = payload.get("relayoutData", {})
-            x0 = relayoutData.get("xaxis.range[0]")
-            x1 = relayoutData.get("xaxis.range[1]")
-            y0 = relayoutData.get("yaxis.range[0]")
-            y1 = relayoutData.get("yaxis.range[0]")
-
-            # TODO: Handle user own relayout function if they have one
-
-            value = _df_relayout(value, columns, chart_modes, x0, x1, y0, y1)
 
         if paged:
             aggregates = payload.get("aggregates")
@@ -283,19 +270,26 @@ class _PandasDataAccessor(_DataAccessor):
             decimator_instance = (
                 gui._get_user_instance(decimator, PropertyType.decimator.value) if decimator is not None else None
             )
-            nb_rows_max = payload.get("width")
-            if (
-                nb_rows_max
-                and isinstance(decimator_instance, PropertyType.decimator.value)
-                and decimator_instance._is_applicable(value, nb_rows_max)
-            ):
-                try:
-                    x_column, y_column = columns[1] if len(columns) > 1 else None, columns[0]
-                    value = _df_data_filter(value, x_column, y_column, decimator=decimator_instance)
-                except Exception as e:
-                    warnings.warn(f"Limit rows error for dataframe: {e}")
-            value = self.__build_transferred_cols(gui, columns, value)
-            dictret = self.__format_data(value, data_format, "list", data_extraction=True)
+            if isinstance(decimator_instance, PropertyType.decimator.value):
+                x_column, y_column = payload.get("xAxis", ""), payload.get("yAxis", "")
+                if decimator_instance._chart_zooming and "relayoutData" in payload:
+                    chart_modes = payload.get("chartModes", [])
+                    relayoutData = payload.get("relayoutData", {})
+                    x0 = relayoutData.get("xaxis.range[0]")
+                    x1 = relayoutData.get("xaxis.range[1]")
+                    y0 = relayoutData.get("yaxis.range[0]")
+                    y1 = relayoutData.get("yaxis.range[0]")
+
+                    value = _df_relayout(value, x_column, y_column, chart_modes, x0, x1, y0, y1)
+
+                nb_rows_max = payload.get("width")
+                if nb_rows_max and decimator_instance._is_applicable(value, nb_rows_max):
+                    try:
+                        value = _df_data_filter(value, x_column, y_column, decimator=decimator_instance)
+                    except Exception as e:
+                        warnings.warn(f"Limit rows error for dataframe: {e}")
+                value = self.__build_transferred_cols(gui, columns, value)
+                dictret = self.__format_data(value, data_format, "list", data_extraction=True)
         ret_payload["value"] = dictret
         return ret_payload
 

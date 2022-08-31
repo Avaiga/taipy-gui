@@ -477,6 +477,8 @@ export const createRequestChartUpdateAction = (
     name: string | undefined,
     id: string | undefined,
     columns: string[],
+    xAxis: unknown,
+    yAxis: unknown,
     pageKey: string,
     width?: number,
     decimator?: string,
@@ -489,6 +491,8 @@ export const createRequestChartUpdateAction = (
         columns,
         pageKey,
         {
+            xAxis: xAxis,
+            yAxis: yAxis,
             width: width,
             decimator: decimator,
             chartModes: chartModes,
