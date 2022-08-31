@@ -41,6 +41,7 @@ import { TaipyContext } from "../../context/taipyContext";
 import { getArrayValue, getUpdateVar, TaipyActiveProps, TaipyChangeProps } from "./utils";
 import {
     createRequestChartUpdateAction,
+    createSendActionNameAction,
     createSendUpdateAction,
 } from "../../context/taipyReducers";
 import { ColumnDesc } from "./tableUtils";
@@ -56,6 +57,7 @@ interface ChartProp extends TaipyActiveProps, TaipyChangeProps {
     data?: Record<string, TraceValueType>;
     layout?: string;
     plotConfig?: string;
+    tp_onRangeChange?: string;
     testId?: string;
     render?: boolean;
     defaultRender?: boolean;
@@ -129,6 +131,7 @@ const Chart = (props: ChartProp) => {
         updateVarName,
         updateVars,
         id,
+        tp_onRangeChange,
         data = {},
         propagate = true,
         decimator,
@@ -357,6 +360,7 @@ const Chart = (props: ChartProp) => {
 
     const onRelayout = useCallback(
         (eventData: PlotRelayoutEvent) => {
+            tp_onRangeChange && dispatch(createSendActionNameAction(id, { action: tp_onRangeChange, ...eventData }));
             if (decimator) {
                 const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
                 const xAxis = layout.xaxis.title instanceof Object && "text" in layout.xaxis.title ? layout.xaxis.title.text : layout.xaxis.title;
@@ -379,7 +383,7 @@ const Chart = (props: ChartProp) => {
                 );
             }
         },
-        [dispatch, id, config.modes, config.columns, updateVarName, decimator]
+        [dispatch, tp_onRangeChange, id, config.modes, config.columns, updateVarName, decimator]
     );
 
     const onAfterPlot = useCallback(() => {

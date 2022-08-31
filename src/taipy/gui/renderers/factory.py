@@ -94,6 +94,7 @@ class _Factory:
                 ("height", PropertyType.string_or_number),
                 ("layout", PropertyType.dict),
                 ("plot_config", PropertyType.dict),
+                ("on_range_change", PropertyType.function),
                 ("active", PropertyType.dynamic_boolean, True),
                 ("decimator", PropertyType.decimator),
                 ("render", PropertyType.dynamic_boolean, True),
