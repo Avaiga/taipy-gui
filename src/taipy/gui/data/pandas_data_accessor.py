@@ -288,8 +288,8 @@ class _PandasDataAccessor(_DataAccessor):
                         value = _df_data_filter(value, x_column, y_column, decimator=decimator_instance)
                     except Exception as e:
                         warnings.warn(f"Limit rows error for dataframe: {e}")
-                value = self.__build_transferred_cols(gui, columns, value)
-                dictret = self.__format_data(value, data_format, "list", data_extraction=True)
+            value = self.__build_transferred_cols(gui, columns, value)
+            dictret = self.__format_data(value, data_format, "list", data_extraction=True)
         ret_payload["value"] = dictret
         return ret_payload
 
