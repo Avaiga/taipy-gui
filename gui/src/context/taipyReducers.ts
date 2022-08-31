@@ -481,7 +481,6 @@ export const createRequestChartUpdateAction = (
     width?: number,
     decimator?: string,
     chartModes?: string[],
-    relayoutAction?: string | undefined,
     relayoutData?: PlotRelayoutEvent,
 ): TaipyAction =>
     createRequestDataUpdateAction(
@@ -493,7 +492,6 @@ export const createRequestChartUpdateAction = (
             width: width,
             decimator: decimator,
             chartModes: chartModes,
-            relayoutAction: relayoutAction,
             relayoutData: relayoutData,
         },
         true

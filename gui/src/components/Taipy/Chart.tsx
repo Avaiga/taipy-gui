@@ -56,7 +56,6 @@ interface ChartProp extends TaipyActiveProps, TaipyChangeProps {
     data?: Record<string, TraceValueType>;
     layout?: string;
     plotConfig?: string;
-    tp_onRangeChange?: string;
     testId?: string;
     render?: boolean;
     defaultRender?: boolean;
@@ -131,7 +130,6 @@ const Chart = (props: ChartProp) => {
         updateVars,
         id,
         data = {},
-        tp_onRangeChange,
         propagate = true,
         decimator,
     } = props;
@@ -367,12 +365,11 @@ const Chart = (props: ChartProp) => {
                     decimator ? plotRef.current?.clientWidth : undefined,
                     decimator,
                     config.modes,
-                    tp_onRangeChange,
                     eventData,
                 )
             );
         },
-        [dispatch, tp_onRangeChange, id, config.modes, config.columns, updateVarName, decimator]
+        [dispatch, id, config.modes, config.columns, updateVarName, decimator]
     );
 
     const onAfterPlot = useCallback(() => {
