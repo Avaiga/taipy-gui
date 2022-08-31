@@ -21,7 +21,6 @@ import { TIMEZONE_CLIENT } from "../utils";
 import { parseData } from "../utils/dataFormat";
 import { MenuProps } from "../utils/lov";
 import { FilterDesc } from "../components/Taipy/TableFilter";
-import { PlotRelayoutEvent } from "plotly.js";
 
 enum Types {
     SocketConnected = "SOCKET_CONNECTED",
@@ -477,13 +476,10 @@ export const createRequestChartUpdateAction = (
     name: string | undefined,
     id: string | undefined,
     columns: string[],
-    xAxis: unknown,
-    yAxis: unknown,
     pageKey: string,
-    width?: number,
-    decimator?: string,
+    decimatorPayload?: unknown | undefined,
     chartModes?: string[],
-    relayoutData?: PlotRelayoutEvent,
+    relayoutData?: unknown,
 ): TaipyAction =>
     createRequestDataUpdateAction(
         name,
@@ -491,10 +487,7 @@ export const createRequestChartUpdateAction = (
         columns,
         pageKey,
         {
-            xAxis: xAxis,
-            yAxis: yAxis,
-            width: width,
-            decimator: decimator,
+            decimatorPayload: decimatorPayload,
             chartModes: chartModes,
             relayoutData: relayoutData,
         },

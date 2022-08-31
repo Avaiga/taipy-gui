@@ -278,7 +278,7 @@ class _PandasDataAccessor(_DataAccessor):
                     x0 = relayoutData.get("xaxis.range[0]")
                     x1 = relayoutData.get("xaxis.range[1]")
                     y0 = relayoutData.get("yaxis.range[0]")
-                    y1 = relayoutData.get("yaxis.range[0]")
+                    y1 = relayoutData.get("yaxis.range[1]")
 
                     value = _df_relayout(value, x_column, y_column, chart_modes, x0, x1, y0, y1)
 
