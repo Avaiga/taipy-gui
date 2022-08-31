@@ -44,7 +44,8 @@ from .utils import (
 )
 
 if t.TYPE_CHECKING:
-    from ..gui import Gui 
+    from ..gui import Gui
+
 
 class _Builder:
 
@@ -120,7 +121,9 @@ class _Builder:
         return (value, None)
 
     @staticmethod
-    def _get_variable_hash_names(gui: "Gui", attributes: t.Dict[str, t.Any], hash_names: t.Dict[str, str] = {}) -> t.Dict[str, str]:
+    def _get_variable_hash_names(
+        gui: "Gui", attributes: t.Dict[str, t.Any], hash_names: t.Dict[str, str] = {}
+    ) -> t.Dict[str, str]:
         hashes = {}
         # Bind potential function and expressions in self.attributes
         for k, v in attributes.items():
@@ -782,7 +785,8 @@ class _Builder:
         if value := self.__attributes.get(var_name):
             if _is_boolean_true(value):
                 return self.__set_react_attribute(_to_camel_case(var_name), True)
-            return self.__set_dict_attribute(var_name)
+            elif isinstance(value, (dict, _MapDict)):
+                return self.__set_dict_attribute(var_name)
         return self
 
     def set_partial(self):
@@ -854,7 +858,7 @@ class _Builder:
                     self.__set_update_var_name(hash_name)
                 else:
                     self.__update_vars.append(f"{_to_camel_case(name)}={hash_name}")
-    
+
     def __set_dynamic_property_without_default(self, name: str, property_type: PropertyType):
         hash_name = self.__hashes.get(name)
         if hash_name is None:
@@ -913,7 +917,7 @@ class _Builder:
             elif var_type == PropertyType.data:
                 self.__set_dynamic_property_without_default(attr[0], var_type)
             elif var_type == PropertyType.lov:
-                self.get_adapter(attr[0]) # need to be called before set_lov
+                self.get_adapter(attr[0])  # need to be called before set_lov
                 self.set_lov(attr[0])
             elif var_type == PropertyType.lov_value:
                 self.__set_dynamic_property_without_default(attr[0], var_type)

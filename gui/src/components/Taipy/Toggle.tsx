@@ -1,3 +1,16 @@
+/*
+ * Copyright 2022 Avaiga Private Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 import React, { CSSProperties, MouseEvent, useCallback, useContext, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -18,6 +31,7 @@ interface ToggleProps extends LovProps<string> {
     label?: string;
     kind?: string;
     unselectedValue?: string;
+    allowUnselect?: boolean;
 }
 
 const Toggle = (props: ToggleProps) => {
@@ -43,17 +57,20 @@ const Toggle = (props: ToggleProps) => {
     const lovList = useLovListMemo(lov, defaultLov);
 
     const changeValue = useCallback(
-        (evt: MouseEvent, val: string) =>
+        (evt: MouseEvent, val: string) => {
+            if (!props.allowUnselect && val === null ) {
+                return;
+            }
             dispatch(
                 createSendUpdateAction(
                     updateVarName,
-                    val === null ? unselectedValue : val, 
+                    val === null ? unselectedValue : val,
                     props.tp_onChange,
                     propagate,
                     valueById ? undefined : getUpdateVar(updateVars, "lov")
                 )
-            ),
-        [unselectedValue, updateVarName, propagate, dispatch, updateVars, valueById, props.tp_onChange]
+            )},
+        [unselectedValue, updateVarName, propagate, dispatch, updateVars, valueById, props.tp_onChange, props.allowUnselect]
     );
 
     useEffect(() => {props.value !== undefined && setValue(props.value)}, [props.value]);

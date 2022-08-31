@@ -12,15 +12,20 @@
  */
 
 import React from "react";
-import AutoLoadingTable from "./AutoLoadingTable";
-import PaginatedTable from "./PaginatedTable";
-import { TaipyPaginatedTableProps } from "./tableUtils";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 
-interface TableProps extends TaipyPaginatedTableProps {
-    autoLoading?: boolean;
+interface ErrorFallBackProps {
+    error: Error;
+    resetErrorBoundary: () => void;
 }
 
-const Table = ({ autoLoading = false, ...rest }: TableProps) =>
-    autoLoading ? <AutoLoadingTable {...rest} /> : <PaginatedTable {...rest} />;
+const ErrorFallback = (props: ErrorFallBackProps) => (
+    <Box sx={{ backgroundColor: "error.main" }}>
+        <Box>Something went wrong ...</Box>
+        <Box>{(props.error as Error).message}</Box>
+        <Button onClick={props.resetErrorBoundary}>Try again</Button>
+    </Box>
+);
 
-export default Table;
+export default ErrorFallback;

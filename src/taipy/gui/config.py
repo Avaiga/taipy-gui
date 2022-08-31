@@ -46,10 +46,9 @@ ConfigParameter = t.Literal[
     "flask_log",
     "margin",
     "run_browser",
-    "content_security_policy",
-    "force_https",
     "watermark",
     "change_delay",
+    "extended_status",
 ]
 
 Config = t.TypedDict(
@@ -77,10 +76,9 @@ Config = t.TypedDict(
         "flask_log": bool,
         "margin": t.Union[str, None],
         "run_browser": bool,
-        "content_security_policy": t.Optional[dict],
-        "force_https": bool,
         "watermark": t.Union[str, None],
         "change_delay": t.Union[int, None],
+        "extended_status": bool,
     },
     total=False,
 )
@@ -138,7 +136,6 @@ class _Config(object):
         parser.add_argument("-H", "--host", nargs="?", default="", const="", help="Specify server host")
 
         parser.add_argument("--ngrok-token", nargs="?", default="", const="", help="Specify NGROK Authtoken")
-        parser.add_argument("--force-https", action="store_true", help="Force HTTPS on all connections")
 
         debug_group = parser.add_mutually_exclusive_group()
         debug_group.add_argument("--debug", help="Turn on debug", action="store_true")
@@ -170,8 +167,6 @@ class _Config(object):
             config["use_reloader"] = False
         if args.ngrok_token:
             config["ngrok_token"] = args.ngrok_token
-        if args.force_https:
-            config["force_https"] = True
 
     def _build_config(self, root_dir, env_filename, kwargs):  # pragma: no cover
         config = self.config
@@ -205,7 +200,7 @@ class _Config(object):
             from taipy.config import Config as TaipyConfig
 
             try:
-                section = TaipyConfig.sections["gui"]
+                section = TaipyConfig.unique_sections["gui"]
                 self.config.update(section._to_dict())
             except KeyError:
                 warnings.warn("taipy-config section for taipy-gui is not initialized")
@@ -216,11 +211,11 @@ def _register_gui_config():
         from copy import copy
 
         from taipy.config import Config as TaipyConfig
-        from taipy.config import Section
+        from taipy.config import UniqueSection
 
         from ._default_config import default_config
 
-        class _GuiSection(Section):
+        class _GuiSection(UniqueSection):
 
             name = "gui"
 
@@ -238,9 +233,7 @@ def _register_gui_config():
 
             @classmethod
             def _from_dict(cls, as_dict: t.Dict[str, t.Any]):
-                config = _GuiSection(property_list=list(default_config))
-                config._update(as_dict)
-                return config
+                return _GuiSection(property_list=list(default_config), **as_dict)
 
             def _update(self, as_dict: t.Dict[str, t.Any]):
                 if self._property_list:
@@ -249,9 +242,9 @@ def _register_gui_config():
 
             @staticmethod
             def _configure(**properties):
-                section = _GuiSection(**properties)
+                section = _GuiSection(property_list=list(default_config), **properties)
                 TaipyConfig._register(section)
-                return TaipyConfig.sections[_GuiSection.name]
+                return TaipyConfig.unique_sections[_GuiSection.name]
 
         TaipyConfig._register_default(_GuiSection(property_list=list(default_config)))
         TaipyConfig.configure_gui = _GuiSection._configure

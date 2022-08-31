@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import os
+import pathlib
 import re
 import socket
 import time
@@ -23,7 +24,6 @@ import __main__
 from flask import Blueprint, Flask, json, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from flask_talisman import Talisman
 from kthread import KThread
 from werkzeug.serving import is_running_from_reloader
 
@@ -47,8 +47,6 @@ class _Server:
         flask: t.Optional[Flask] = None,
         css_file: str = "",
         path_mapping: t.Optional[dict] = {},
-        content_security_policy: t.Optional[dict] = None,
-        force_https: bool = False,
         async_mode: t.Optional[str] = None,
     ):
         self._gui = gui
@@ -64,9 +62,6 @@ class _Server:
         )
 
         CORS(self._flask)
-
-        if force_https or content_security_policy:
-            Talisman(self._flask, content_security_policy=content_security_policy, force_https=force_https)
 
         self.__path_mapping = path_mapping
 
@@ -97,7 +92,7 @@ class _Server:
         @taipy_bp.route("/", defaults={"path": ""})
         @taipy_bp.route("/<path:path>")
         def my_index(path):
-            if path == "" or "." not in path:
+            if path == "" or path == "index.html" or "." not in path:
                 return render_template(
                     "index.html",
                     app_css=f"/{self.css_file}.css",
@@ -110,6 +105,8 @@ class _Server:
                     styles=styles,
                     version=version,
                 )
+            if path == "taipy.status.json":
+                return self._direct_render_json(self._gui._serve_status(pathlib.Path(template_folder) / path))
             if str(os.path.normpath(file_path := ((base_path := static_folder + os.path.sep) + path))).startswith(
                 base_path
             ) and os.path.isfile(file_path):

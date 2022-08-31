@@ -18,10 +18,9 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const ESLintPlugin = require("eslint-webpack-plugin");
+const GenerateJsonPlugin = require('generate-json-webpack-plugin');
 
 const resolveApp = relativePath => path.resolve(__dirname, relativePath);
-
-const getEnvVariables = () => ({ VERSION: require(resolveApp('package.json')).version });
 
 const reactBundle = "taipy-vendor"
 const taipyBundle = "taipy-gui"
@@ -36,10 +35,16 @@ const reactDllPath = resolveApp(basePath + "/" + reactBundle + ".dll.js")
 const taipyDllPath = resolveApp(basePath + "/" + taipyBundle + ".js")
 
 module.exports = (env, options) => {
+    const envVariables = {
+        frontend_version: require(resolveApp('package.json')).version,
+        frontend_build_date: new Date().toISOString(),
+        frontend_build_mode: options.mode
+    };
+
     return [{
             mode: options.mode, //'development', //'production',
             name: reactBundleName,
-            entry: ["react", "react-dom", 
+            entry: ["react", "react-dom",
             "@emotion/react","@emotion/styled",
             "@mui/icons-material","@mui/lab","@mui/material","@mui/x-date-pickers"],
             output: {
@@ -49,7 +54,7 @@ module.exports = (env, options) => {
             },
             plugins: [
                 new webpack.DllPlugin({
-                    name: reactBundleName, 
+                    name: reactBundleName,
                     path: reactManifestPath
                 })
             ]
@@ -129,7 +134,7 @@ module.exports = (env, options) => {
                     },
                 ]
             },
-    
+
             plugins: [
                 new CopyWebpackPlugin({
                     patterns: [
@@ -140,8 +145,9 @@ module.exports = (env, options) => {
                 new HtmlWebpackPlugin({
                     template: "../public/index.html",
                     hash: true,
-                    ...getEnvVariables()
+                    ...envVariables
                 }),
+                new GenerateJsonPlugin("taipy.status.json", envVariables),
                 new ESLintPlugin({
                     extensions: [`ts`, `tsx`],
                     exclude: [`/node_modules/`],

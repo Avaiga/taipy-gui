@@ -1,13 +1,28 @@
+/*
+ * Copyright 2022 Avaiga Private Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 import React, { useEffect, useState, useContext, ComponentType } from "react";
 import axios from "axios";
 import JsxParser from "react-jsx-parser";
 import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { TaipyContext } from "../../context/taipyContext";
 import { getRegisteredComponents } from "../Taipy";
 import { unregisteredRender, renderError } from "../Taipy/Unregistered";
 import { createModuleContextAction, createPartialAction } from "../../context/taipyReducers";
+import ErrorFallback from "../../utils/ErrorBoundary";
 
 interface TaipyRenderedProps {
     path?: string;
@@ -76,7 +91,7 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
     }, [path, state.id, dispatch, partial, fromBlock]);
 
     return (
-        <>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
             {head.length ? <Helmet>{head.map((v) => React.createElement(v.tag, v.props, v.content))}</Helmet> : null}
             <JsxParser
                 disableKeyGeneration={true}
@@ -87,7 +102,7 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
                 allowUnknownElements={false}
                 renderError={renderError}
             />
-        </>
+        </ErrorBoundary>
     );
 };
 
