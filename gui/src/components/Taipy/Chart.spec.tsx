@@ -136,12 +136,10 @@ describe("Chart Component", () => {
             name: "",
             payload: {
                 alldata: true,
-                "chartModes": undefined,
                 pagekey: "Day-Daily hospital occupancy",
                 columns: ["Day", "Daily hospital occupancy"],
                 "decimatorPayload": undefined,
                 id: "chart",
-                "relayoutData": undefined,
             },
             type: "REQUEST_DATA_UPDATE",
         });
