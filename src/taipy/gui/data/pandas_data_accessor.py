@@ -273,9 +273,9 @@ class _PandasDataAccessor(_DataAccessor):
             )
             if isinstance(decimator_instance, PropertyType.decimator.value):
                 x_column, y_column = decimatorPayload.get("xAxis", ""), decimatorPayload.get("yAxis", "")
-                if decimator_instance._chart_zooming and "relayoutData" in payload:
-                    chart_modes = payload.get("chartModes", [])
-                    relayoutData = payload.get("relayoutData", {})
+                if decimator_instance._chart_zooming and "relayoutData" in decimatorPayload:
+                    chart_modes = decimatorPayload.get("chartModes", [])
+                    relayoutData = decimatorPayload.get("relayoutData", {})
                     x0 = relayoutData.get("xaxis.range[0]")
                     x1 = relayoutData.get("xaxis.range[1]")
                     y0 = relayoutData.get("yaxis.range[0]")

@@ -370,7 +370,9 @@ const Chart = (props: ChartProp) => {
                     width: plotRef.current?.clientWidth,
                     xAxis: config.traces.length && config.traces[0].length && config.traces[0][0] && config.columns[config.traces[0][0]].dfid,
                     yAxis: config.traces.length == 1 && config.traces[0].length > 1 && config.columns[config.traces[0][1]] && config.columns[config.traces[0][1]].dfid,
-                    decimator: decimator
+                    decimator: decimator,
+                    relayoutData: eventData,
+                    chartModes: config.modes,
                 }
                 dispatch(
                     createRequestChartUpdateAction(
@@ -379,8 +381,6 @@ const Chart = (props: ChartProp) => {
                         backCols,
                         dataKey.current,
                         decimatorPayload,
-                        config.modes,
-                        eventData,
                     )
                 );
             }

@@ -478,8 +478,6 @@ export const createRequestChartUpdateAction = (
     columns: string[],
     pageKey: string,
     decimatorPayload?: unknown | undefined,
-    chartModes?: string[],
-    relayoutData?: unknown,
 ): TaipyAction =>
     createRequestDataUpdateAction(
         name,
@@ -488,8 +486,6 @@ export const createRequestChartUpdateAction = (
         pageKey,
         {
             decimatorPayload: decimatorPayload,
-            chartModes: chartModes,
-            relayoutData: relayoutData,
         },
         true
     );
