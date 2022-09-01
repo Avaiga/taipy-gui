@@ -477,7 +477,7 @@ export const createRequestChartUpdateAction = (
     id: string | undefined,
     columns: string[],
     pageKey: string,
-    decimatorPayload?: unknown | undefined,
+    decimatorPayload: unknown | undefined,
 ): TaipyAction =>
     createRequestDataUpdateAction(
         name,
