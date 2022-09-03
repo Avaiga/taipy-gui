@@ -253,7 +253,7 @@ class _Evaluator:
                 if expr_var_map is None:
                     warnings.warn(f"Something is amiss with expression list for {expr}")
                 else:
-                    eval_dict = {k: _getscopeattr_drill(gui, v) for k, v in expr_var_map.items()}
+                    eval_dict = {k: _getscopeattr_drill(gui, gui._bind_var(v)) for k, v in expr_var_map.items()}
                     if self._is_expression(expr_decoded):
                         expr_string = 'f"' + _variable_decode(expr)[0].replace('"', '\\"') + '"'
                     else:
