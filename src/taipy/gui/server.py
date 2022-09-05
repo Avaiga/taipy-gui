@@ -27,7 +27,7 @@ from flask_socketio import SocketIO
 from kthread import KThread
 from werkzeug.serving import is_running_from_reloader
 
-from .renderers.jsonprovider import _TaipyJsonProvider
+from .renderers.json import _TaipyJsonProvider
 from .utils import _is_in_notebook, _RuntimeManager
 
 if t.TYPE_CHECKING:
