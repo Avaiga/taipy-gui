@@ -32,14 +32,12 @@ import { TaipyContext } from "../../context/taipyContext";
 import { createRequestTableUpdateAction, createSendActionNameAction } from "../../context/taipyReducers";
 import {
     addDeleteColumn,
-    getCellProps,
     baseBoxSx,
     EditableCell,
     EDIT_COL,
     getClassName,
     getsortByIndex,
     headBoxSx,
-    iconInRowSx,
     LINE_STYLE,
     OnCellValidation,
     OnRowDeletion,
@@ -50,6 +48,8 @@ import {
     RowValue,
     tableSx,
     TaipyPaginatedTableProps,
+    ColumnDesc,
+    iconInRowSx,
 } from "./tableUtils";
 import { useDispatchRequestUpdateOnFirstRender, useDynamicProperty, useFormatConfig } from "../../utils/hooks";
 
@@ -96,12 +96,21 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
         let hNan = !!props.nanValue;
         if (props.columns) {
             try {
-                const columns = typeof props.columns === "string" ? JSON.parse(props.columns) : props.columns;
+                const columns = (
+                    typeof props.columns === "string" ? JSON.parse(props.columns) : props.columns
+                ) as Record<string, ColumnDesc>;
+                Object.values(columns).forEach((col) => {
+                    if (typeof col.notEditable != "boolean") {
+                        col.notEditable = !editable;
+                    } else {
+                        col.notEditable = col.notEditable || !editable;
+                    }
+                });
                 addDeleteColumn(!!(active && editable && (tp_onAdd || tp_onDelete)), columns);
                 const colsOrder = Object.keys(columns).sort(getsortByIndex(columns));
                 const styles = colsOrder.reduce<Record<string, string>>((pv, col) => {
                     if (columns[col].style) {
-                        pv[columns[col].dfid] = columns[col].style;
+                        pv[columns[col].dfid] = columns[col].style as string;
                     }
                     hNan = hNan || !!columns[col].nanValue;
                     return pv;
@@ -194,20 +203,16 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
         dispatch,
     ]);
 
-    const handleRequestSort = useCallback(
-        (event: MouseEvent<unknown>, col: string) => {
-            const isAsc = orderBy === col && order === "asc";
-            setOrder(isAsc ? "desc" : "asc");
-            setOrderBy(col);
+    const onSort = useCallback(
+        (e: MouseEvent<HTMLElement>) => {
+            const col = e.currentTarget.getAttribute("data-dfid");
+            if (col) {
+                const isAsc = orderBy === col && order === "asc";
+                setOrder(isAsc ? "desc" : "asc");
+                setOrderBy(col);
+            }
         },
         [orderBy, order]
-    );
-
-    const createSortHandler = useCallback(
-        (col: string) => (event: MouseEvent<unknown>) => {
-            handleRequestSort(event, col);
-        },
-        [handleRequestSort]
     );
 
     const handleChangePage = useCallback(
@@ -312,7 +317,7 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                         <Table
                             sx={tableSx}
                             aria-labelledby="tableTitle"
-                            size={"medium"}
+                            size="small"
                             className={className}
                             stickyHeader={true}
                         >
@@ -325,16 +330,23 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                                             width={columns[col].width}
                                         >
                                             {columns[col].dfid === EDIT_COL ? (
-                                                active && editable && tp_onAdd ? (
-                                                    <IconButton onClick={onAddRowClick} size="small" sx={iconInRowSx}>
-                                                        <AddIcon />
-                                                    </IconButton>
-                                                ) : null
+                                                    active && editable && tp_onAdd ? (
+                                                        <Tooltip title="Add a row" key="addARow">
+                                                            <IconButton
+                                                                onClick={onAddRowClick}
+                                                                size="small"
+                                                                sx={iconInRowSx}
+                                                            >
+                                                                <AddIcon fontSize="inherit" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    ) : null
                                             ) : (
                                                 <TableSortLabel
                                                     active={orderBy === columns[col].dfid}
                                                     direction={orderBy === columns[col].dfid ? order : "asc"}
-                                                    onClick={createSortHandler(columns[col].dfid)}
+                                                    data-dfid={columns[col].dfid}
+                                                    onClick={onSort}
                                                     disabled={!active}
                                                 >
                                                     <Box sx={headBoxSx}>
@@ -343,14 +355,14 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                                                                 onClick={onAggregate}
                                                                 size="small"
                                                                 title="aggregate"
-                                                                sx={iconInRowSx}
                                                                 data-dfid={columns[col].dfid}
                                                                 disabled={!active}
+                                                                sx={iconInRowSx}
                                                             >
                                                                 {aggregates.includes(columns[col].dfid) ? (
-                                                                    <DataSaverOff />
+                                                                    <DataSaverOff fontSize="inherit" />
                                                                 ) : (
-                                                                    <DataSaverOn />
+                                                                    <DataSaverOn fontSize="inherit" />
                                                                 )}
                                                             </IconButton>
                                                         ) : null}
@@ -390,29 +402,21 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                                             className={getClassName(rows[index], props.lineStyle)}
                                         >
                                             {colsOrder.map((col, cidx) => (
-                                                <TableCell
+                                                <EditableCell
                                                     key={"val" + index + "-" + cidx}
-                                                    {...getCellProps(columns[col])}
-                                                    className={getClassName(rows[index], columns[col].style)}
-                                                >
-                                                    <EditableCell
-                                                        colDesc={columns[col]}
-                                                        value={rows[index][col]}
-                                                        formatConfig={formatConfig}
-                                                        rowIndex={index}
-                                                        onValidation={
-                                                            active && editable && tp_onEdit
-                                                                ? onCellValidation
-                                                                : undefined
-                                                        }
-                                                        onDeletion={
-                                                            active && editable && tp_onDelete
-                                                                ? onRowDeletion
-                                                                : undefined
-                                                        }
-                                                        nanValue={columns[col].nanValue || props.nanValue}
-                                                    />
-                                                </TableCell>
+                                                    className={getClassName(row, columns[col].style)}
+                                                    colDesc={columns[col]}
+                                                    value={row[col]}
+                                                    formatConfig={formatConfig}
+                                                    rowIndex={index}
+                                                    onValidation={
+                                                        active && editable && tp_onEdit ? onCellValidation : undefined
+                                                    }
+                                                    onDeletion={
+                                                        active && editable && tp_onDelete ? onRowDeletion : undefined
+                                                    }
+                                                    nanValue={columns[col].nanValue || props.nanValue}
+                                                />
                                             ))}
                                         </TableRow>
                                     );

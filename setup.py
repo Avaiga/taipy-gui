@@ -24,7 +24,7 @@ with open("README.md") as readme_file:
 
 
 requirements = [
-    "flask>=2.1,<3.0",
+    "flask>=2.1,<2.2",
     "flask-cors>=3.0.10,<4.0",
     "flask-socketio>=5.1.1,<6.0",
     "markdown>=3.3.4,<4.0",
@@ -35,6 +35,10 @@ requirements = [
     "tzlocal>=3.0,<5.0",
     "backports.zoneinfo>=0.2.1,<0.3;python_version<'3.9'",
     "flask-talisman>=1.0,<2.0",
+    "gevent>=21.12.0,<22.0",
+    "gevent-websocket>=0.10.1,<0.11",
+    "kthread>=0.2.3,<0.3",
+    "werkzeug>=2.0,<2.1",
 ]
 
 test_requirements = ["pytest>=3.8"]
@@ -45,12 +49,7 @@ extras_require = {
         "python-magic>=0.4.24,<0.5;platform_system!='Windows'",
         "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'",
     ],
-    "rdp": ["rdp>=0.8"],
     "arrow": ["pyarrow>=7.0,<9.0"],
-    "gevent": [
-        "gevent>=21.12.0,<22.0",
-        "gevent-websocket>=0.10.1,<0.11",
-    ],
 }
 
 
@@ -91,7 +90,7 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/avaiga/taipy-gui",
-    version="1.1.2",
+    version="1.1.3",
     zip_safe=False,
     extras_require=extras_require,
     cmdclass={"build_py": NPMInstall},

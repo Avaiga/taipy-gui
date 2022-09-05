@@ -247,6 +247,9 @@ class _Factory:
                 ("on_action", _AttributeType.function),
                 ("action_keys",),
                 ("label",),
+                ("change_delay", _AttributeType.number, gui._get_config("change_delay", None)),
+                ("multiline", _AttributeType.boolean, False),
+                ("lines_shown", _AttributeType.number, 5),
             ]
         ),
         "layout": lambda gui, control_type, attrs: _Builder(

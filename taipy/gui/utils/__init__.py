@@ -19,6 +19,7 @@ from ._attributes import (
 )
 from ._locals_context import _LocalsContext
 from ._map_dict import _MapDict
+from ._runtime_manager import _RuntimeManager
 from ._variable_directory import _variable_decode, _variable_encode, _VariableDirectory
 from .boolean import _is_boolean, _is_boolean_true
 from .clientvarname import _get_client_var_name
@@ -31,7 +32,6 @@ from .get_imported_var import _get_imported_var
 from .get_module_name import _get_module_name_from_frame, _get_module_name_from_imported_var
 from .getdatecolstrname import _RE_PD_TYPE, _get_date_col_str_name
 from .isnotebook import _is_in_notebook
-from .killable_thread import _KillableThread
 from .types import (
     _TaipyBase,
     _TaipyBool,

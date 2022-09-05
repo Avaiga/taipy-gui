@@ -354,6 +354,13 @@ class _Builder:
         if columns is not None:
             self.__update_col_desc_from_indexed(columns, "nan_value")
             self.__update_col_desc_from_indexed(columns, "width")
+            editables = self.__get_name_indexed_property("editable")
+            for k, v in editables.items():
+                if not _is_boolean_true(v):
+                    if col_desc := next((x for x in columns.values() if x["dfid"] == k), None):
+                        col_desc["notEditable"] = True
+                    else:
+                        warnings.warn(f"{self.__element_name} editable[{k}] is not in the list of displayed columns")
             group_by = self.__get_name_indexed_property("group_by")
             for k, v in group_by.items():
                 if _is_boolean_true(v):
@@ -749,7 +756,8 @@ class _Builder:
         if value := self.__attributes.get(var_name):
             if _is_boolean_true(value):
                 return self.__set_react_attribute(_to_camel_case(var_name), True)
-            return self.__set_dict_attribute(var_name)
+            elif isinstance(value, (dict, _MapDict)):
+                return self.__set_dict_attribute(var_name)
         return self
 
     def set_partial(self):
