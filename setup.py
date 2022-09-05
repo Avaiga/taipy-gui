@@ -54,6 +54,7 @@ extras_require = {
         "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'",
     ],
     "arrow": ["pyarrow>=9.0,<10.0"],
+    "simple-websocket": ["simple-websocket>=0.8,<1.0"],
 }
 
 
