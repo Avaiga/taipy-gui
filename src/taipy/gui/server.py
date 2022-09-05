@@ -55,7 +55,7 @@ class _Server:
         if "SECRET_KEY" not in self._flask.config or not self._flask.config["SECRET_KEY"]:
             self._flask.config["SECRET_KEY"] = "TaIpY"
         # set json encoder (for Taipy specific types)
-        self._flask.json_encoder = _TaipyJsonEncoder
+        self._flask.json_provider_class = _TaipyJsonEncoder
         # Add cors for frontend access
         self._ws = SocketIO(
             self._flask, cors_allowed_origins="*", ping_timeout=10, ping_interval=5, json=json, async_mode=async_mode
