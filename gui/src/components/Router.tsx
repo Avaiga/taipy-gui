@@ -41,6 +41,7 @@ import Navigate from "./Taipy/Navigate";
 import Menu from "./Taipy/Menu";
 import GuiDownload from "./Taipy/GuiDownload";
 import ErrorFallback from "../utils/ErrorBoundary";
+import { CircularProgress } from "@mui/material";
 
 interface AxiosRouter {
     router: string;
@@ -50,6 +51,7 @@ interface AxiosRouter {
 
 const mainSx = { flexGrow: 1, bgcolor: "background.default" };
 const containerSx = { display: "flex" };
+const progressSx = { position: 'fixed', bottom: '1em', right: '1em' };
 
 const Router = () => {
     const [state, dispatch] = useReducer(taipyReducer, INITIAL_STATE, taipyInitialize);
@@ -107,6 +109,11 @@ const Router = () => {
                                             />
                                         </ErrorBoundary>
                                     </Box>
+                                    {state.ackList.length && (
+                                        <Box sx={progressSx}>
+                                            <CircularProgress />
+                                        </Box>
+                                    )}
                                 </Box>
                                 <ErrorBoundary FallbackComponent={ErrorFallback}>
                                     <Alert alert={state.alert} />
