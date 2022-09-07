@@ -958,7 +958,7 @@ class Gui:
         setattr(g, "ack_id", ack_id)
 
     def _get_ack_id(self) -> t.Optional[str]:
-        return getattr(g, "ack_id")
+        return getattr(g, "ack_id", None)
 
     @staticmethod
     def _get_root_page_name():

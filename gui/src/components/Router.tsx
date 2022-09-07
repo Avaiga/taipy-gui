@@ -14,6 +14,7 @@
 import React, { useEffect, useReducer, useState, ComponentType } from "react";
 import axios from "axios";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress"
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/system";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -41,7 +42,6 @@ import Navigate from "./Taipy/Navigate";
 import Menu from "./Taipy/Menu";
 import GuiDownload from "./Taipy/GuiDownload";
 import ErrorFallback from "../utils/ErrorBoundary";
-import { CircularProgress } from "@mui/material";
 
 interface AxiosRouter {
     router: string;
