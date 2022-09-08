@@ -220,6 +220,7 @@ const Chart = (props: ChartProp) => {
                     backCols,
                     dataKey.current,
                     decimator ? plotRef.current?.clientWidth : undefined,
+                    decimator ? plotRef.current?.clientHeight : undefined,
                     decimator
                 )
             );
