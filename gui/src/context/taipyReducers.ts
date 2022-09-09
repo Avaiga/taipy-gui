@@ -517,9 +517,7 @@ export const createRequestChartUpdateAction = (
     id: string | undefined,
     columns: string[],
     pageKey: string,
-    width?: number,
-    height?: number,
-    decimator?: string
+    decimatorPayload: unknown | undefined,
 ): TaipyAction =>
     createRequestDataUpdateAction(
         name,
@@ -527,9 +525,7 @@ export const createRequestChartUpdateAction = (
         columns,
         pageKey,
         {
-            width: width,
-            height: height,
-            decimator: decimator,
+            decimatorPayload: decimatorPayload,
         },
         true
     );
