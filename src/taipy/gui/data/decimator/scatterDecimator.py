@@ -9,7 +9,20 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from .lttb import LTTB
-from .minmax import MinMaxDecimator
-from .rdp import RDP
-from .scatterDecimator import ScatterDecimator
+import typing as t
+
+import numpy as np
+
+from ..utils import Decimator
+
+
+class ScatterDecimator(Decimator):
+    def __init__(
+        self,
+        applied_threshold: t.Optional[int] = None,
+        chart_zooming: t.Optional[bool] = True,
+    ):
+        super().__init__(applied_threshold, chart_zooming)
+
+    def decimate(self, data: np.ndarray, payload: t.Any) -> np.ndarray:
+        pass

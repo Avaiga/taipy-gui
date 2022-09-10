@@ -112,7 +112,7 @@ class RDP(Decimator):
 
         return weights >= maxTolerance
 
-    def decimate(self, data: np.ndarray) -> np.ndarray:
+    def decimate(self, data: np.ndarray, payload: t.Any) -> np.ndarray:
         if self._epsilon:
             return RDP.__rdp_epsilon(data, self._epsilon)
         elif self._n_out:

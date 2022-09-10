@@ -286,7 +286,9 @@ class _PandasDataAccessor(_DataAccessor):
                 nb_rows_max = decimatorPayload.get("width")
                 if nb_rows_max and decimator_instance._is_applicable(value, nb_rows_max):
                     try:
-                        value = _df_data_filter(value, x_column, y_column, decimator=decimator_instance)
+                        value = _df_data_filter(
+                            value, x_column, y_column, decimator=decimator_instance, payload=decimatorPayload
+                        )
                     except Exception as e:
                         warnings.warn(f"Limit rows error for dataframe: {e}")
             value = self.__build_transferred_cols(gui, columns, value)

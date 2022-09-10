@@ -21,7 +21,7 @@ class MinMaxDecimator(Decimator):
         super().__init__(applied_threshold, chart_zooming)
         self._n_out = n_out // 2
 
-    def decimate(self, data: np.ndarray) -> np.ndarray:
+    def decimate(self, data: np.ndarray, payload: t.Any) -> np.ndarray:
         if self._n_out >= data.shape[0]:
             return np.full(len(data), False)
         # Create a boolean mask
