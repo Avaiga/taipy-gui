@@ -19,20 +19,20 @@ from taipy.gui.data.utils import _df_data_filter
 
 
 def test_data_filter_1(csvdata):
-    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", MinMaxDecimator(100))
+    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", MinMaxDecimator(100), {})
     assert df.shape[0] == 100
 
 
 def test_data_filter_2(csvdata):
-    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", LTTB(100))
+    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", LTTB(100), {})
     assert df.shape[0] == 100
 
 
 def test_data_filter_3(csvdata):
-    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", RDP(n_out=100))
+    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", RDP(n_out=100), {})
     assert df.shape[0] == 100
 
 
 def test_data_filter_4(csvdata):
-    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", RDP(epsilon=100))
+    df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", RDP(epsilon=100), {})
     assert df.shape[0] == 18
