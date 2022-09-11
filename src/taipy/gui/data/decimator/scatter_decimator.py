@@ -32,11 +32,12 @@ class ScatterDecimator(Decimator):
     def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
         n_rows = data.shape[0]
         mask = np.empty(n_rows, dtype=bool)
-        mask.fill(True)
         width = payload.get("width", None)
         height = payload.get("height", None)
         if width is None or height is None:
+            mask.fill(True)
             return mask
+        mask.fill(False)
         grid_x, grid_y = round(width / self._binning_rate), round(height / self._binning_rate)
         grid = np.empty((grid_x + 1, grid_y + 1), dtype=np.int8)
         grid.fill(0)
@@ -49,6 +50,5 @@ class ScatterDecimator(Decimator):
         for i in np.arange(n_rows):
             if grid[x_grid_map[i], y_grid_map[i]] < self._max_overlap_points:
                 grid[x_grid_map[i], y_grid_map[i]] += 1
-            else:
-                mask[i] = False
+                mask[i] = True
         return mask
