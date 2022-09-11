@@ -38,8 +38,8 @@ class ScatterDecimator(Decimator):
         if not width or not height:
             return mask
         grid_x, grid_y = round(width / self._binning_rate), round(height / self._binning_rate)
-        arr = np.empty((grid_x + 1, grid_y + 1), dtype=np.int8)
-        arr.fill(0)
+        grid = np.empty((grid_x + 1, grid_y + 1), dtype=np.int8)
+        grid.fill(0)
         x_col, y_col = data[:, 0], data[:, 1]
         min_x, max_x = np.amin(x_col), np.amax(x_col)
         min_y, max_y = np.amin(y_col), np.amax(y_col)
@@ -47,8 +47,8 @@ class ScatterDecimator(Decimator):
         x_grid_map = np.rint((x_col - min_x) * grid_x / min_max_x_diff).astype(int)
         y_grid_map = np.rint((y_col - min_y) * grid_y / min_max_y_diff).astype(int)
         for i in np.arange(n_rows):
-            if arr[x_grid_map[i], y_grid_map[i]] < self._max_overlap_points:
-                arr[x_grid_map[i], y_grid_map[i]] += 1
+            if grid[x_grid_map[i], y_grid_map[i]] < self._max_overlap_points:
+                grid[x_grid_map[i], y_grid_map[i]] += 1
             else:
                 mask[i] = False
         return mask
