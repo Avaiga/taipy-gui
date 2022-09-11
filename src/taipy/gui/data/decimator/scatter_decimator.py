@@ -20,7 +20,7 @@ class ScatterDecimator(Decimator):
     def __init__(
         self,
         binning_rate: t.Optional[float] = None,
-        max_overlap_points: t.Optional[int] = None,
+        max_overlap_points: t.Optional[np.uint8] = None,
         applied_threshold: t.Optional[int] = None,
         chart_zooming: t.Optional[bool] = True,
     ):
@@ -39,7 +39,7 @@ class ScatterDecimator(Decimator):
             return mask
         mask.fill(False)
         grid_x, grid_y = round(width / self._binning_rate), round(height / self._binning_rate)
-        grid = np.empty((grid_x + 1, grid_y + 1), dtype=np.int8)
+        grid = np.empty((grid_x + 1, grid_y + 1), dtype=np.uint8)
         grid.fill(0)
         x_col, y_col = data[:, 0], data[:, 1]
         min_x, max_x = np.amin(x_col), np.amax(x_col)
