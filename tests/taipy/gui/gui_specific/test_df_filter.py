@@ -15,6 +15,7 @@ import pandas as pd
 from taipy.gui.data.decimator.lttb import LTTB
 from taipy.gui.data.decimator.minmax import MinMaxDecimator
 from taipy.gui.data.decimator.rdp import RDP
+from taipy.gui.data.decimator.scatter_decimator import ScatterDecimator
 from taipy.gui.data.utils import _df_data_filter
 
 
@@ -36,3 +37,10 @@ def test_data_filter_3(csvdata):
 def test_data_filter_4(csvdata):
     df = _df_data_filter(csvdata[:1500], None, "Daily hospital occupancy", RDP(epsilon=100), {})
     assert df.shape[0] == 18
+
+
+def test_data_filter_5(csvdata):
+    df = _df_data_filter(
+        csvdata[:1500], None, "Daily hospital occupancy", ScatterDecimator(), {"width": 200, "height": 100}
+    )
+    assert df.shape[0] == 647
