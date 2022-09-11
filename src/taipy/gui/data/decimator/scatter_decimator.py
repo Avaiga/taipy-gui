@@ -35,7 +35,7 @@ class ScatterDecimator(Decimator):
         mask.fill(True)
         width = payload.get("width", None)
         height = payload.get("height", None)
-        if not width or not height:
+        if width is None or height is None:
             return mask
         grid_x, grid_y = round(width / self._binning_rate), round(height / self._binning_rate)
         grid = np.empty((grid_x + 1, grid_y + 1), dtype=np.int8)
