@@ -36,7 +36,7 @@ class Decimator(ABC):
         return False
 
     @abstractmethod
-    def decimate(self, data: np.ndarray, payload: t.Any) -> np.ndarray:
+    def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
         """Decimate function for decimator. This function will be executed during runtime when the appropriate conditions
         are met.
         TODO: Further explanation
@@ -52,7 +52,11 @@ class Decimator(ABC):
 
 
 def _df_data_filter(
-    dataframe: pd.DataFrame, x_column_name: t.Union[None, str], y_column_name: str, decimator: Decimator, payload: t.Any
+    dataframe: pd.DataFrame,
+    x_column_name: t.Union[None, str],
+    y_column_name: str,
+    decimator: Decimator,
+    payload: t.Dict[str, t.Any],
 ):
     df = dataframe.copy()
     if not x_column_name:
