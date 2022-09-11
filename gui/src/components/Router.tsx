@@ -109,13 +109,11 @@ const Router = () => {
                                             />
                                         </ErrorBoundary>
                                     </Box>
-                                    {state.ackList.length > 0 ? (
+                                    {state.ackList.length ? (
                                         <Box sx={progressSx}>
                                             <CircularProgress size="1em" />
                                         </Box>
-                                    ) : (
-                                        <></>
-                                    )}
+                                    ) : null}
                                 </Box>
                                 <ErrorBoundary FallbackComponent={ErrorFallback}>
                                     <Alert alert={state.alert} />

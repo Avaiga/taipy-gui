@@ -29,7 +29,7 @@ class ScatterDecimator(Decimator):
         self._binning_rate = binning_rate if binning_rate > 0 else 1
         self._max_overlap_points = max_overlap_points if max_overlap_points is not None else 3
 
-    def decimate(self, data: np.ndarray, payload: t.Any) -> np.ndarray:
+    def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
         n_rows = data.shape[0]
         mask = np.empty(n_rows, dtype=bool)
         mask.fill(True)
