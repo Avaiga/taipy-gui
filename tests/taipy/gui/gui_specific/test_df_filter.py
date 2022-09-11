@@ -43,4 +43,4 @@ def test_data_filter_5(csvdata):
     df = _df_data_filter(
         csvdata[:1500], None, "Daily hospital occupancy", ScatterDecimator(), {"width": 200, "height": 100}
     )
-    assert df.shape[0] == 647
+    assert df.shape[0] == 1150
