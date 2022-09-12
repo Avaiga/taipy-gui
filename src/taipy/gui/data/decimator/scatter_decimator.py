@@ -19,14 +19,14 @@ from ..utils import Decimator
 class ScatterDecimator(Decimator):
     def __init__(
         self,
-        binning_rate: t.Optional[float] = None,
+        binning_ratio: t.Optional[float] = None,
         max_overlap_points: t.Optional[np.uint8] = None,
         applied_threshold: t.Optional[int] = None,
         chart_zooming: t.Optional[bool] = True,
     ):
         super().__init__(applied_threshold, chart_zooming)
-        binning_rate = binning_rate if binning_rate is not None else 1
-        self._binning_rate = binning_rate if binning_rate > 0 else 1
+        binning_ratio = binning_ratio if binning_ratio is not None else 1
+        self._binning_ratio = binning_ratio if binning_ratio > 0 else 1
         self._max_overlap_points = max_overlap_points if max_overlap_points is not None else 3
 
     def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
@@ -38,7 +38,7 @@ class ScatterDecimator(Decimator):
             mask.fill(True)
             return mask
         mask.fill(False)
-        grid_x, grid_y = round(width / self._binning_rate), round(height / self._binning_rate)
+        grid_x, grid_y = round(width / self._binning_ratio), round(height / self._binning_ratio)
         grid = np.empty((grid_x + 1, grid_y + 1), dtype=np.uint8)
         grid.fill(0)
         x_col, y_col = data[:, 0], data[:, 1]
