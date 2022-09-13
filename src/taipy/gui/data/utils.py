@@ -21,11 +21,11 @@ if t.TYPE_CHECKING:
 
 
 class Decimator(ABC):
-    def __init__(self, threshold: t.Optional[int], chart_zooming: t.Optional[bool]) -> None:
+    def __init__(self, threshold: t.Optional[int], zoom: t.Optional[bool]) -> None:
         """TODO: Decimator class description"""
         super().__init__()
         self.threshold = threshold
-        self._chart_zooming = chart_zooming if chart_zooming is not None else True
+        self._zoom = zoom if zoom is not None else True
 
     def _is_applicable(self, data: t.Any, nb_rows_max: int):
         if self.threshold is None:

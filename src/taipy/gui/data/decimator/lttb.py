@@ -17,8 +17,8 @@ from ..utils import Decimator
 
 
 class LTTB(Decimator):
-    def __init__(self, n_out: int, threshold: t.Optional[int] = None, chart_zooming: t.Optional[bool] = True) -> None:
-        super().__init__(threshold, chart_zooming)
+    def __init__(self, n_out: int, threshold: t.Optional[int] = None, zoom: t.Optional[bool] = True) -> None:
+        super().__init__(threshold, zoom)
         self._n_out = n_out
 
     @staticmethod

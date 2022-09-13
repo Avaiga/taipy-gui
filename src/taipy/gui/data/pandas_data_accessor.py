@@ -273,7 +273,7 @@ class _PandasDataAccessor(_DataAccessor):
             )
             if isinstance(decimator_instance, PropertyType.decimator.value):
                 x_column, y_column = decimator_payload.get("xAxis", ""), decimator_payload.get("yAxis", "")
-                if decimator_instance._chart_zooming and "relayoutData" in decimator_payload:
+                if decimator_instance._zoom and "relayoutData" in decimator_payload:
                     chart_modes = decimator_payload.get("chartModes", [])
                     relayoutData = decimator_payload.get("relayoutData", {})
                     x0 = relayoutData.get("xaxis.range[0]")

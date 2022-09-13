@@ -22,9 +22,9 @@ class RDP(Decimator):
         epsilon: t.Optional[int] = None,
         n_out: t.Optional[int] = None,
         threshold: t.Optional[int] = None,
-        chart_zooming: t.Optional[bool] = True,
+        zoom: t.Optional[bool] = True,
     ):
-        super().__init__(threshold, chart_zooming)
+        super().__init__(threshold, zoom)
         self._epsilon = epsilon
         self._n_out = n_out
 

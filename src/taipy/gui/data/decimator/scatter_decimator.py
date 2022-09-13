@@ -22,9 +22,9 @@ class ScatterDecimator(Decimator):
         binning_ratio: t.Optional[float] = None,
         max_overlap_points: t.Optional[np.uint8] = None,
         threshold: t.Optional[int] = None,
-        chart_zooming: t.Optional[bool] = True,
+        zoom: t.Optional[bool] = True,
     ):
-        super().__init__(threshold, chart_zooming)
+        super().__init__(threshold, zoom)
         binning_ratio = binning_ratio if binning_ratio is not None else 1
         self._binning_ratio = binning_ratio if binning_ratio > 0 else 1
         self._max_overlap_points = max_overlap_points if max_overlap_points is not None else 3
