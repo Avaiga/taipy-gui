@@ -17,8 +17,8 @@ from ..utils import Decimator
 
 
 class MinMaxDecimator(Decimator):
-    def __init__(self, n_out: int, applied_threshold: t.Optional[int] = None, chart_zooming: t.Optional[bool] = True):
-        super().__init__(applied_threshold, chart_zooming)
+    def __init__(self, n_out: int, threshold: t.Optional[int] = None, chart_zooming: t.Optional[bool] = True):
+        super().__init__(threshold, chart_zooming)
         self._n_out = n_out // 2
 
     def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
