@@ -373,6 +373,7 @@ const Chart = (props: ChartProp) => {
                 dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "") + "--" + eventDataKey;
                 const decimatorPayload = {
                     width: plotRef.current?.clientWidth,
+                    height: plotRef.current?.clientHeight,
                     xAxis: config.traces.length && config.traces[0].length && config.traces[0][0] && config.columns[config.traces[0][0]].dfid,
                     yAxis: config.traces.length == 1 && config.traces[0].length > 1 && config.columns[config.traces[0][1]] && config.columns[config.traces[0][1]].dfid,
                     decimator: decimator,
