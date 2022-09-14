@@ -289,6 +289,7 @@ class _PandasDataAccessor(_DataAccessor):
                         value = _df_data_filter(
                             value, x_column, y_column, decimator=decimator_instance, payload=decimator_payload
                         )
+                        gui._call_on_change(f"{var_name}.{decimator}.nb_rows", len(value))
                     except Exception as e:
                         warnings.warn(f"Limit rows error for dataframe: {e}")
             value = self.__build_transferred_cols(gui, columns, value)
