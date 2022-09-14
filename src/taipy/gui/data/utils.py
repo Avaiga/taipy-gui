@@ -31,8 +31,8 @@ class Decimator(ABC):
         self.threshold = threshold
         self._zoom = zoom if zoom is not None else True
 
-    def _is_applicable(self, data: t.Any, nb_rows_max: int, chart_modes: t.List[str]):
-        if chart_modes and set(chart_modes).isdisjoint(self._CHART_MODES):
+    def _is_applicable(self, data: t.Any, nb_rows_max: int, chart_mode: str):
+        if chart_mode not in self._CHART_MODES:
             warnings.warn(f"{type(self).__name__} is only applicable for {' '.join(self._CHART_MODES)}")
             return False
         if self.threshold is None:
@@ -81,13 +81,12 @@ def _df_relayout(
     dataframe: pd.DataFrame,
     x_column: t.Optional[str],
     y_column: str,
-    chart_modes: t.List[str],
+    chart_mode: str,
     x0: t.Optional[float],
     x1: t.Optional[float],
     y0: t.Optional[float],
     y1: t.Optional[float],
 ):
-    chart_mode = chart_modes[0]
     if chart_mode not in ["lines+markers", "markers"]:
         return dataframe
     # if chart data is invalid
