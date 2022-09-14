@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import typing as t
+import warnings
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -21,13 +22,19 @@ if t.TYPE_CHECKING:
 
 
 class Decimator(ABC):
+
+    _CHART_MODES: t.List[str] = []
+
     def __init__(self, threshold: t.Optional[int], zoom: t.Optional[bool]) -> None:
         """TODO: Decimator class description"""
         super().__init__()
         self.threshold = threshold
         self._zoom = zoom if zoom is not None else True
 
-    def _is_applicable(self, data: t.Any, nb_rows_max: int):
+    def _is_applicable(self, data: t.Any, nb_rows_max: int, chart_modes: t.List[str]):
+        if chart_modes and set(chart_modes).isdisjoint(self._CHART_MODES):
+            warnings.warn(f"{type(self).__name__} is only applicable for {' '.join(self._CHART_MODES)}")
+            return False
         if self.threshold is None:
             if nb_rows_max < len(data):
                 return True
@@ -81,6 +88,8 @@ def _df_relayout(
     y1: t.Optional[float],
 ):
     chart_mode = chart_modes[0]
+    if chart_mode not in ["lines+markers", "markers"]:
+        return dataframe
     # if chart data is invalid
     if x0 is None or x1 is None or y0 is None or y1 is None:
         return dataframe

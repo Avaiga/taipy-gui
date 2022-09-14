@@ -273,8 +273,8 @@ class _PandasDataAccessor(_DataAccessor):
             )
             if isinstance(decimator_instance, PropertyType.decimator.value):
                 x_column, y_column = decimator_payload.get("xAxis", ""), decimator_payload.get("yAxis", "")
+                chart_modes = decimator_payload.get("chartModes", [])
                 if decimator_instance._zoom and "relayoutData" in decimator_payload:
-                    chart_modes = decimator_payload.get("chartModes", [])
                     relayoutData = decimator_payload.get("relayoutData", {})
                     x0 = relayoutData.get("xaxis.range[0]")
                     x1 = relayoutData.get("xaxis.range[1]")
@@ -284,7 +284,7 @@ class _PandasDataAccessor(_DataAccessor):
                     value = _df_relayout(value, x_column, y_column, chart_modes, x0, x1, y0, y1)
 
                 nb_rows_max = decimator_payload.get("width")
-                if nb_rows_max and decimator_instance._is_applicable(value, nb_rows_max):
+                if nb_rows_max and decimator_instance._is_applicable(value, nb_rows_max, chart_modes):
                     try:
                         value = _df_data_filter(
                             value, x_column, y_column, decimator=decimator_instance, payload=decimator_payload
