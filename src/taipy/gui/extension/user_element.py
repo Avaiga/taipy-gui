@@ -62,7 +62,7 @@ class ElementProperty:
             warnings.warn(f"Element Property '{control}.{self.name}' should have a valid type '{self.property_type}'")
 
     def _get_tuple(self) -> tuple:
-        return (self.name, self.attribute_type, self.default_value)
+        return (self.name, self.property_type, self.default_value)
 
 
 class Element:
@@ -70,7 +70,7 @@ class Element:
     The definition of a custom visual element.
 
     The definition of an element is made of its names, its properties, and
-    the 
+    the
     """
 
     def __init__(
@@ -152,7 +152,7 @@ class Element:
                 var_name=default_attr.name,
                 var_type=default_attr.property_type,
                 default_val=default_attr.default_value,
-                with_default=default_attr.attribute_type != PropertyType.data,
+                with_default=default_attr.property_type != PropertyType.data,
             )
         elt_built.set_attributes(attrs)
         # call user render
@@ -204,6 +204,15 @@ class ElementLibrary(ABC):
         - What if two libraries with the same same get added to the Gui?
         """
         return NotImplemented
+
+    @abstractmethod
+    def get_js_module_name(self) -> str:
+        """
+        Returns the js module name (default to self.get_name()).
+        Must be unique on the browser window scope.
+
+        """
+        return self.get_name()
 
     @abstractmethod
     def get_scripts(self) -> t.List[str]:
