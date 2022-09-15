@@ -525,6 +525,7 @@ class _Factory:
         if (
             isinstance(library, ElementLibrary)
             and isinstance(library.get_name(), str)
+            and library.get_elements()
             and len(library.get_elements()) > 0
             and isinstance(library.get_elements()[0], Element)
         ):

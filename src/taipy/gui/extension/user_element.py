@@ -22,42 +22,44 @@ if t.TYPE_CHECKING:
     from ..gui import Gui
 
 
-class ElementAttribute:
+class ElementProperty:
     """
-    TODO
-    This is instantiated to describe an element attribute.
+    The declaration of a property of a visual element.
+
+    Each visual element property is described by an instance of `ElementProperty`.
+    This class holds the information on the name, type and default value for the
+    element property.
     """
 
     def __init__(
         self,
         name: str,
-        attribute_type: PropertyType,
+        property_type: PropertyType,
         default_value: t.Optional[t.Any] = None,
         js_name: t.Optional[str] = None,
     ) -> None:
         """
+
         Arguments:
-
-            name (str): The attribute name.
-            attribute_type (PropertyType): The attribute type.
-            default_value (optional Any): The attribute's default value (default is None).
-            js_name (optional str): The name of the attribute on the frontend (default to Camel Case of `name`).
-
+            name (str): The attribute name. This must be a valid Python identifier.
+            property_type (PropertyType): The type of this property.
+            default_value (optional Any): The default value for this property. Default is None.
+            js_name (optional str): The name of this property, in the front-end JavaScript code.<br/>
+              If unspecified, a Camel Case version of `name` is generated: for example, if `name` is
+              "my_property_name", then this property is referred to as "myPropertyName" in the
+              JavaScript code.
         """
         self.name = name
-        self.attribute_type = attribute_type
+        self.property_type = property_type
         self.default_value = default_value
-        self.js_name = js_name
+        self.js_name = js_name if js_name else _to_camel_case(self.name)
         super().__init__()
-
-    def _get_js_name(self) -> str:
-        return self.js_name or _to_camel_case(self.name)
 
     def check(self, control: str):
         if not isinstance(self.name, str) or not self.name or not self.name.isidentifier():
             warnings.warn(f"Element '{control}' should have a valid attribute name '{self.name}'")
-        if not isinstance(self.attribute_type, PropertyType):
-            warnings.warn(f"Element Attribute '{control}.{self.name}' should have a valid type '{self.attribute_type}'")
+        if not isinstance(self.property_type, PropertyType):
+            warnings.warn(f"Element Property '{control}.{self.name}' should have a valid type '{self.property_type}'")
 
     def _get_tuple(self) -> tuple:
         return (self.name, self.attribute_type, self.default_value)
@@ -65,31 +67,34 @@ class ElementAttribute:
 
 class Element:
     """
-    TODO
-    This is instantiated to describe an element.
+    The definition of a custom visual element.
 
+    The definition of an element is made of its names, its properties, and
+    the 
     """
 
     def __init__(
         self,
         name: str,
-        default_attribute: str,
-        attributes: t.List[ElementAttribute],
+        default_property: str,
+        properties: t.List[ElementProperty],
         js_name: t.Optional[str] = None,
         render: t.Optional[t.Callable] = None,
     ) -> None:
         """
         Arguments:
 
-            name (str): The element name.
-            default_attribute (str): the default attribute for the element.
-            attributes (List[ElementAttribute]): A list of attributes.
-            js_name (optional str): The name of the element on the frontend (default to Camel Case of `name`).
-            render (optional callable): A function that has the same signature as `Element.render` and that will replace it if defined.
+            name (str): The name of this element.
+            default_property (str): the default property for this element.
+            properties (List[ElementProperty]): The list of properties for this element.
+            js_name (optional str): The name of the component to be created on the frontend
+              If not specified, it is set to a Camel Case version of `name`.
+            render (optional callable): A function that has the same signature as `Element.render`
+              and that will replace it if defined.
         """
         self.name = name
-        self.default_attribute = default_attribute
-        self.attributes = attributes
+        self.default_attribute = default_property
+        self.attributes = properties
         self.js_name = js_name
         if callable(render):
             self._render = render
@@ -103,15 +108,15 @@ class Element:
             warnings.warn(f"Element should have a valid name '{self.name}'")
         default_found = False
         for attr in self.attributes or []:
-            if isinstance(attr, ElementAttribute):
+            if isinstance(attr, ElementProperty):
                 attr.check(self.name)
                 if not default_found:
                     default_found = self.default_attribute == attr.name
             else:
-                warnings.warn(f"Attribute should inherit from 'ElementAttribute' '{self.name}.{attr}'")
+                warnings.warn(f"Attribute should inherit from 'ElementProperty' '{self.name}.{attr}'")
         if not default_found:
             warnings.warn(
-                f"User Default Attribute should be describe in the 'attributes' List '{self.name}{self.default_attribute}'"
+                f"User Default Attribute should be describe in the 'properties' List '{self.name}{self.default_property}'"
             )
 
     def _call_builder(
@@ -123,11 +128,11 @@ class Element:
     ) -> t.Union[t.Any, t.Tuple[str, str]]:
         attributes = properties or {}
         hash_names = Builder._get_variable_hash_names(gui, attributes)
-        default_attr: t.Optional[ElementAttribute] = None
+        default_attr: t.Optional[ElementProperty] = None
         default_value = None
         attrs = []
         for ua in self.attributes or []:
-            if isinstance(ua, ElementAttribute):
+            if isinstance(ua, ElementProperty):
                 if self.default_attribute == ua.name:
                     default_attr = ua
                     default_value = ua.default_value
@@ -145,7 +150,7 @@ class Element:
         if default_attr is not None:
             elt_built.set_value_and_default(
                 var_name=default_attr.name,
-                var_type=default_attr.attribute_type,
+                var_type=default_attr.property_type,
                 default_val=default_attr.default_value,
                 with_default=default_attr.attribute_type != PropertyType.data,
             )
@@ -174,40 +179,50 @@ class Element:
 
 class ElementLibrary(ABC):
     """
-    TODO
-    This class needs to be inherited to define a new library.
+    An library of user-defined visual elements.
 
+    TODO
     """
 
     @abstractmethod
     def get_elements(self) -> t.List[Element]:
         """
-        TODO
-        Returns the list of visual elements.
+        Returns the list of all visual element declarations.
+
+        The default implementation returns an empty list, indicating that this library contains
+        no custom visual elements.
         """
-        return NotImplemented
+        return []
 
     @abstractmethod
     def get_name(self) -> str:
         """
-        TODO
         Returns the library name.
+
+        TODO:
+        - What is this name used for?
+        - What if two libraries with the same same get added to the Gui?
         """
         return NotImplemented
 
     @abstractmethod
     def get_scripts(self) -> t.List[str]:
         """
-        TODO
         Returns the list of resources names for the scripts.
+
+        The default implementation returns an empty list, indicating that this library contains
+        no custom visual elements.
+        TODO: Clarify - this is wrong:
+            May be this should return some <lib_name>.js...
         """
-        return NotImplemented
+        return []
 
     @abstractmethod
     def get_styles(self) -> t.List[str]:
         """
         TODO
         Returns the list of resources names for the css stylesheets.
+        Defaults to return None?
 
         """
         return NotImplemented
@@ -216,6 +231,7 @@ class ElementLibrary(ABC):
     def get_resource(self, name: str) -> Path:
         """
         TODO
+        Defaults to return None?
         Returns a path for a resource name.
         Resource URL should be formed as /taipy-extensions/<library_name>/<resource virtual path> with
         - <resource virtual path> being the `name` parameter
