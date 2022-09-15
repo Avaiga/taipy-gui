@@ -531,7 +531,11 @@ class _Factory:
         ):
             for ua in library.get_elements():
                 ua.check()
-            _Factory.__LIBRARIES.update({library.get_name(): {ua.name: ua for ua in library.get_elements()}})
+            fact_lib = _Factory.__LIBRARIES.get(library.get_name())
+            if fact_lib is None:
+                _Factory.__LIBRARIES.update({library.get_name(): {ua.name: ua for ua in library.get_elements()}})
+            else:
+                fact_lib.update({ua.name: ua for ua in library.get_elements()})
 
     @staticmethod
     def get_default_property_name(control_name: str) -> t.Optional[str]:
