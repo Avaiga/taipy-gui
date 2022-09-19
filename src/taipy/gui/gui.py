@@ -1493,6 +1493,9 @@ class Gui:
         # Load application config from multiple sources (env files, kwargs, command line)
         self._config._build_config(run_root_dir, self.__env_filename, kwargs)
 
+        if app_config["debug"]:
+            async_mode = "threading"
+
         # Init server if there is no server
         if not hasattr(self, "_server"):
             self._server = _Server(
@@ -1635,7 +1638,6 @@ class Gui:
             use_reloader=app_config["use_reloader"],
             flask_log=app_config["flask_log"],
             run_in_thread=run_in_thread,
-            ssl_context=None,  # ssl_context,
         )
 
     def stop(self):
