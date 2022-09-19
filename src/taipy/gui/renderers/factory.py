@@ -18,7 +18,7 @@ from ..types import PropertyType
 from .builder import Builder
 
 if t.TYPE_CHECKING:
-    from ..extension.user_element import Element, ElementLibrary
+    from ..extension.library import Element, ElementLibrary
     from ..gui import Gui
 
 
@@ -520,7 +520,7 @@ class _Factory:
 
     @staticmethod
     def set_library(library: "ElementLibrary"):
-        from ..extension.user_element import Element, ElementLibrary
+        from ..extension.library import Element, ElementLibrary
 
         if (
             isinstance(library, ElementLibrary)
@@ -570,7 +570,7 @@ class _Factory:
             if len(parts) > 0:
                 elements = _Factory.__LIBRARIES.get(parts[0])
                 if isinstance(elements, dict):
-                    from ..extension.user_element import Element
+                    from ..extension.library import Element
 
                     element = elements.get(parts[1])
                     if isinstance(element, Element):

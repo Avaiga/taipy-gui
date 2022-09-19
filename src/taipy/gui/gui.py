@@ -41,7 +41,7 @@ from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
 from .data.data_scope import _DataScopes
-from .extension.user_element import ElementLibrary
+from .extension.library import ElementLibrary
 from .page import Page
 from .partial import Partial
 from .renderers import _EmptyPage
