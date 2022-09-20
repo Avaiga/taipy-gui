@@ -49,10 +49,9 @@ if t.TYPE_CHECKING:
 
 class Builder:
     """
-    TODO
-    The builder that helps construct an xml node that will be rendered as a React node.
-    Every public method returns this.
-    This class can only be instantiated by Taipy.
+    Constructs an XML node that can be rendered as a React node.
+
+    This class can only be instantiated internally by Taipy.
     """
 
     __keys: t.Dict[str, int] = {}
@@ -201,10 +200,9 @@ class Builder:
     def set_boolean_attribute(self, name: str, value: bool):
         """
         TODO
-        Defines a react boolean attribute (attr={true|false}).
+        Defines a React Boolean attribute (attr={true|false}).
 
         Arguments:
-
             name (str): The property name.
             value (bool): the boolean value.
         """
@@ -213,11 +211,10 @@ class Builder:
     def set_dict_attribute(self, name: str):
         """
         TODO
-        Defines a react attribute as stringified json dict.
+        Defines a React attribute as a stringified json dict.
         The original property can be a dict or a string formed as <key 1>:<value 1>;<key 2>:<value 2>.
 
         Arguments:
-
             name (str): The property name.
         """
         dict_attr = self.__attributes.get(name)
@@ -248,7 +245,7 @@ class Builder:
     def set_number_attribute(self, name: str, default_value: t.Optional[str] = None, optional: t.Optional[bool] = True):
         """
         TODO
-        Defines a react number attribute (attr={<number>}).
+        Defines a React number attribute (attr={<number>}).
 
         Arguments:
 

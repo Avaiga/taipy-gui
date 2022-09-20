@@ -43,11 +43,11 @@ class ElementProperty:
         Arguments:
             name (str): The attribute name. This must be a valid Python identifier.
             property_type (PropertyType): The type of this property.
-            default_value (optional Any): The default value for this property. Default is None.
-            js_name (optional str): The name of this property, in the front-end JavaScript code.<br/>
-              If unspecified, a Camel Case version of `name` is generated: for example, if `name` is
-              "my_property_name", then this property is referred to as "myPropertyName" in the
-              JavaScript code.
+            default_value (Optional[Any]): The default value for this property. Default is None.
+            js_name (Optional[str]): The name of this property, in the front-end JavaScript code.<br/>
+                If unspecified, a Camel Case version of `name` is generated: for example, if `name` is
+                "my_property_name", then this property is referred to as "myPropertyName" in the
+                JavaScript code.
         """
         self.name = name
         self.property_type = property_type
@@ -83,14 +83,13 @@ class Element:
     ) -> None:
         """
         Arguments:
-
             name (str): The name of this element.
             default_property (str): the default property for this element.
             properties (List[ElementProperty]): The list of properties for this element.
-            js_name (optional str): The name of the component to be created on the frontend
-              If not specified, it is set to a Camel Case version of `name`.
-            render (optional callable): A function that has the same signature as `Element.render`
-              and that will replace it if defined.
+            js_name (Optional[str]): The name of the component to be created on the frontend
+                If not specified, it is set to a Camel Case version of `name`.
+            render (Optional[callable]): A function that has the same signature as `Element.render`
+                and that will replace it if defined.
         """
         self.name = name
         self.default_attribute = default_property
@@ -167,11 +166,12 @@ class Element:
         Arguments:
 
             gui (Gui): The current instance of Gui.
-            properties (t.Dict[str, t.Any]): The dict containing a value for each defined attribute.
-            hash_names (t.Dict[str, str]): The dict containing the internal variable name for each bound attribute.
-            builder (Builder): the Builder instance that has been initialized and used by Taipy to start the rendering.
+            properties (t.Dict[str, t.Any]): The dict containing a value for each defined property.
+            hash_names (t.Dict[str, str]): The dict containing the internal variable name for each
+                bound variable.
+            builder (Builder): the `Builder^` instance that has been initialized and used by Taipy to
+                start the rendering.
 
-        Returns: (void)
         """
         if hasattr(self, "_render") and callable(self._render):
             self._render(gui, properties, hash_names, builder)
