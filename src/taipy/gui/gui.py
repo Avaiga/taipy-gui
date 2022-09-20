@@ -1493,8 +1493,11 @@ class Gui:
         # Load application config from multiple sources (env files, kwargs, command line)
         self._config._build_config(run_root_dir, self.__env_filename, kwargs)
 
-        if app_config["debug"]:
+        if app_config["debug"] and async_mode != "threading":
             async_mode = "threading"
+            warnings.warn(
+                "'async_mode' parameter is overridden to 'threading'. Using Flask Development Server in Debug mode."
+            )
 
         # Init server if there is no server
         if not hasattr(self, "_server"):
