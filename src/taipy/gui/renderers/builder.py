@@ -999,6 +999,13 @@ class Builder:
         self.el.set(name, value)
         return self
 
+    def get_element(self):
+        """
+        TODO
+        Returns the xml.etree.ElementTree.Element
+        """
+        return self.el
+
     def _build_to_string(self):
         el_str = str(etree.tostring(self.el, encoding="utf8").decode("utf8"))
         el_str = el_str.replace("<?xml version='1.0' encoding='utf8'?>\n", "")

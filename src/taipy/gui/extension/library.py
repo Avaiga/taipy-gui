@@ -205,7 +205,6 @@ class ElementLibrary(ABC):
         """
         return NotImplemented
 
-    @abstractmethod
     def get_js_module_name(self) -> str:
         """
         Returns the js module name (default to self.get_name()).
