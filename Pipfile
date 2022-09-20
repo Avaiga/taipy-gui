@@ -20,7 +20,7 @@ tzlocal = "==3.0"
 pyngrok = "==5.1"
 gevent = "==21.12.0"
 gevent-websocket = "==0.10.1"
-taipy-config = {git = "https://github.com/avaiga/taipy-config.git@develop"}
+taipy-config = {git = "https://github.com/avaiga/taipy-config.git"}
 kthread = "==0.2.3"
 
 [dev-packages]
