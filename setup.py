@@ -42,7 +42,7 @@ requirements = [
     "gevent>=21.12.0,<22.0",
     "gevent-websocket>=0.10.1,<0.11",
     "kthread>=0.2.3,<0.3",
-    "taipy-config@git+https://git@github.com/avaiga/taipy-config.git@develop",
+    "taipy-config@git+https://git@github.com/Avaiga/taipy-config.git@develop",
 ]
 
 test_requirements = ["pytest>=3.8"]
