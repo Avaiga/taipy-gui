@@ -237,10 +237,10 @@ class ElementLibrary(ABC):
         """
         TODO
         Returns the list of resources names for the css stylesheets.
-        Defaults to return None?
+        Defaults to []
 
         """
-        return NotImplemented
+        return []
 
     @abstractmethod
     def get_resource(self, name: str) -> Path:

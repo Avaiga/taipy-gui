@@ -13,7 +13,7 @@ import typing as t
 from pathlib import Path
 
 from taipy.gui import Gui
-from taipy.gui.extension import Element, ElementAttribute, ElementLibrary, PropertyType
+from taipy.gui.extension import Element, ElementProperty, ElementLibrary, PropertyType
 
 
 class MyLibrary(ElementLibrary):
@@ -23,8 +23,8 @@ class MyLibrary(ElementLibrary):
             "testinput",
             "value",
             [
-                ElementAttribute("value", PropertyType.dynamic_string, "Fred"),
-                ElementAttribute("multiline", PropertyType.boolean, False),
+                ElementProperty("value", PropertyType.dynamic_string, "Fred"),
+                ElementProperty("multiline", PropertyType.boolean, False),
             ],
             "Input",
         )
@@ -37,9 +37,6 @@ class MyLibrary(ElementLibrary):
         return MyLibrary.elts
 
     def get_scripts(self) -> t.List[str]:
-        return []
-
-    def get_styles(self) -> t.List[str]:
         return []
 
     def get_resource(self, name: str) -> Path:
