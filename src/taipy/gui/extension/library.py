@@ -11,10 +11,11 @@
 
 import typing as t
 import warnings
+import xml.etree.ElementTree as etree
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from ..renderers.builder import Builder
+from ..renderers.builder import _Builder
 from ..renderers.utils import _to_camel_case
 from ..types import PropertyType
 
@@ -80,7 +81,7 @@ class Element:
         default_property: str,
         properties: t.List[ElementProperty],
         js_name: t.Optional[str] = None,
-        render: t.Optional[t.Callable] = None,
+        render_xhtml: t.Optional[t.Callable[[t.Dict[str, t.Any]], str]] = None,
     ) -> None:
         """
         Arguments:
@@ -89,15 +90,15 @@ class Element:
             properties (List[ElementProperty]): The list of properties for this element.
             js_name (Optional[str]): The name of the component to be created on the frontend
                 If not specified, it is set to a camel case version of `name`.
-            render (Optional[callable]): A function that has the same signature as `Element.render`
-                and that will replace it if defined.
+            render_xhtml (Optional[callable[[dict[str, Any]], str]]): A function that receives a dict containing the element's properties and their values
+                and that returns a valid XHTML string.
         """
         self.name = name
         self.default_attribute = default_property
         self.attributes = properties
         self.js_name = js_name
-        if callable(render):
-            self._render = render
+        if callable(render_xhtml):
+            self._render_xhtml = render_xhtml
         super().__init__()
 
     def _get_js_name(self) -> str:
@@ -127,55 +128,49 @@ class Element:
         is_html: t.Optional[bool] = False,
     ) -> t.Union[t.Any, t.Tuple[str, str]]:
         attributes = properties or {}
-        hash_names = Builder._get_variable_hash_names(gui, attributes)
-        default_attr: t.Optional[ElementProperty] = None
-        default_value = None
-        attrs = []
-        for ua in self.attributes or []:
-            if isinstance(ua, ElementProperty):
-                if self.default_attribute == ua.name:
-                    default_attr = ua
-                    default_value = ua.default_value
+        hash_names = _Builder._get_variable_hash_names(gui, attributes)  # variable replacement
+        # call user render if any
+        if hasattr(self, "_render_xhtml") and callable(self._render_xhtml):
+            xhtml = self._render_xhtml(attributes)
+            try:
+                xml_root = etree.fromstring(xhtml)
+                if is_html:
+                    return xhtml, self.name
                 else:
-                    attrs.append(ua._get_tuple())
-        elt_built = Builder(
-            gui=gui,
-            control_type=self.name,
-            element_name=self._get_js_name(),
-            attributes=properties,
-            hash_names=hash_names,
-            lib_name=lib_name,
-            default_value=default_value,
-        )
-        if default_attr is not None:
-            elt_built.set_value_and_default(
-                var_name=default_attr.name,
-                var_type=default_attr.property_type,
-                default_val=default_attr.default_value,
-                with_default=default_attr.property_type != PropertyType.data,
+                    return xml_root
+
+            except Exception as e:
+                warnings.warn(f"The function {self.name}.render_xhtml() did not returned a valid xHtml string.\n{e}")
+                return f"The function {self.name}.render_xhtml() did not returned a valid xHtml string. {e}"
+        else:
+            default_attr: t.Optional[ElementProperty] = None
+            default_value = None
+            attrs = []
+            for ua in self.attributes or []:
+                if isinstance(ua, ElementProperty):
+                    if self.default_attribute == ua.name:
+                        default_attr = ua
+                        default_value = ua.default_value
+                    else:
+                        attrs.append(ua._get_tuple())
+            elt_built = _Builder(
+                gui=gui,
+                control_type=self.name,
+                element_name=self._get_js_name(),
+                attributes=properties,
+                hash_names=hash_names,
+                lib_name=lib_name,
+                default_value=default_value,
             )
-        elt_built.set_attributes(attrs)
-        # call user render
-        self.render(gui, attributes, hash_names, elt_built)
-        return elt_built._build_to_string() if is_html else elt_built.el
-
-    def render(self, gui: "Gui", properties: t.Dict[str, t.Any], hash_names: t.Dict[str, str], builder: Builder):
-        """
-        TODO
-        Uses the builder to update the xml node.
-
-        Arguments:
-
-            gui (Gui): The current instance of Gui.
-            properties (t.Dict[str, t.Any]): The dict containing a value for each defined property.
-            hash_names (t.Dict[str, str]): The dict containing the internal variable name for each
-                bound variable.
-            builder (Builder): the `Builder^` instance that has been initialized and used by Taipy to
-                start the rendering.
-
-        """
-        if hasattr(self, "_render") and callable(self._render):
-            self._render(gui, properties, hash_names, builder)
+            if default_attr is not None:
+                elt_built.set_value_and_default(
+                    var_name=default_attr.name,
+                    var_type=default_attr.property_type,
+                    default_val=default_attr.default_value,
+                    with_default=default_attr.property_type != PropertyType.data,
+                )
+            elt_built.set_attributes(attrs)
+            return elt_built._build_to_string() if is_html else elt_built.el
 
 
 class ElementLibrary(ABC):

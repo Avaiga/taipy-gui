@@ -13,7 +13,15 @@ import typing as t
 from pathlib import Path
 
 from taipy.gui import Gui
-from taipy.gui.extension import Element, ElementProperty, ElementLibrary, PropertyType
+from taipy.gui.extension import Element, ElementLibrary, ElementProperty, PropertyType
+
+
+def render_xhtml_4_my_library(properties: t.Dict[str, t.Any]) -> str:
+    return f"<h1>{properties.get('value', '')}</h1>"
+
+
+def render_xhtml_4_my_library_fail(properties: t.Dict[str, t.Any]) -> str:
+    return f"<h1>{properties.get('value', '')}</h1"
 
 
 class MyLibrary(ElementLibrary):
@@ -27,7 +35,25 @@ class MyLibrary(ElementLibrary):
                 ElementProperty("multiline", PropertyType.boolean, False),
             ],
             "Input",
-        )
+        ),
+        Element(
+            "title",
+            "value",
+            [
+                ElementProperty("value", PropertyType.string, ""),
+            ],
+            "h1",
+            render_xhtml=render_xhtml_4_my_library,
+        ),
+        Element(
+            "title_fail",
+            "value",
+            [
+                ElementProperty("value", PropertyType.string, ""),
+            ],
+            "h1",
+            render_xhtml=render_xhtml_4_my_library_fail,
+        ),
     ]
 
     def get_name(self) -> str:
@@ -61,6 +87,24 @@ def test_lib_input_md(gui: Gui, test_client, helpers):
         "value={tpec_TpExPr_val_TPMDL_0}",
     ]
     helpers.test_control_md(gui, md_string, expected_list)
+
+
+def test_lib_xhtml_md(gui: Gui, test_client, helpers):
+    val = "title"  # noqa: F841
+    gui._set_frame(inspect.currentframe())
+    md_string = "<|{val}|testlib.title|>"
+    expected = [f"<h1>{val}</h1>"]
+    helpers.test_control_md(gui, md_string, expected)
+
+
+def test_lib_xhtml_fail_md(gui: Gui, test_client, helpers):
+    val = "title"  # noqa: F841
+    gui._set_frame(inspect.currentframe())
+    md_string = "<|{val}|testlib.title_fail|>"
+    expected = [
+        "The function title_fail.render_xhtml() did not returned a valid xHtml string. unclosed token: line 1, column 9"
+    ]
+    helpers.test_control_md(gui, md_string, expected)
 
 
 def test_lib_input_html_1(gui: Gui, test_client, helpers):

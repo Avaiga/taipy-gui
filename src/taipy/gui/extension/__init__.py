@@ -11,4 +11,3 @@
 
 from ..types import PropertyType
 from .library import Element, ElementLibrary, ElementProperty
-from ..renderers.builder import Builder
