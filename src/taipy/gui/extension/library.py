@@ -232,7 +232,6 @@ class ElementLibrary(ABC):
         """
         return []
 
-    @abstractmethod
     def get_styles(self) -> t.List[str]:
         """
         TODO
