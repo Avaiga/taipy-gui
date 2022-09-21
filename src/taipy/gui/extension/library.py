@@ -45,7 +45,7 @@ class ElementProperty:
             property_type (PropertyType): The type of this property.
             default_value (Optional[Any]): The default value for this property. Default is None.
             js_name (Optional[str]): The name of this property, in the front-end JavaScript code.<br/>
-                If unspecified, a Camel Case version of `name` is generated: for example, if `name` is
+                If unspecified, a camel case version of `name` is generated: for example, if `name` is
                 "my_property_name", then this property is referred to as "myPropertyName" in the
                 JavaScript code.
         """
@@ -71,6 +71,7 @@ class Element:
 
     The definition of an element is made of its names, its properties, and
     the
+    TODO
     """
 
     def __init__(
@@ -87,7 +88,7 @@ class Element:
             default_property (str): the default property for this element.
             properties (List[ElementProperty]): The list of properties for this element.
             js_name (Optional[str]): The name of the component to be created on the frontend
-                If not specified, it is set to a Camel Case version of `name`.
+                If not specified, it is set to a camel case version of `name`.
             render (Optional[callable]): A function that has the same signature as `Element.render`
                 and that will replace it if defined.
         """
@@ -179,7 +180,7 @@ class Element:
 
 class ElementLibrary(ABC):
     """
-    An library of user-defined visual elements.
+    A library of user-defined visual elements.
 
     TODO
     """
@@ -207,9 +208,15 @@ class ElementLibrary(ABC):
 
     def get_js_module_name(self) -> str:
         """
-        Returns the js module name (default to self.get_name()).
-        Must be unique on the browser window scope.
+        Returns the name of the Javascript module.
 
+        Typically, Javascript module names use camel case.
+
+        This module name must be unique on the browser window scope.
+
+        Returns:
+            The name of the Javascript module.<br/>
+            The default implementation returns `self.get_name()`.
         """
         return self.get_name()
 
