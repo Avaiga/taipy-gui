@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-versions }}
@@ -45,7 +45,7 @@ jobs:
         env:
           TOX_PARALLEL_NO_SPINNER: 1
         run: |
-          pip install tox
+          pip install tox==3.25.1
           tox -p all
 
       - name: Code coverage
@@ -69,7 +69,7 @@ jobs:
         working-directory: ./gui
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: npm build and test ${{ matrix.node-version }} on ${{ matrix.os }}
         uses: actions/setup-node@v2
         with:
