@@ -54,16 +54,13 @@ class MyLibrary(ElementLibrary):
     }
 
     def get_name(self) -> str:
-        return "testlib"
+        return "test_lib"
 
     def get_elements(self) -> t.Dict[str, Element]:
         return MyLibrary.elts
 
     def get_resource(self, name: str) -> Path:
         return Path(name)
-
-    def get_register_js_function(self) -> str:
-        return "testRegister"
 
 
 Gui.add_library(MyLibrary())
@@ -72,10 +69,10 @@ Gui.add_library(MyLibrary())
 def test_lib_input_md(gui: Gui, test_client, helpers):
     val = ""  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    md_string = "<|{val}|testlib.testinput|multiline|>"
+    md_string = "<|{val}|test_lib.testinput|multiline|>"
     expected_list = [
-        "<Input",
-        'className="testlib-testinput"',
+        "<TestLib_Input",
+        'className="test_lib-testinput"',
         "multiline={true}",
         'defaultValue=""',
         "value={tpec_TpExPr_val_TPMDL_0}",
@@ -86,7 +83,7 @@ def test_lib_input_md(gui: Gui, test_client, helpers):
 def test_lib_xhtml_md(gui: Gui, test_client, helpers):
     val = "title"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    md_string = "<|{val}|testlib.title|>"
+    md_string = "<|{val}|test_lib.title|>"
     expected = [f"<h1>{val}</h1>"]
     helpers.test_control_md(gui, md_string, expected)
 
@@ -94,24 +91,22 @@ def test_lib_xhtml_md(gui: Gui, test_client, helpers):
 def test_lib_xhtml_fail_md(gui: Gui, test_client, helpers):
     val = "title"  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    md_string = "<|{val}|testlib.title_fail|>"
-    expected = [
-        "title_fail.render_xhtml() did not return a valid XHTML string. unclosed token: line 1, column 9"
-    ]
+    md_string = "<|{val}|test_lib.title_fail|>"
+    expected = ["title_fail.render_xhtml() did not return a valid XHTML string. unclosed token: line 1, column 9"]
     helpers.test_control_md(gui, md_string, expected)
 
 
 def test_lib_input_html_1(gui: Gui, test_client, helpers):
     val = ""  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    html_string = '<testlib:testinput value="{val}" multiline="true" />'
-    expected_list = ["<Input", "multiline={true}", 'defaultValue=""', "value={tpec_TpExPr_val_TPMDL_0}"]
+    html_string = '<test_lib:testinput value="{val}" multiline="true" />'
+    expected_list = ["<TestLib_Input", "multiline={true}", 'defaultValue=""', "value={tpec_TpExPr_val_TPMDL_0}"]
     helpers.test_control_html(gui, html_string, expected_list)
 
 
 def test_lib_input_html_2(gui: Gui, test_client, helpers):
     val = ""  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    html_string = '<testlib:testinput multiline="true">{val}</testlib:testinput>'
-    expected_list = ["<Input", "multiline={true}", 'defaultValue=""', "value={tpec_TpExPr_val_TPMDL_0}"]
+    html_string = '<test_lib:testinput multiline="true">{val}</testlib:testinput>'
+    expected_list = ["<TestLib_Input", "multiline={true}", 'defaultValue=""', "value={tpec_TpExPr_val_TPMDL_0}"]
     helpers.test_control_html(gui, html_string, expected_list)
