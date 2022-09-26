@@ -211,11 +211,12 @@ class ElementLibrary(ABC):
 
         This module name must be unique on the browser window scope.
 
+        TODO
         Returns:
             The name of the Javascript module.<br/>
             The default implementation returns `self.get_name()`.
         """
-        return self.get_name()
+        return _to_camel_case(self.get_name())
 
     def get_scripts(self) -> t.List[str]:
         """
@@ -253,14 +254,21 @@ class ElementLibrary(ABC):
         """
         return NotImplemented
 
-    @abstractmethod
-    def get_register_js_function(self) -> str:
-        """
-        TODO
-        Returns the name of the function that will register new js components.
+    def get_register_js_function(self) -> t.Optional[str]:
+        """Get the name of the function that registers new Javascript components.
+
+        If this element library has any dynamic element (that is, implemented using
+        Javascript code), then this member function must be overridden to return
+        the name of the registration function, in Javascript.
+
+        This function is expected to receive a single parameter: the library name
+        (as defined in `get_name()`).<br/>
+        It must return a dictionary that associates each Javascript component name
+        with the Javascript component name.
+        
             signature (libName: string) => Record<string, ComponentType>
         """
-        return NotImplemented
+        return None
 
     def get_data(self, library_name: str, payload: t.Dict, var_name: str, value: t.Any) -> t.Optional[t.Dict]:
         """
