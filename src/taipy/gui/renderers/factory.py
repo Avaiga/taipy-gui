@@ -11,14 +11,13 @@
 
 import re
 import typing as t
-import xml.etree.ElementTree as etree
 from datetime import datetime
 
 from ..types import PropertyType
 from .builder import _Builder
 
 if t.TYPE_CHECKING:
-    from ..extension.library import Element, ElementLibrary
+    from ..extension.library import ElementLibrary
     from ..gui import Gui
 
 
@@ -61,7 +60,7 @@ class _Factory:
     __TEXT_ANCHORS = ["bottom", "top", "left", "right"]
     __TEXT_ANCHOR_NONE = "none"
 
-    __LIBRARIES: t.Dict[str, t.Dict[str, "Element"]] = {}
+    __LIBRARIES: t.Dict[str, t.List["ElementLibrary"]] = {}
 
     __CONTROL_BUILDERS = {
         "button": lambda gui, control_type, attrs: _Builder(
@@ -521,20 +520,17 @@ class _Factory:
     @staticmethod
     def set_library(library: "ElementLibrary"):
         from ..extension.library import Element, ElementLibrary
-        if (
-            isinstance(library, ElementLibrary)
-            and isinstance(library.get_name(), str)
-            and library.get_elements()
-        ):
+
+        if isinstance(library, ElementLibrary) and isinstance(library.get_name(), str) and library.get_elements():
             elements = library.get_elements()
             for name, element in elements.items():
                 if isinstance(element, Element):
                     element.check(name)
             fact_lib = _Factory.__LIBRARIES.get(library.get_name())
             if fact_lib is None:
-                _Factory.__LIBRARIES.update({library.get_name(): elements})
+                _Factory.__LIBRARIES.update({library.get_name(): [library]})
             else:
-                fact_lib.update(elements)
+                fact_lib.append(library)
 
     @staticmethod
     def get_default_property_name(control_name: str) -> t.Optional[str]:
@@ -550,11 +546,15 @@ class _Factory:
         if prop is None:
             parts = name.split(".")
             if len(parts) > 1:
-                elements = _Factory.__LIBRARIES.get(parts[0])
-                if elements is not None:
-                    builder = elements.get(".".join(parts[1:]))
-                    if builder is not None:
-                        prop = builder.default_attribute
+                libs = _Factory.__LIBRARIES.get(parts[0])
+                if libs is not None:
+                    for lib in libs:
+                        elts = lib.get_elements()
+                        if isinstance(elts, dict):
+                            builder = elts.get(".".join(parts[1:]))
+                            if builder is not None:
+                                prop = builder.default_attribute
+                                break
         return prop
 
     @staticmethod
@@ -567,14 +567,18 @@ class _Factory:
         if builder is None:
             parts = name.split(".")
             if len(parts) > 0:
-                elements = _Factory.__LIBRARIES.get(parts[0])
-                if isinstance(elements, dict):
-                    from ..extension.library import Element
+                lib_name = parts[0]
+                libs = _Factory.__LIBRARIES.get(lib_name)
+                if libs:
+                    for lib in libs:
+                        elements = lib.get_elements()
+                        if isinstance(elements, dict):
+                            from ..extension.library import Element
 
-                    element_name = parts[1]
-                    element = elements.get(element_name)
-                    if isinstance(element, Element):
-                        return element._call_builder(element_name, gui, all_properties, parts[0], is_html)
+                            element_name = parts[1]
+                            element = elements.get(element_name)
+                            if isinstance(element, Element):
+                                return element._call_builder(element_name, gui, all_properties, lib, is_html)
         else:
             builded = builder(gui, name, all_properties)
         if isinstance(builded, _Builder):

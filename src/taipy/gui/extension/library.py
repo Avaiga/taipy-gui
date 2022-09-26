@@ -57,13 +57,16 @@ class ElementProperty:
         if not isinstance(prop_name, str) or not prop_name or not prop_name.isidentifier():
             warnings.warn(f"Property name '{prop_name}' is invalid for element '{element_name}'.")
         if not isinstance(self.property_type, PropertyType):
-            warnings.warn(f"Property type '{self.property_type}' is invalid for element property '{element_name}.{prop_name}'.")
+            warnings.warn(
+                f"Property type '{self.property_type}' is invalid for element property '{element_name}.{prop_name}'."
+            )
 
     def _get_tuple(self, name: str) -> tuple:
         return (name, self.property_type, self.default_value)
 
     def get_js_name(self, name: str) -> str:
         return self._js_name or _to_camel_case(name)
+
 
 class Element:
     """
@@ -77,7 +80,7 @@ class Element:
         self,
         default_property: str,
         properties: t.Dict[str, ElementProperty],
-        js_name: t.Optional[str] = None,
+        react_component: t.Optional[str] = None,
         render_xhtml: t.Optional[t.Callable[[t.Dict[str, t.Any]], str]] = None,
     ) -> None:
         """Initializes a new custom element declaration.
@@ -85,21 +88,21 @@ class Element:
         Arguments:
             default_property (str): the default property for this element.
             properties (List[ElementProperty]): The list of properties for this element.
-            js_name (Optional[str]): The name of the component to be created on the frontend
-                If not specified, it is set to a camel case version of `name`.
+            react_component (Optional[str]): The name of the component to be created on the frontend
+                If not specified, it is set to a camel case version of `name` (one_name => OneName).
             render_xhtml (Optional[callable[[dict[str, Any]], str]]): A function that receives a
                 dict containing the element's properties and their values
                 and that returns a valid XHTML string.
         """
         self.default_attribute = default_property
         self.attributes = properties
-        self.js_name = js_name
+        self.js_name = react_component
         if callable(render_xhtml):
             self._render_xhtml = render_xhtml
         super().__init__()
 
     def _get_js_name(self, name: str) -> str:
-        return self.js_name or _to_camel_case(name)
+        return self.js_name or _to_camel_case(name, True)
 
     def check(self, name: str):
         if not isinstance(name, str) or not name or not name.isidentifier():
@@ -114,22 +117,23 @@ class Element:
                 else:
                     warnings.warn(f"Property must inherit from 'ElementProperty' '{name}.{prop_name}'.")
         if not default_found:
-            warnings.warn(
-                f"Element {name} has no default property."
-            )
+            warnings.warn(f"Element {name} has no default property.")
+
+    def _is_server_only(self):
+        return hasattr(self, "_render_xhtml") and callable(self._render_xhtml)
 
     def _call_builder(
         self,
         name,
         gui: "Gui",
         properties: t.Union[t.Dict[str, t.Any], None],
-        lib_name: str,
+        lib: "ElementLibrary",
         is_html: t.Optional[bool] = False,
     ) -> t.Union[t.Any, t.Tuple[str, str]]:
         attributes = properties or {}
         hash_names = _Builder._get_variable_hash_names(gui, attributes)  # variable replacement
         # call user render if any
-        if hasattr(self, "_render_xhtml") and callable(self._render_xhtml):
+        if self._is_server_only():
             xhtml = self._render_xhtml(attributes)
             try:
                 xml_root = etree.fromstring(xhtml)
@@ -158,10 +162,10 @@ class Element:
             elt_built = _Builder(
                 gui=gui,
                 control_type=name,
-                element_name=self._get_js_name(name),
+                element_name=f"{lib.get_js_module_name()}_{self._get_js_name(name)}",
                 attributes=properties,
                 hash_names=hash_names,
-                lib_name=lib_name,
+                lib_name=lib.get_name(),
                 default_value=default_value,
             )
             if default_attr is not None:
@@ -185,12 +189,12 @@ class ElementLibrary(ABC):
     @abstractmethod
     def get_elements(self) -> t.Dict[str, Element]:
         """
-        Returns the list of all visual element declarations.
+        Returns the dict of all visual element declarations.
         TODO
-        The default implementation returns an empty list, indicating that this library contains
+        The default implementation returns an empty dict, indicating that this library contains
         no custom visual elements.
         """
-        return []
+        return {}
 
     @abstractmethod
     def get_name(self) -> str:
@@ -216,7 +220,7 @@ class ElementLibrary(ABC):
             The name of the Javascript module.<br/>
             The default implementation returns `self.get_name()`.
         """
-        return _to_camel_case(self.get_name())
+        return _to_camel_case(self.get_name(), True)
 
     def get_scripts(self) -> t.List[str]:
         """
@@ -253,22 +257,6 @@ class ElementLibrary(ABC):
             name (str): The name of the resource for which a local Path should be returned.
         """
         return NotImplemented
-
-    def get_register_js_function(self) -> t.Optional[str]:
-        """Get the name of the function that registers new Javascript components.
-
-        If this element library has any dynamic element (that is, implemented using
-        Javascript code), then this member function must be overridden to return
-        the name of the registration function, in Javascript.
-
-        This function is expected to receive a single parameter: the library name
-        (as defined in `get_name()`).<br/>
-        It must return a dictionary that associates each Javascript component name
-        with the Javascript component name.
-        
-            signature (libName: string) => Record<string, ComponentType>
-        """
-        return None
 
     def get_data(self, library_name: str, payload: t.Dict, var_name: str, value: t.Any) -> t.Optional[t.Dict]:
         """

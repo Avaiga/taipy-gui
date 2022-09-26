@@ -76,23 +76,20 @@ export const getRegisteredComponents = () => {
         Object.keys(taipyComponents).forEach(name => registeredComponents[name] = taipyComponents[name]);
         if (window.taipyConfig?.extensions) {
             Object.keys(window.taipyConfig.extensions).forEach(libName => {
-                const fnName = window.taipyConfig.extensions[libName];
-                if (fnName) {
+                const elts = window.taipyConfig.extensions[libName];
+                if (elts && elts.length) {
                     const libParts = libName.split("/");
                     const modName = libParts.length > 2 ? libParts[2] : libName;
-                    const mod: Record<string, (s: string) => Record<string, ComponentType>> = window[modName] as Record<string, (s: string) => Record<string, ComponentType>>;
+                    const mod: Record<string, ComponentType> = window[modName] as Record<string, ComponentType>;
                     if (mod) {
-                        const fn = mod[fnName];
-                        if (fn) {
-                            try {
-                                const comps = fn(modName);
-                                Object.keys(comps).forEach(name => registeredComponents[name] = comps[name]);
-                            } catch (e) {
-                                console.error("module '", modName, "'.'", fnName, "' error: ", e);
+                        elts.forEach(elt => {
+                            const comp = mod[elt];
+                            if (comp) {
+                                registeredComponents[modName + "_" + elt] = comp;
+                            } else {
+                                console.error("module '", modName, "' doesn't export component '", elt, "'");
                             }
-                        } else {
-                            console.error("module '", modName, "' doesn't export function '", fnName, "'");
-                        }
+                        });
                     } else {
                         console.error("module '", modName, "' cannot be loaded.");
                     }

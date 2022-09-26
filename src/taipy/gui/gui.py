@@ -1426,7 +1426,9 @@ class Gui:
             config["themes"] = themes
         if len(self.__extensions):
             config["extensions"] = {
-                f".{Gui.__EXTENSION_ROOT}{v.get_js_module_name()}/{v.get_scripts()[0]}": v.get_register_js_function()
+                f".{Gui.__EXTENSION_ROOT}{v.get_js_module_name()}": [
+                    e._get_js_name(n) for n, e in v.get_elements().items() if not e._is_server_only()
+                ]
                 for k, v in self.__extensions.items()
             }
         return config
