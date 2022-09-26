@@ -34,15 +34,13 @@ class ElementProperty:
 
     def __init__(
         self,
-        name: str,
         property_type: PropertyType,
         default_value: t.Optional[t.Any] = None,
         js_name: t.Optional[str] = None,
     ) -> None:
-        """
+        """Initializes a new custom property declaration for an `Element^`.
 
         Arguments:
-            name (str): The attribute name. This must be a valid Python identifier.
             property_type (PropertyType): The type of this property.
             default_value (Optional[Any]): The default value for this property. Default is None.
             js_name (Optional[str]): The name of this property, in the front-end JavaScript code.<br/>
@@ -50,50 +48,49 @@ class ElementProperty:
                 "my_property_name", then this property is referred to as "myPropertyName" in the
                 JavaScript code.
         """
-        self.name = name
         self.property_type = property_type
         self.default_value = default_value
-        self.js_name = js_name if js_name else _to_camel_case(self.name)
+        self._js_name = js_name
         super().__init__()
 
-    def check(self, control: str):
-        if not isinstance(self.name, str) or not self.name or not self.name.isidentifier():
-            warnings.warn(f"Element '{control}' should have a valid attribute name '{self.name}'")
+    def check(self, element_name: str, prop_name: str):
+        if not isinstance(prop_name, str) or not prop_name or not prop_name.isidentifier():
+            warnings.warn(f"Property name '{prop_name}' is invalid for element '{element_name}'.")
         if not isinstance(self.property_type, PropertyType):
-            warnings.warn(f"Element Property '{control}.{self.name}' should have a valid type '{self.property_type}'")
+            warnings.warn(f"Property type '{self.property_type}' is invalid for element property '{element_name}.{prop_name}'.")
 
-    def _get_tuple(self) -> tuple:
-        return (self.name, self.property_type, self.default_value)
+    def _get_tuple(self, name: str) -> tuple:
+        return (name, self.property_type, self.default_value)
 
+    def get_js_name(self, name: str) -> str:
+        return self._js_name or _to_camel_case(name)
 
 class Element:
     """
     The definition of a custom visual element.
 
-    The definition of an element is made of its names, its properties, and
-    the
-    TODO
+    An element is defined by its properties (name, type and default value) and
+    what the default property name is.
     """
 
     def __init__(
         self,
-        name: str,
         default_property: str,
-        properties: t.List[ElementProperty],
+        properties: t.Dict[str, ElementProperty],
         js_name: t.Optional[str] = None,
         render_xhtml: t.Optional[t.Callable[[t.Dict[str, t.Any]], str]] = None,
     ) -> None:
-        """
+        """Initializes a new custom element declaration.
+
         Arguments:
-            name (str): The name of this element.
             default_property (str): the default property for this element.
             properties (List[ElementProperty]): The list of properties for this element.
             js_name (Optional[str]): The name of the component to be created on the frontend
                 If not specified, it is set to a camel case version of `name`.
-            render_xhtml (Optional[callable[[dict[str, Any]], str]]): A function that receives a dict containing the element's properties and their values
+            render_xhtml (Optional[callable[[dict[str, Any]], str]]): A function that receives a
+                dict containing the element's properties and their values
                 and that returns a valid XHTML string.
         """
-        self.name = name
         self.default_attribute = default_property
         self.attributes = properties
         self.js_name = js_name
@@ -101,27 +98,29 @@ class Element:
             self._render_xhtml = render_xhtml
         super().__init__()
 
-    def _get_js_name(self) -> str:
-        return self.js_name or _to_camel_case(self.name)
+    def _get_js_name(self, name: str) -> str:
+        return self.js_name or _to_camel_case(name)
 
-    def check(self):
-        if not isinstance(self.name, str) or not self.name or not self.name.isidentifier():
-            warnings.warn(f"Element should have a valid name '{self.name}'")
+    def check(self, name: str):
+        if not isinstance(name, str) or not name or not name.isidentifier():
+            warnings.warn(f"Invalid element name: '{name}'.")
         default_found = False
-        for attr in self.attributes or []:
-            if isinstance(attr, ElementProperty):
-                attr.check(self.name)
-                if not default_found:
-                    default_found = self.default_attribute == attr.name
-            else:
-                warnings.warn(f"Attribute should inherit from 'ElementProperty' '{self.name}.{attr}'")
+        if self.attributes:
+            for prop_name, property in self.attributes.items():
+                if isinstance(property, ElementProperty):
+                    property.check(name, prop_name)
+                    if not default_found:
+                        default_found = self.default_attribute == prop_name
+                else:
+                    warnings.warn(f"Property must inherit from 'ElementProperty' '{name}.{prop_name}'.")
         if not default_found:
             warnings.warn(
-                f"User Default Attribute should be describe in the 'properties' List '{self.name}{self.default_property}'"
+                f"Element {name} has no default property."
             )
 
     def _call_builder(
         self,
+        name,
         gui: "Gui",
         properties: t.Union[t.Dict[str, t.Any], None],
         lib_name: str,
@@ -135,28 +134,31 @@ class Element:
             try:
                 xml_root = etree.fromstring(xhtml)
                 if is_html:
-                    return xhtml, self.name
+                    return xhtml, name
                 else:
                     return xml_root
 
             except Exception as e:
-                warnings.warn(f"The function {self.name}.render_xhtml() did not returned a valid xHtml string.\n{e}")
-                return f"The function {self.name}.render_xhtml() did not returned a valid xHtml string. {e}"
+                warnings.warn(f"{name}.render_xhtml() did not return a valid XHTML string.\n{e}")
+                return f"{name}.render_xhtml() did not return a valid XHTML string. {e}"
         else:
             default_attr: t.Optional[ElementProperty] = None
             default_value = None
+            default_name = None
             attrs = []
-            for ua in self.attributes or []:
-                if isinstance(ua, ElementProperty):
-                    if self.default_attribute == ua.name:
-                        default_attr = ua
-                        default_value = ua.default_value
-                    else:
-                        attrs.append(ua._get_tuple())
+            if self.attributes:
+                for prop_name, property in self.attributes.items():
+                    if isinstance(property, ElementProperty):
+                        if self.default_attribute == prop_name:
+                            default_name = prop_name
+                            default_attr = property
+                            default_value = property.default_value
+                        else:
+                            attrs.append(property._get_tuple(prop_name))
             elt_built = _Builder(
                 gui=gui,
-                control_type=self.name,
-                element_name=self._get_js_name(),
+                control_type=name,
+                element_name=self._get_js_name(name),
                 attributes=properties,
                 hash_names=hash_names,
                 lib_name=lib_name,
@@ -164,7 +166,7 @@ class Element:
             )
             if default_attr is not None:
                 elt_built.set_value_and_default(
-                    var_name=default_attr.name,
+                    var_name=default_name,
                     var_type=default_attr.property_type,
                     default_val=default_attr.default_value,
                     with_default=default_attr.property_type != PropertyType.data,
@@ -181,10 +183,10 @@ class ElementLibrary(ABC):
     """
 
     @abstractmethod
-    def get_elements(self) -> t.List[Element]:
+    def get_elements(self) -> t.Dict[str, Element]:
         """
         Returns the list of all visual element declarations.
-
+        TODO
         The default implementation returns an empty list, indicating that this library contains
         no custom visual elements.
         """
@@ -215,7 +217,6 @@ class ElementLibrary(ABC):
         """
         return self.get_name()
 
-    @abstractmethod
     def get_scripts(self) -> t.List[str]:
         """
         Returns the list of resources names for the scripts.

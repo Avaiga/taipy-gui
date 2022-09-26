@@ -26,44 +26,38 @@ def render_xhtml_4_my_library_fail(properties: t.Dict[str, t.Any]) -> str:
 
 class MyLibrary(ElementLibrary):
 
-    elts = [
-        Element(
-            "testinput",
+    elts = {
+        "testinput": Element(
             "value",
-            [
-                ElementProperty("value", PropertyType.dynamic_string, "Fred"),
-                ElementProperty("multiline", PropertyType.boolean, False),
-            ],
+            {
+                "value": ElementProperty(PropertyType.dynamic_string, "Fred"),
+                "multiline": ElementProperty(PropertyType.boolean, False),
+            },
             "Input",
         ),
-        Element(
-            "title",
+        "title": Element(
             "value",
-            [
-                ElementProperty("value", PropertyType.string, ""),
-            ],
+            {
+                "value": ElementProperty(PropertyType.string, ""),
+            },
             "h1",
             render_xhtml=render_xhtml_4_my_library,
         ),
-        Element(
-            "title_fail",
+        "title_fail": Element(
             "value",
-            [
-                ElementProperty("value", PropertyType.string, ""),
-            ],
+            {
+                "value": ElementProperty(PropertyType.string, ""),
+            },
             "h1",
             render_xhtml=render_xhtml_4_my_library_fail,
         ),
-    ]
+    }
 
     def get_name(self) -> str:
         return "testlib"
 
-    def get_elements(self) -> t.List[Element]:
+    def get_elements(self) -> t.Dict[str, Element]:
         return MyLibrary.elts
-
-    def get_scripts(self) -> t.List[str]:
-        return []
 
     def get_resource(self, name: str) -> Path:
         return Path(name)
@@ -102,7 +96,7 @@ def test_lib_xhtml_fail_md(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
     md_string = "<|{val}|testlib.title_fail|>"
     expected = [
-        "The function title_fail.render_xhtml() did not returned a valid xHtml string. unclosed token: line 1, column 9"
+        "title_fail.render_xhtml() did not return a valid XHTML string. unclosed token: line 1, column 9"
     ]
     helpers.test_control_md(gui, md_string, expected)
 

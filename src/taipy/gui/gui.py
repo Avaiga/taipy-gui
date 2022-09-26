@@ -271,8 +271,12 @@ class Gui:
 
     @staticmethod
     def add_library(library: ElementLibrary):
-        """
-        TODO
+        """Add a custom visual element library to this Gui instance.
+
+        Arguments:
+            library: The custom visual element library to add to this library.
+
+        TODO: What if we add two libraries with the same name?
         """
         _Factory.set_library(library)
         if len(library.get_scripts()) != 0:
@@ -1029,7 +1033,9 @@ class Gui:
 
             page = Markdown(page, frame=None)
         elif not isinstance(page, Page):
-            raise Exception(f'Parameter "page" is invalid for page name "{name if name != Gui.__root_page_name else "/"}.')
+            raise Exception(
+                f'Parameter "page" is invalid for page name "{name if name != Gui.__root_page_name else "/"}.'
+            )
         # Init a new page
         new_page = _Page()
         new_page._route = name

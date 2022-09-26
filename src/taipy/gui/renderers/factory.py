@@ -521,21 +521,20 @@ class _Factory:
     @staticmethod
     def set_library(library: "ElementLibrary"):
         from ..extension.library import Element, ElementLibrary
-
         if (
             isinstance(library, ElementLibrary)
             and isinstance(library.get_name(), str)
             and library.get_elements()
-            and len(library.get_elements()) > 0
-            and isinstance(library.get_elements()[0], Element)
         ):
-            for ua in library.get_elements():
-                ua.check()
+            elements = library.get_elements()
+            for name, element in elements.items():
+                if isinstance(element, Element):
+                    element.check(name)
             fact_lib = _Factory.__LIBRARIES.get(library.get_name())
             if fact_lib is None:
-                _Factory.__LIBRARIES.update({library.get_name(): {ua.name: ua for ua in library.get_elements()}})
+                _Factory.__LIBRARIES.update({library.get_name(): elements})
             else:
-                fact_lib.update({ua.name: ua for ua in library.get_elements()})
+                fact_lib.update(elements)
 
     @staticmethod
     def get_default_property_name(control_name: str) -> t.Optional[str]:
@@ -572,9 +571,10 @@ class _Factory:
                 if isinstance(elements, dict):
                     from ..extension.library import Element
 
-                    element = elements.get(parts[1])
+                    element_name = parts[1]
+                    element = elements.get(element_name)
                     if isinstance(element, Element):
-                        return element._call_builder(gui, all_properties, parts[0], is_html)
+                        return element._call_builder(element_name, gui, all_properties, parts[0], is_html)
         else:
             builded = builder(gui, name, all_properties)
         if isinstance(builded, _Builder):

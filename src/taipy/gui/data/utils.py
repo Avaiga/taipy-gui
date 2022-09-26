@@ -52,7 +52,7 @@ class Decimator(ABC):
     @abstractmethod
     def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
         """Decimate function for decimator.
-        
+
         This function is executed when the appropriate conditions are met.
         TODO: Further explanation
 

@@ -134,7 +134,7 @@ def get_state_id(state: State) -> t.Optional[str]:
 
     Arguments:
         state (State^): The current user state as received in any callback.
-    
+
     Returns:
         A string that uniquely identifies the state.<br/>
         If None, then **state** was not handled by a `Gui^` instance.
@@ -143,9 +143,11 @@ def get_state_id(state: State) -> t.Optional[str]:
         return state._gui._get_client_id()
     return None
 
+
 def get_context_id(state: State) -> t.Any:
-    warnings.warn("'get_context_id()' was deprecated in Taipy GUI 2.0. Use 'get_state_id()' instead.");
+    warnings.warn("'get_context_id()' was deprecated in Taipy GUI 2.0. Use 'get_state_id()' instead.")
     return get_state_id(state)
+
 
 def get_module_name_from_state(state: State) -> t.Optional[str]:
     """Get the module name that triggered a callback.
@@ -171,9 +173,7 @@ def get_module_name_from_state(state: State) -> t.Optional[str]:
     return None
 
 
-def invoke_callback(
-    gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]
-) -> t.Any:
+def invoke_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
     """Invoke a user callback in a given state.
 
     See the [User Manual section on Long Running Callbacks](../../gui/callbacks/#long-running-callbacks)
@@ -191,7 +191,7 @@ def invoke_callback(
     else:
         warnings.warn("'invoke_callback()' must be called with a valid Gui instance")
 
-def invoke_state_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
-    warnings.warn("'invoke_state_callback()' was deprecated in Taipy GUI 2.0. Use 'invoke_callback()' instead.");
-    return invoke_callback(gui, state_id, callback, args)
 
+def invoke_state_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
+    warnings.warn("'invoke_state_callback()' was deprecated in Taipy GUI 2.0. Use 'invoke_callback()' instead.")
+    return invoke_callback(gui, state_id, callback, args)
