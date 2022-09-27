@@ -9,6 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import inspect
 import typing as t
 import warnings
 import xml.etree.ElementTree as etree
@@ -242,7 +243,6 @@ class ElementLibrary(ABC):
         """
         return []
 
-    @abstractmethod
     def get_resource(self, name: str) -> Path:
         """
         TODO
@@ -256,7 +256,13 @@ class ElementLibrary(ABC):
 
             name (str): The name of the resource for which a local Path should be returned.
         """
-        return NotImplemented
+        module = self.__class__.__module__
+        base = (Path(module.__file__) if hasattr(module, "__file__") else Path(".")).resolve()  # type: ignore
+        file = (base / name).resolve()
+        if file.is_relative_to(base) and file.exists():
+            return file
+        else:
+            raise FileNotFoundError(f"Cannot access resource {file}.")
 
     def get_data(self, library_name: str, payload: t.Dict, var_name: str, value: t.Any) -> t.Optional[t.Dict]:
         """
