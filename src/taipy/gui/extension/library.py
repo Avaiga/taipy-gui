@@ -9,7 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import inspect
 import typing as t
 import warnings
 import xml.etree.ElementTree as etree
@@ -19,6 +18,7 @@ from pathlib import Path
 from ..renderers.builder import _Builder
 from ..renderers.utils import _to_camel_case
 from ..types import PropertyType
+
 
 if t.TYPE_CHECKING:
     from ..gui import Gui
@@ -248,7 +248,7 @@ class ElementLibrary(ABC):
         TODO
         Defaults to return None?
         Returns a path for a resource name.
-        Resource URL should be formed as /taipy-extensions/<library_name>/<resource virtual path> with
+        Resource URL should be formed as /taipy-extension/<library_name>/<resource virtual path> with(see get_resource_url)
         - <resource virtual path> being the `name` parameter
         - <library_name> the value returned by `get_name()`
 
@@ -263,6 +263,13 @@ class ElementLibrary(ABC):
             return file
         else:
             raise FileNotFoundError(f"Cannot access resource {file}.")
+
+    def get_resource_url(self, resource: str) -> str:
+        """TODO
+        """
+        from ..gui import Gui
+
+        return f"{Gui._EXTENSION_ROOT}{self.get_name()}/{resource}"
 
     def get_data(self, library_name: str, payload: t.Dict, var_name: str, value: t.Any) -> t.Optional[t.Dict]:
         """

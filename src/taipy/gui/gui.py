@@ -137,7 +137,7 @@ class Gui:
     __ON_INIT_NAME = "TaipyOnInit"
     __CONTENT_ROOT = "/taipy-content/"
     __UPLOAD_URL = "/taipy-uploads"
-    __EXTENSION_ROOT = "/taipy-extensions/"
+    _EXTENSION_ROOT = "/taipy-extension/"
 
     __RE_HTML = re.compile(r"(.*?)\.html")
     __RE_MD = re.compile(r"(.*?)\.md")
@@ -279,8 +279,7 @@ class Gui:
         TODO: What if we add two libraries with the same name?
         """
         _Factory.set_library(library)
-        if len(library.get_scripts()) != 0:
-            Gui.__extensions[library.get_name()] = library
+        Gui.__extensions[library.get_name()] = library
 
     def __get_content_accessor(self):
         if self.__content_accessor is None:
@@ -1426,7 +1425,7 @@ class Gui:
             config["themes"] = themes
         if len(self.__extensions):
             config["extensions"] = {
-                f".{Gui.__EXTENSION_ROOT}{v.get_js_module_name()}": [
+                f".{Gui._EXTENSION_ROOT}{v.get_js_module_name()}": [
                     e._get_js_name(n) for n, e in v.get_elements().items() if not e._is_server_only()
                 ]
                 for k, v in self.__extensions.items()
@@ -1599,14 +1598,14 @@ class Gui:
 
         # server URL for extension resources
         extension_bp = Blueprint("taipy_extensions", __name__)
-        extension_bp.add_url_rule(f"{Gui.__EXTENSION_ROOT}<path:path>", view_func=self.__serve_extension)
+        extension_bp.add_url_rule(f"{Gui._EXTENSION_ROOT}<path:path>", view_func=self.__serve_extension)
         scripts = [
-            f"{Gui.__EXTENSION_ROOT}{name}/{s}"
+            f"{Gui._EXTENSION_ROOT}{name}/{s}"
             for name, lib in Gui.__extensions.items()
             for s in (lib.get_scripts() or [])
         ]
         styles = [
-            f"{Gui.__EXTENSION_ROOT}{name}/{s}"
+            f"{Gui._EXTENSION_ROOT}{name}/{s}"
             for name, lib in Gui.__extensions.items()
             for s in (lib.get_styles() or [])
         ]
