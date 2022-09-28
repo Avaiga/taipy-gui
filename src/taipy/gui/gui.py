@@ -41,7 +41,7 @@ from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
 from .data.data_scope import _DataScopes
-from .extension.library import ElementLibrary
+from .extension.library import Element, ElementLibrary
 from .page import Page
 from .partial import Partial
 from .renderers import _EmptyPage
@@ -148,7 +148,7 @@ class Gui:
 
     __LOCAL_TZ = str(tzlocal.get_localzone())
 
-    __extensions: t.Dict[str, ElementLibrary] = {}
+    __extensions: t.Dict[str, t.List[ElementLibrary]] = {}
 
     def __init__(
         self,
@@ -278,8 +278,15 @@ class Gui:
 
         TODO: What if we add two libraries with the same name?
         """
-        _Factory.set_library(library)
-        Gui.__extensions[library.get_name()] = library
+        if isinstance(library, ElementLibrary):
+            _Factory.set_library(library)
+            libs = Gui.__extensions.get(library.get_name())
+            if libs is None:
+                Gui.__extensions[library.get_name()] = [library]
+            else:
+                libs.append(library)
+        else:
+            warnings.warn(f"add_library argument should be a subclass of ElementLibrary instead of '{type(library)}'")
 
     def __get_content_accessor(self):
         if self.__content_accessor is None:
@@ -525,12 +532,19 @@ class Gui:
 
     def __serve_extension(self, path: str) -> t.Any:
         parts = path.split("/")
+        last_error = None
         if len(parts) > 1:
-            library = Gui.__extensions.get(parts[0])
-            if library is not None:
-                resource_name = library.get_resource("/".join(parts[1:]))
-                if resource_name:
-                    return send_file(resource_name)
+            libs = Gui.__extensions.get(parts[0], [])
+            for library in libs:
+                try:
+                    resource_name = library.get_resource("/".join(parts[1:]))
+                    if resource_name:
+                        return send_file(resource_name)
+                except Exception as e:
+                    last_error = e  # Check if the resource is served by another library with the same name
+        warnings.warn(
+            f"Resource '{resource_name}' not accessible for library '{parts[0]}':\n{last_error if last_error else ''}"
+        )
         return ("", 404)
 
     def __get_version(self) -> str:
@@ -657,8 +671,8 @@ class Gui:
             if isinstance(payload, dict):
                 lib_name = payload.get("library")
                 if isinstance(lib_name, str):
-                    lib = self.__extensions.get(lib_name)
-                    if isinstance(lib, ElementLibrary):
+                    libs = self.__extensions.get(lib_name, [])
+                    for lib in libs:
                         user_var_name = var_name
                         try:
                             try:
@@ -667,6 +681,8 @@ class Gui:
                                 # ignore name error and keep var_name
                                 pass
                             ret_payload = lib.get_data(lib_name, payload, user_var_name, newvalue)
+                            if ret_payload:
+                                break
                         except Exception as e:
                             warnings.warn(
                                 f"Exception raised in '{lib_name}.get_data({lib_name}, payload, {user_var_name}, value)':\n{e}"
@@ -1424,12 +1440,14 @@ class Gui:
         if themes := self._get_themes():
             config["themes"] = themes
         if len(self.__extensions):
-            config["extensions"] = {
-                f".{Gui._EXTENSION_ROOT}{v.get_js_module_name()}": [
-                    e._get_js_name(n) for n, e in v.get_elements().items() if not e._is_server_only()
-                ]
-                for k, v in self.__extensions.items()
-            }
+            config["extensions"] = {}
+            for libs in self.__extensions.values():
+                for lib in libs:
+                    config["extensions"][f".{Gui._EXTENSION_ROOT}{lib.get_js_module_name()}"] = [  # type: ignore
+                        e._get_js_name(n)
+                        for n, e in lib.get_elements().items()
+                        if isinstance(e, Element) and not e._is_server_only()
+                    ]
         return config
 
     def run(
@@ -1601,12 +1619,14 @@ class Gui:
         extension_bp.add_url_rule(f"{Gui._EXTENSION_ROOT}<path:path>", view_func=self.__serve_extension)
         scripts = [
             f"{Gui._EXTENSION_ROOT}{name}/{s}"
-            for name, lib in Gui.__extensions.items()
+            for name, libs in Gui.__extensions.items()
+            for lib in libs
             for s in (lib.get_scripts() or [])
         ]
         styles = [
             f"{Gui._EXTENSION_ROOT}{name}/{s}"
-            for name, lib in Gui.__extensions.items()
+            for name, libs in Gui.__extensions.items()
+            for lib in libs
             for s in (lib.get_styles() or [])
         ]
         self._flask_blueprint.append(extension_bp)

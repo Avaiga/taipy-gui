@@ -19,7 +19,6 @@ from ..renderers.builder import _Builder
 from ..renderers.utils import _to_camel_case
 from ..types import PropertyType
 
-
 if t.TYPE_CHECKING:
     from ..gui import Gui
 
@@ -219,7 +218,7 @@ class ElementLibrary(ABC):
         TODO
         Returns:
             The name of the Javascript module.<br/>
-            The default implementation returns `self.get_name()`.
+            The default implementation returns camel case of `self.get_name()`.
         """
         return _to_camel_case(self.get_name(), True)
 
@@ -265,8 +264,7 @@ class ElementLibrary(ABC):
             raise FileNotFoundError(f"Cannot access resource {file}.")
 
     def get_resource_url(self, resource: str) -> str:
-        """TODO
-        """
+        """TODO"""
         from ..gui import Gui
 
         return f"{Gui._EXTENSION_ROOT}{self.get_name()}/{resource}"
