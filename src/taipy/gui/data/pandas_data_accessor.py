@@ -190,7 +190,7 @@ class _PandasDataAccessor(_DataAccessor):
         filters = payload.get("filters")
         if isinstance(filters, list) and len(filters) > 0:
             query = ""
-            variables = []
+            vars = []
             for fd in filters:
                 col = fd.get("col")
                 val = fd.get("value")
@@ -198,8 +198,8 @@ class _PandasDataAccessor(_DataAccessor):
                 if isinstance(val, str):
                     if self.__is_date_column(value, col):
                         val = datetime.fromisoformat(val[:-1])
-                    variables.append(val)
-                val = f"@vars[{len(variables) - 1}]" if isinstance(val, (str, datetime)) else val
+                    vars.append(val)
+                val = f"@vars[{len(vars) - 1}]" if isinstance(val, (str, datetime)) else val
                 right = f".str.contains({val})" if action == "contains" else f" {action} {val}"
                 if query:
                     query += " and "
