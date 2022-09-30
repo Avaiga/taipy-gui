@@ -11,6 +11,10 @@ process involving both Python and JavaScript source code.
 ## Directory structure
 
 - `README.md`: This file.
+- `demo.py`: A Python script that can be used to demonstrate the custom
+  element library.<br/>
+  See the [section on Testing the library](#testing-the-custom-element-library) for more
+  information.
 - `setup.py`: A Python script that is used to package the extension library, if
   needed.<br/>
   See the [section on Packaging](#packaging) for more information.
@@ -37,6 +41,9 @@ process involving both Python and JavaScript source code.
         transpiler (the program that transforms TypeScript code to vanilla JavaScript)
         needs this file to drive its execution.
       - `src/`: The source code for the Web components used by the custom elements.
+         - `index.ts`: The entry point of the generated JavaScript module.
+         - `SimpleLabel.tsx`: A simple example of a React component that displays
+           the value of a property.
    
 ## Building the custom library
 
@@ -65,6 +72,7 @@ sitting next to this README file.
 
 - If you are not using `pipenv`:
    ```sh
+   $ pip install virtualenv
    $ python -m venv ./venv
    $ source ./venv/bin/activate
    $ pip install taipy-gui
@@ -108,6 +116,32 @@ needs. Here are the important settings that you must check:
    - `"include"`: Must have the item indicating where the TypeScript source files should
      be located. The default is `"src"`, referencing `my_custom_lib/webui/src`.
 
+### Things to check
+
+The previous section explained what to change and where.
+Another way of looking at things is to list the different settings that can be
+modified, and check that they all match:
+
+- The element library name: set by overriding `ElementLibrary.get_name()`.<br/>
+  This is the prefix that is used in page description texts to find the visual
+  element to instantiate.
+- The JavaScript module name: Is specified in `webpack.config.js` (setting is
+  `output.library.name`).<br/>
+  By default, it is a camel case version of the element library name.<br/>
+  It can be specified otherwise by overriding `ElementLibrary.get_js_module_name()`.
+- The JavaScript bundle path name: Is specified in `webpack.config.js` (settings are
+  `output.filename` and `output.path`).<br/>
+  This is the path of the file that contains all the JavaScript parts of the library. It
+  must appear in the list returned by `ElementLibrary.get_scripts()`.
+- The element names: They are declared as keys to the dictionary returned by 
+  `ElementLibrary.get_elements()`.<br/>
+  They are used to find an element in a library when the page description text is
+  read.
+- The element component names: Are specified as the value of the `react_component`
+  argument to the `Element` constructor.<br/>
+  These component names must be exported with the exact same name from the JavaScript
+  bundle entry point.
+
 ### Building the JavaScript bundle
 
 When all configuration files have been properly updated, we can build the
@@ -130,6 +164,22 @@ JavaScript bundle:
   ```
   This generates the bundle `myCustom.js` in the `dist` directory (if you have not changed
   the `output` settings in `webpack.config.js`).
+
+### Testing the custom element library
+
+If you now go back to the top directory, you will find the Python script `demo.py`
+that shows how to integrate the new element into a regular Taipy application.
+
+To execute this application, you can run:
+   ```bash
+   # With pipenv
+   pipenv run python demo.py
+    
+   # Without pipenv
+   python  demo.py
+   ```
+
+And see the custom label control in action.
 
 ### Packaging
 
@@ -165,7 +215,15 @@ The following steps must be performed:
   - The `version` parameter should reflect the extension library version you are packaging.
   - Check the `classifiers` and `license` parameters.
 
-The JavaScript build step should have created a directory called 'dist' in the 'webui' directory.
+- Build the package:
+   ```bash
+   # With pipenv
+   pipenv run python -m build
+    
+   # Without pipenv
+   python -m build
+   ```
 
-##
+This generates a Python package that can be uploaded to Pipy or shared with community
+members.
 
