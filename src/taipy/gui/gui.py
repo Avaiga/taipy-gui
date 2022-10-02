@@ -91,9 +91,10 @@ class Gui:
             It defaults to the `on_action()` global function defined in the Python
             application. If there is no such function, actions will not trigger anything.<br/>
             The signature of the *on_action* callback function must be:
-            - state: the `State^` instance of the caller.
-            - id (optional): a string representing the identifier of the caller.
-            - payload (optional): an optional payload from the caller.
+
+            - *state*: the `State^` instance of the caller.
+            - *id* (optional): a string representing the identifier of the caller.
+            - *payload* (optional): an optional payload from the caller.
         on_change (Callable): The function that is called when a control
             modifies variables it is bound to, as the result of an interaction with the
             end-user.<br/>
@@ -101,22 +102,26 @@ class Gui:
             application. If there is no such function, user interactions will not trigger
             anything.<br/>
             The signature of the *on_change* callback function must be:
-            - state: the `State^` instance of the caller.
-            - var_name (str): The name of the variable that triggered this callback.
-            - var_value (any): The new value for this variable.
+
+            - *state*: the `State^` instance of the caller.
+            - *var_name* (str): The name of the variable that triggered this callback.
+            - *var_value* (any): The new value for this variable.
         on_init (Callable): The function that is called on the first connection of a new client.<br/>
             It defaults to the `on_init()` global function defined in the Python
             application. If there is no such function, the first connection will not trigger
             anything.<br/>
+
             The signature of the *on_init* callback function must be:
-            - state: the `State^` instance of the caller.
+
+            - *state*: the `State^` instance of the caller.
         on_navigate (Callable): The function that is called when a page is requested.<br/>
             It defaults to the `on_navigate()` global function defined in the Python
             application. If there is no such function, page requests will not trigger
             anything.<br/>
             The signature of the *on_navigate* callback function must be:
-            - state: the `State^` instance of the caller.
-            - page_name: the name of the page the user is navigating to.
+
+            - *state*: the `State^` instance of the caller.
+            - *page_name*: the name of the page the user is navigating to.
 
             The *on_navigate* callback function must return the name of the page the user should be
             directed to.
@@ -124,16 +129,19 @@ class Gui:
             It defaults to the `on_exception()` global function defined in the Python
             application. If there is no such function, exceptions will not trigger
             anything.<br/>
-            The signature of the *on_navigate* callback function must be:
-            - state: the `State^` instance of the caller.
-            - function_name: the name of the function that raised the exception.
-            - exception: the exception object that was raised.
+            The signature of the *on_exception* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
+            - *function_name*: the name of the function that raised the exception.
+            - *exception*: the exception object that was raised.
         on_status (Callable): The function that is called when the status page is shown.<br/>
             It defaults to the `on_status()` global function defined in the Python
             application. If there is no such function, status page content shows only the status of the
             server.<br/>
             The signature of the *on_status* callback function must be:
-            - state: the `State^` instance of the caller.
+
+            - *state*: the `State^` instance of the caller.
+
             It must return raw and valid HTML content as a string.
         state (State^): **Only defined when running in an IPython notebook context.**<br/>
             The unique instance of `State^` that you can use to change bound variables
@@ -289,10 +297,12 @@ class Gui:
 
     @staticmethod
     def add_library(library: ElementLibrary):
-        """Add a custom visual element library to this Gui instance.
+        """Add a custom visual element library.
+
+        This application will be able to use custom visual elements defined in this library.
 
         Arguments:
-            library: The custom visual element library to add to this library.
+            library: The custom visual element library to add to this application.
 
         Multiple libraries with the same name can be added. This allows to split multiple custom visual elements
         in several `ElementLibrary^` instances, but still refer to these elements with the same prefix in the page
