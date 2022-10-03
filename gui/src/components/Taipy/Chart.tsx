@@ -219,6 +219,7 @@ const Chart = (props: ChartProp) => {
                 height: plotRef.current?.clientHeight,
                 xAxis: config.traces.length && config.traces[0].length && config.traces[0][0] && config.columns[config.traces[0][0]].dfid,
                 yAxis: config.traces.length == 1 && config.traces[0].length > 1 && config.columns[config.traces[0][1]] && config.columns[config.traces[0][1]].dfid,
+                zAxis: config.traces.length && config.traces[0].length && config.traces[0][2] && config.columns[config.traces[0][2]].dfid,
                 decimator: decimator,
                 chartMode: config.modes[0],
               } : undefined;
@@ -367,7 +368,7 @@ const Chart = (props: ChartProp) => {
     const onRelayout = useCallback(
         (eventData: PlotRelayoutEvent) => {
             onRangeChange && dispatch(createSendActionNameAction(id, { action: onRangeChange, ...eventData }));
-            if (decimator) {
+            if (decimator && !config.types.includes("scatter3d")) {
                 const backCols = Object.keys(config.columns).map((col) => config.columns[col].dfid);
                 const eventDataKey = Object.keys(eventData).map(v => v + "=" + eventData[v as keyof typeof eventData]).join("-");
                 dataKey.current = backCols.join("-") + (decimator ? `--${decimator}` : "") + "--" + eventDataKey;
@@ -376,6 +377,7 @@ const Chart = (props: ChartProp) => {
                     height: plotRef.current?.clientHeight,
                     xAxis: config.traces.length && config.traces[0].length && config.traces[0][0] && config.columns[config.traces[0][0]].dfid,
                     yAxis: config.traces.length == 1 && config.traces[0].length > 1 && config.columns[config.traces[0][1]] && config.columns[config.traces[0][1]].dfid,
+                    zAxis: config.traces.length && config.traces[0].length && config.traces[0][2] && config.columns[config.traces[0][2]].dfid,
                     decimator: decimator,
                     relayoutData: eventData,
                     chartMode: config.modes[0],
@@ -391,7 +393,7 @@ const Chart = (props: ChartProp) => {
                 );
             }
         },
-        [dispatch, onRangeChange, id, config.modes, config.columns, config.traces, updateVarName, decimator]
+        [dispatch, onRangeChange, id, config.modes, config.columns, config.traces,config.types, updateVarName, decimator]
     );
 
     const onAfterPlot = useCallback(() => {
