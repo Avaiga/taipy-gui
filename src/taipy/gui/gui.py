@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import inspect
 import json
 import os
@@ -88,35 +89,60 @@ class Gui:
         on_action (Callable): The function that is called when a control
             triggers an action, as the result of an interaction with the end-user.<br/>
             It defaults to the `on_action()` global function defined in the Python
-            application. If there is no such function, actions will not trigger anything.
-            TODO: function signature
+            application. If there is no such function, actions will not trigger anything.<br/>
+            The signature of the *on_action* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
+            - *id* (optional): a string representing the identifier of the caller.
+            - *payload* (optional): an optional payload from the caller.
         on_change (Callable): The function that is called when a control
             modifies variables it is bound to, as the result of an interaction with the
             end-user.<br/>
             It defaults to the `on_change()` global function defined in the Python
             application. If there is no such function, user interactions will not trigger
-            anything.
-            TODO: function signature
+            anything.<br/>
+            The signature of the *on_change* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
+            - *var_name* (str): The name of the variable that triggered this callback.
+            - *var_value* (any): The new value for this variable.
         on_init (Callable): The function that is called on the first connection of a new client.<br/>
             It defaults to the `on_init()` global function defined in the Python
             application. If there is no such function, the first connection will not trigger
-            anything.
-            TODO: function signature
+            anything.<br/>
+
+            The signature of the *on_init* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
         on_navigate (Callable): The function that is called when a page is requested.<br/>
             It defaults to the `on_navigate()` global function defined in the Python
             application. If there is no such function, page requests will not trigger
-            anything.
-            TODO: function signature
+            anything.<br/>
+            The signature of the *on_navigate* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
+            - *page_name*: the name of the page the user is navigating to.
+
+            The *on_navigate* callback function must return the name of the page the user should be
+            directed to.
         on_exception (Callable): The function that is called an exception occurs on user code.<br/>
             It defaults to the `on_exception()` global function defined in the Python
             application. If there is no such function, exceptions will not trigger
-            anything.
-            TODO: function signature
+            anything.<br/>
+            The signature of the *on_exception* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
+            - *function_name*: the name of the function that raised the exception.
+            - *exception*: the exception object that was raised.
         on_status (Callable): The function that is called when the status page is shown.<br/>
-            It should return raw and valid HTML as a string.<br/>
             It defaults to the `on_status()` global function defined in the Python
-            application. If there is no such function, status page content shows only the status of the server.
-            TODO: function signature
+            application. If there is no such function, status page content shows only the status of the
+            server.<br/>
+            The signature of the *on_status* callback function must be:
+
+            - *state*: the `State^` instance of the caller.
+
+            It must return raw and valid HTML content as a string.
         state (State^): **Only defined when running in an IPython notebook context.**<br/>
             The unique instance of `State^` that you can use to change bound variables
             directly, potentially impacting the user interface in real-time.
@@ -271,12 +297,16 @@ class Gui:
 
     @staticmethod
     def add_library(library: ElementLibrary):
-        """Add a custom visual element library to this Gui instance.
+        """Add a custom visual element library.
+
+        This application will be able to use custom visual elements defined in this library.
 
         Arguments:
-            library: The custom visual element library to add to this library.
+            library: The custom visual element library to add to this application.
 
-        TODO: What if we add two libraries with the same name?
+        Multiple libraries with the same name can be added. This allows to split multiple custom visual elements
+        in several `ElementLibrary^` instances, but still refer to these elements with the same prefix in the page
+        definitions.
         """
         if isinstance(library, ElementLibrary):
             _Factory.set_library(library)
@@ -313,9 +343,7 @@ class Gui:
             res["dark"] = dark_theme
         if light_theme:
             res["light"] = light_theme
-        if theme or dark_theme or light_theme:
-            return res
-        return None
+        return res if theme or dark_theme or light_theme else None
 
     def _bind(self, name: str, value: t.Any) -> None:
         self._bindings()._bind(name, value)
@@ -353,18 +381,17 @@ class Gui:
             der_vars.update(derived_vars)
         if var_name in modified_vars:
             return True
-        else:
-            modified_vars.add(var_name)
-            return False
+        modified_vars.add(var_name)
+        return False
 
     def __clean_vars_on_exit(self) -> t.Optional[t.Set[str]]:
         update_count = getattr(g, "update_count", 0) - 1
         if update_count < 1:
-            vars: t.Set[str] = getattr(g, "derived_vars", set())
+            derived_vars: t.Set[str] = getattr(g, "derived_vars", set())
             delattr(g, "update_count")
             delattr(g, "modified_vars")
             delattr(g, "derived_vars")
-            return vars
+            return derived_vars
         else:
             setattr(g, "update_count", update_count)
             return None
@@ -511,7 +538,7 @@ class Gui:
                     args[3] = current_context
                 on_change_fn(*args)
             except Exception as e:
-                if not self.__call_on_exception(on_change or "on_change", e):
+                if not self._call_on_exception(on_change or "on_change", e):
                     warnings.warn(f"{on_change or 'on_change'}: callback function raised an exception:\n{e}")
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
@@ -533,6 +560,7 @@ class Gui:
     def __serve_extension(self, path: str) -> t.Any:
         parts = path.split("/")
         last_error = None
+        resource_name = None
         if len(parts) > 1:
             libs = Gui.__extensions.get(parts[0], [])
             for library in libs:
@@ -543,7 +571,7 @@ class Gui:
                 except Exception as e:
                     last_error = e  # Check if the resource is served by another library with the same name
         warnings.warn(
-            f"Resource '{resource_name}' not accessible for library '{parts[0]}':\n{last_error if last_error else ''}"
+            f"Resource '{resource_name or path}' not accessible for library '{parts[0]}':\n{last_error if last_error else ''}"
         )
         return ("", 404)
 
@@ -675,11 +703,9 @@ class Gui:
                     for lib in libs:
                         user_var_name = var_name
                         try:
-                            try:
-                                user_var_name = self.__get_real_var_name(var_name)[0]
-                            except NameError:
+                            with contextlib.suppress(NameError):
                                 # ignore name error and keep var_name
-                                pass
+                                user_var_name = self.__get_real_var_name(var_name)[0]
                             ret_payload = lib.get_data(lib_name, payload, user_var_name, newvalue)
                             if ret_payload:
                                 break
@@ -786,9 +812,11 @@ class Gui:
         return list(sids)
 
     def __get_message_grouping(self):
-        if not _hasscopeattr(self, Gui.__MESSAGE_GROUPING_NAME):
-            return None
-        return _getscopeattr(self, Gui.__MESSAGE_GROUPING_NAME)
+        return (
+            _getscopeattr(self, Gui.__MESSAGE_GROUPING_NAME)
+            if _hasscopeattr(self, Gui.__MESSAGE_GROUPING_NAME)
+            else None
+        )
 
     def __enter__(self):
         self.__hold_messages()
@@ -821,9 +849,7 @@ class Gui:
             func = self._get_locals_bind().get(func_name)
         if not callable(func):
             func = self.__locals_context.get_default().get(func_name)
-        if callable(func):
-            return func
-        return func_name
+        return func if callable(func) else func_name
 
     def _get_user_instance(self, class_name: str, class_type: type) -> t.Union[object, str]:
         cls = _getscopeattr(self, class_name, None)
@@ -831,9 +857,7 @@ class Gui:
             cls = self._get_locals_bind().get(class_name)
         if not isinstance(cls, class_type):
             cls = self.__locals_context.get_default().get(class_name)
-        if isinstance(cls, class_type):
-            return cls
-        return class_name
+        return cls if isinstance(cls, class_type) else class_name
 
     def __on_action(self, id: t.Optional[str], payload: t.Any) -> None:
         action = payload.get("action") if isinstance(payload, dict) else str(payload)
@@ -871,7 +895,7 @@ class Gui:
                 action_function(*args)
                 return True
             except Exception as e:
-                if not self.__call_on_exception(action_function.__name__, e):
+                if not self._call_on_exception(action_function.__name__, e):
                     warnings.warn(f"on_action: Exception raised in function '{action_function.__name__}':\n{e}")
         return False
 
@@ -890,7 +914,8 @@ class Gui:
                 self.__set_client_id_in_context(state_id)
                 return self._call_function_with_state(user_callback, args)
         except Exception as e:
-            warnings.warn(f"Exception raised in invoke_callback: '{user_callback.__name__}':\n{e}")
+            if not self._call_on_exception(user_callback.__name__, e):
+                warnings.warn(f"invoke_callback: Exception raised in function '{user_callback.__name__}'.\n{e}")
         return None
 
     # Proxy methods for Evaluator
@@ -900,8 +925,8 @@ class Gui:
     def _re_evaluate_expr(self, var_name: str) -> t.Set[str]:
         return self.__evaluator.re_evaluate_expr(self, var_name)
 
-    def _get_expr_from_hash(self, hash: str) -> str:
-        return self.__evaluator.get_expr_from_hash(hash)
+    def _get_expr_from_hash(self, hash_val: str) -> str:
+        return self.__evaluator.get_expr_from_hash(hash_val)
 
     def _evaluate_bind_holder(self, holder: t.Type[_TaipyBase], expr: str) -> str:
         return self.__evaluator.evaluate_bind_holder(self, holder, expr)
@@ -1081,11 +1106,6 @@ class Gui:
                           content is read as Markdown input text.
                         - If it is not, the page content is read from this string as
                           Markdown text.
-
-                If *pages* is a string that contains the path to a directory, then
-                this directory is traversed, looking for filenames that have the
-                _.md_ extention, TODO
-
 
         !!! note "Reading pages from a directory"
             If _pages_ is a string that holds the path to a readable directory, then
@@ -1304,17 +1324,16 @@ class Gui:
 
     def __init_route(self):
         self.__set_client_id_in_context()
-        if hasattr(self, "on_init") and callable(self.on_init):
-            if not _hasscopeattr(self, Gui.__ON_INIT_NAME):
-                _setscopeattr(self, Gui.__ON_INIT_NAME, True)
-                try:
-                    self._call_function_with_state(self.on_init, [])
-                except Exception as e:
-                    if not self.__call_on_exception("on_init", e):
-                        warnings.warn(f"Exception raised in on_init.\n{e}")
+        if hasattr(self, "on_init") and callable(self.on_init) and not _hasscopeattr(self, Gui.__ON_INIT_NAME):
+            _setscopeattr(self, Gui.__ON_INIT_NAME, True)
+            try:
+                self._call_function_with_state(self.on_init, [])
+            except Exception as e:
+                if not self._call_on_exception("on_init", e):
+                    warnings.warn(f"Exception raised in on_init.\n{e}")
         return self._render_route()
 
-    def __call_on_exception(self, function_name: str, exception: Exception) -> bool:
+    def _call_on_exception(self, function_name: str, exception: Exception) -> bool:
         if hasattr(self, "on_exception") and callable(self.on_exception):
             try:
                 self.on_exception(self.__get_state(), str(function_name), exception)
@@ -1328,7 +1347,7 @@ class Gui:
             try:
                 return self.on_status(self.__get_state())
             except Exception as e:
-                if not self.__call_on_exception("on_status", e):
+                if not self._call_on_exception("on_status", e):
                     warnings.warn(f"Exception raised in on_status.\n{e}")
         return None
 
@@ -1342,7 +1361,7 @@ class Gui:
                     warnings.warn(f"on_navigate() returned a invalid page name '{nav_page}'.")
                     nav_page = page_name
             except Exception as e:
-                if not self.__call_on_exception("on_navigate", e):
+                if not self._call_on_exception("on_navigate", e):
                     warnings.warn(f"Exception raised in on_navigate.\n{e}")
         page = next((page_i for page_i in self._config.pages if page_i._route == nav_page), None)
 
@@ -1477,24 +1496,28 @@ class Gui:
             async_mode (Optional[str]): The asynchronous model to use for the Flask-SocketIO.
                 Valid values are:</br>
 
-                - `"threading"`: Use the Flask Development Server. This allows the application to use
-                  the Flask reloader and Debug mode.
-                - `"eventlet"`: Use eventlet server.
-                - `"gevent"`: Use gevent server.
-                - `"gevent_uwsgi"`: Use uwsgi server.
+                - "threading": Use the Flask Development Server. This allows the application to use
+                  the Flask reloader (the *use_reloader* option) and Debug mode (the *debug* option).
+                - "eventlet": Use eventlet server.
+                - "gevent": Use gevent server.
+                - "gevent_uwsgi": Use uwsgi server.
 
                 If this argument is not set, Taipy uses, in that order: `"eventlet"`, `"gevent_uwsgi"`,
                 `"gevent"`, and finally `"threading"`. The first async mode value that can be used
                 (that is all the relevant dependencies are installed) is used.<br/>
-                See [SocketIO Deployment Strategies](https://python-socketio.readthedocs.io/en/latest/server.html#deployment-strategies)
+                See
+                [SocketIO Deployment Strategies](https://python-socketio.readthedocs.io/en/latest/server.html#deployment-strategies)
                 for more information.</br>
-                Note that only the `"threading"` value provides support for the development reloader
-                functionality. All the other values make the *use_reloader* configuration
-                element ignored.
-            **kwargs (Dict[str, Any]): Additional keyword arguments that configure how this `Gui` is run.
+                Taipy GUI comes with the [gevent package](https://pypi.org/project/gevent/) preinstalled so "gevent"
+                would be the default option out-of-the-box.<br/>
+                Note that only the "threading" value provides support for the development reloader
+                functionality (*use_reloader* option). Any other value makes the *use_reloader* configuration parameter
+                ignored.<br/>
+                Also note that setting the *debug* argument to True forces *async_mode* to "threading".
+            **kwargs (dict[str, any]): Additional keyword arguments that configure how this `Gui` is run.
                 Please refer to the
-                [Configuration](../gui/configuration.md#configuring-the-gui-instance)
-                section in the User Manual for more information.
+                [Configuration section](../gui/configuration.md#configuring-the-gui-instance)
+                of the User Manual for more information.
 
         Returns:
             The Flask instance if *run_server* is False else None.
