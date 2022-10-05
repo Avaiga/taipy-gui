@@ -25,7 +25,7 @@ export interface Icon {
 }
 
 /**
- * A String or icon.
+ * A string or an icon.
  */
 export type stringIcon = string | Icon;
 
