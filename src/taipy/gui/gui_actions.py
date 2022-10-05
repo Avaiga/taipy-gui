@@ -177,7 +177,7 @@ def get_module_name_from_state(state: State) -> t.Optional[str]:
 def invoke_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
     """Invoke a user callback in a given state.
 
-    See the [User Manual section on Long Running Callbacks](../../gui/callbacks/#long-running-callbacks)
+    See the [User Manual section on Long Running Callbacks in a Thread](../../gui/callbacks/#long-running-callbacks-in-a-thread)
     for details on when and how this function can be used.
 
     Arguments:
@@ -215,18 +215,27 @@ def invoke_long_callback(
     Arguments:
         state (State^): The `State^` instance, as received in any callback.
         user_function (Callable[[...], None]): The function that will be run independently of Taipy GUI. Note
-          that this function must not use *state*, which is not persisted across threads.
-        user_function_args (Optional[List|Tuple]): The remaining arguments.
+            that this function must not use *state*, which is not persisted across threads.
+        user_function_args (Optional[List|Tuple]): The arguments to send to *user_function*.
         user_status_function (Optional(Callable[[State^, bool, ...], None])): The optional user-defined status
-            function that is invoked at the end of and possibly during the runtime of *user_function*.<br/>
-            The first parameter of this function **must** be a `State^`. The second parameter of this function
-            **must** be a Union[`bool`, `int`] that will indicate whether a progression (`int`) or the final
-            status (`bool`).
+            function that is invoked at the end of and possibly during the runtime of *user_function*:
+
+            - The first parameter of this function **must** be a `State^`.
+            - The second parameter of this function **must** be a bool or an int.<br/>
+
+               - If the status function receives a Boolean value, then:
+
+                   - If True, this indicates that *user_function* has finished properly.
+                   - If False, this indicates that *user_function* failed.
+
+               - If the status function receives a integer value, then this value indicates how many
+                 periods (as indicated in *period*) have elapsed since *user_function* was executed.
         user_status_function_args (Optional[List|Tuple]): The remaining arguments of the user status function.
         period (int): The interval, in milliseconds, at which *user_status_function* is called.<br/>
-            The default value is 0, meaning no call to *user_status_function* will happen.</br>
+            The default value is 0, meaning no call to *user_status_function* will happen until *user_function*
+            terminates (then the second parameter of that call will be ).</br>
             When set to a value smaller than 500, *user_status_function* is called only when *user_function*
-            terminates.
+            terminates (as if *period* was set to 0).
     """
     if not state or not isinstance(state._gui, Gui):
         warnings.warn("'invoke_long_callback()' must be called in the context of a callback.")
