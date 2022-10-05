@@ -51,11 +51,8 @@ export interface LovProps<T = string | string[], U = string> extends TaipyActive
  * - Potential child elements as an array of `LoVElt`s.
  */
 export type LoVElt = [
-    /** The identifier. */
     string,
-    /** The label or icon. */
     stringIcon,
-    /** The optional list of children. */
     LoVElt[]?
 ];
 
@@ -83,10 +80,10 @@ export const treeSelBaseSx = { width: "100%", bgcolor: "background.paper", overf
 
 /**
  * A React hook that returns a LoV list from the LoV default value and the LoV bound value.
- * @param {LoV | undefined} lov - The bound lov value.
- * @param {string} defaultLov - The JSON-stringified default LoV value.
- * @param {boolean | undefined} [tree] - This flag indicates if the LoV list is a tree or a flat list (default is false).
- * @returns {LovItem[]} A list of LoV items.
+ * @param lov - The bound lov value.
+ * @param defaultLov - The JSON-stringified default LoV value.
+ * @param tree - This flag indicates if the LoV list is a tree or a flat list (default is false).
+ * @returns A list of LoV items.
  */
 export const useLovListMemo = (lov: LoV | undefined, defaultLov: string, tree = false): LovItem[] =>
     useMemo(() => {

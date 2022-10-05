@@ -21,7 +21,7 @@ export interface LovItem {
     id: string;
     /** The items label (string and/or icon). */
     item: stringIcon;
-    /** The optional array of child items. */
+    /** The array of child items. */
     children?: LovItem[];
 }
 

@@ -34,28 +34,28 @@ export interface ColumnDesc {
     dfid: string;
     /** The column type. */
     type: string;
-    /** The optional value format. */
+    /** The value format. */
     format?: string;
-    /** The optional column title. */
+    /** The column title. */
     title?: string;
     /** The order of the column. */
     index: number;
-    /** The optional column width. */
+    /** The column width. */
     width?: number | string;
     /** If true, the column cannot be edited. */
     notEditable?: boolean;
-    /** The optional name name of the column that holds the CSS classname to
+    /** The name of the column that holds the CSS classname to
      *  apply to the cells. */
     style?: string;
-    /** The optional value that would replace a NaN value. */
+    /** The value that would replace a NaN value. */
     nanValue?: string;
-    /** The optional TimeZone identifier used if the type is `date`. */
+    /** The TimeZone identifier used if the type is `date`. */
     tz?: string;
     /** The flag that allows filtering. */
     filter?: boolean;
-    /** The optional name of the aggregation function. */
+    /** The name of the aggregation function. */
     apply?: string;
-    /** The optional flag that allows the user to aggregate the column. */
+    /** The flag that allows the user to aggregate the column. */
     groupBy?: boolean;
     widthHint?: number;
 }
@@ -71,7 +71,7 @@ export type RowValue = string | number | boolean | null;
 
 /**
  * The definition of a table row.
- * 
+ *
  * A row definition associates a name (a string) to a type (a {@link RowValue}).
  */
 export type RowType = Record<string, RowValue>;

@@ -69,10 +69,10 @@ export const getArrayValue = <T>(arr: T[], idx: number, defVal?: T): T | undefin
 
 /**
  * Extracts the backend name of a property.
- * 
- * @param {string} updateVars - The value held by the property *updateVars*.
- * @param {string} name - The name of a bound property.
- * @returns {string | undefined} The backend-generated variable name.
+ *
+ * @param updateVars - The value held by the property *updateVars*.
+ * @param name - The name of a bound property.
+ * @returns The backend-generated variable name.
  */
 export const getUpdateVar = (updateVars: string, name: string) => {
     const sel = updateVars && updateVars.split(";").find((uv) => uv && uv.startsWith(name + "="));

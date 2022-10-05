@@ -462,16 +462,16 @@ const createMultipleUpdateAction = (payload: NamePayload[]): TaipyMultipleAction
  *
  * This action will update the variable *name* (if *propagate* is true) and trigger the
  * invocation of the `on_change` Python function on the backend.
- * @param {string | undefined} [name] - The name of the variable holding the requested data
+ * @param name - The name of the variable holding the requested data
  *    as received as a property.
- * @param {unknown} value - The new value for the variable named *name*.
- * @param {string | undefined} onChange - The name of the `on_change` Python function to
+ * @param value - The new value for the variable named *name*.
+ * @param onChange - The name of the `on_change` Python function to
  *   invoke on the backend (default is "on_change").
- * @param {boolean | undefined} [propagate] - A flag indicating that the variable should be
+ * @param propagate - A flag indicating that the variable should be
  *   automatically updated on the backend.
- * @param {string | undefined} [relName] - The name of the optional related variable (for
+ * @param relName - The name of the related variable (for
  *   example the lov when a lov value is updated).
- * @returns {Action} The action fed to the reducer.
+ * @returns The action fed to the reducer.
  */
 export const createSendUpdateAction = (
     name = "",
@@ -502,11 +502,11 @@ const getPayload = (value: unknown, onChange?: string, relName?: string) => {
  *
  * This action will trigger the invocation of the `on_action` Python function on the backend,
  * providing all the parameters as a payload.
- * @param {string | undefined} name - The name of the action function on the backend.
- * @param {unknown} value - The value associated with the action. This can be an object or
+ * @param name - The name of the action function on the backend.
+ * @param value - The value associated with the action. This can be an object or
  *   any type of value.
- * @param {unknown[]} args - Additional information associated to the action.
- * @returns {Action} The action fed to the reducer.
+ * @param args - Additional information associated to the action.
+ * @returns The action fed to the reducer.
  */
 export const createSendActionNameAction = (
     name: string | undefined,
@@ -600,18 +600,18 @@ export const createRequestInfiniteTableUpdateAction = (
  * This action will provoke the invocation of the `get_data()` method of the backend
  * library. That invocation generates an update of the elements holding the data named
  * *name* on the frontend.
- * @param {string} name - The name of the variable holding the requested data as received as
+ * @param name - The name of the variable holding the requested data as received as
  *   a property.
- * @param {string | undefined} id - The identifier of the visual element.
- * @param {string[]} columns - The list of the columns needed by the element that emitted this
+ * @param id - The identifier of the visual element.
+ * @param columns - The list of the columns needed by the element that emitted this
  *   action.
- * @param {string} pageKey - The unique identifier of the data that will be received from
+ * @param pageKey - The unique identifier of the data that will be received from
  *   this action.
- * @param {Record<string, unknown>} payload - The payload (specific to the type of component
+ * @param payload - The payload (specific to the type of component
  *  ie table, chart...).
- * @param {boolean | undefined} [allData] - The flag indicating if all the data is requested.
- * @param {string | undefined} library - The optional name of the {@link extension} library.
- * @returns {Action} The action fed to the reducer.
+ * @param allData - The flag indicating if all the data is requested.
+ * @param library - The name of the {@link extension} library.
+ * @returns The action fed to the reducer.
  */
  export const createRequestDataUpdateAction = (
     name: string | undefined,
