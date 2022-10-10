@@ -127,31 +127,27 @@ const getValueFromCol = (values: TraceValueType | undefined, col: string): (stri
     return [];
 };
 
+const getAxis = (traces: string[][], columns: Record<string, ColumnDesc>, axis: number) => {
+    if (traces.length > 0 && traces[0].length > axis && traces[0][axis] && columns[traces[0][axis]])
+        return columns[traces[0][axis]].dfid
+    return undefined
+}
+
 const getDecimatorPayload = (
     decimator: string | undefined,
-    plotRef: React.RefObject<HTMLDivElement>,
+    plotDiv: HTMLDivElement | null,
     modes: string[],
     columns: Record<string, ColumnDesc>,
     traces: string[][],
-    relayoutData: PlotRelayoutEvent | undefined = undefined
+    relayoutData?: PlotRelayoutEvent
 ) => {
     return decimator
         ? {
-              width: plotRef.current?.clientWidth,
-              height: plotRef.current?.clientHeight,
-              xAxis: traces.length && traces[0].length && traces[0][0] && columns[traces[0][0]].dfid,
-              yAxis:
-                  traces.length > 0 &&
-                  traces[0].length > 1 &&
-                  traces[0][1] &&
-                  columns[traces[0][1]] &&
-                  columns[traces[0][1]].dfid,
-              zAxis:
-                  traces.length > 0 &&
-                  traces[0].length > 2 &&
-                  traces[0][2] &&
-                  columns[traces[0][2]] &&
-                  columns[traces[0][2]].dfid,
+              width: plotDiv?.clientWidth,
+              height: plotDiv?.clientHeight,
+              xAxis: getAxis(traces, columns, 0),
+              yAxis: getAxis(traces, columns, 1),
+              zAxis: getAxis(traces, columns, 2),
               decimator: decimator,
               relayoutData: relayoutData,
               chartMode: modes[0],
@@ -262,7 +258,7 @@ const Chart = (props: ChartProp) => {
                     id,
                     backCols,
                     dataKey.current,
-                    getDecimatorPayload(decimator, plotRef, config.modes, config.columns, config.traces),
+                    getDecimatorPayload(decimator, plotRef.current, config.modes, config.columns, config.traces),
                 )
             );
         }
@@ -415,7 +411,7 @@ const Chart = (props: ChartProp) => {
                         id,
                         backCols,
                         dataKey.current,
-                        getDecimatorPayload(decimator, plotRef, config.modes, config.columns, config.traces, eventData),
+                        getDecimatorPayload(decimator, plotRef.current, config.modes, config.columns, config.traces, eventData),
                     )
                 );
             }
