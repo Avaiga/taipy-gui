@@ -1,0 +1,51 @@
+{
+  "default": "content",
+  "inherits": [
+    "active",
+    "shared"
+  ],
+  "properties": [
+    {
+      "name": "content",
+      "type": "dynamic(url | path | file | ReadableBuffer)",
+      "default": null,
+      "doc": "The content of the file.\r\n\r\n<p>\r\nIf a buffer is provided (string, array of bytes...), and in order to prevent the bandwidth to be\r\nconsumed too much, the way the data is transferred depends on the the <i>data_url_max_size</i>\r\nparameter of the application configuration (which is set to 50kB by default):\r\n<ul>\r\n<li>If the size of the buffer is smaller than this setting, then the raw content is generated as a\r\n  data URL, encoded using base64 (i.e. <code>\"data:&lt;mimetype&gt;;base64,&lt;data&gt;\"</code>).</li>\r\n<li>If the size of the buffer is greater than this setting, then it is transferred through a temporary\r\n  file.</li>\r\n</ul>\r\n</p>"
+    },
+    {
+      "name": "label",
+      "type": "dynamic(str)",
+      "default": null,
+      "doc": "The label of the button."
+    },
+    {
+      "name": "on_action",
+      "type": "Callback",
+      "default": null,
+      "doc": "The name of a function that is triggered when the download is initiated.\r\nAll the parameters of that function are optional:\r\n<ul>\r\n<li>state (<code>State^</code>): the state instance.</li>\r\n<li>id (optional[str]): the identifier of the button.</li>\r\n<li>action (optional[str]): the name of the action that provoked the change.</li>\r\n</ul>"
+    },
+    {
+      "name": "auto",
+      "type": "bool",
+      "default": false,
+      "doc": "If True, the download starts as soon as the page is loaded."
+    },
+    {
+      "name": "render",
+      "type": "dynamic(bool)",
+      "default": true,
+      "doc": "If True, the control is displayed.\r\nIf False, the control is not displayed."
+    },
+    {
+      "name": "bypass_preview",
+      "type": "bool",
+      "default": true,
+      "doc": "If False, allows the browser to try to show the content in a different tab.\r\nThe file download is always performed."
+    },
+    {
+      "name": "name",
+      "type": "str",
+      "default": null,
+      "doc": "A name proposition for the file to save, that the user can change."
+    }
+  ]
+}

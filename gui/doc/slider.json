@@ -1,0 +1,69 @@
+{
+  "default": "value",
+  "inherits": [
+    "lovComp",
+    "propagate"
+  ],
+  "properties": [
+    {
+      "name": "value",
+      "type": "dynamic(int | float | str)",
+      "default": null,
+      "doc": "The value that is set for this slider.\r\nIt would be a <i>lov</i> label if it is used."
+    },
+    {
+      "name": "min",
+      "type": "int | float",
+      "default": "0",
+      "doc": "The minimum value.\r\nThis is ignored when <i>lov</i> is defined."
+    },
+    {
+      "name": "max",
+      "type": "int | float",
+      "default": "100",
+      "doc": "The maximum value.\r\nThis is ignored when <i>lov</i> is defined."
+    },
+    {
+      "name": "text_anchor",
+      "type": "str",
+      "default": "\"bottom\"",
+      "doc": "When the <i>lov</i> property is used, this property indicates the location of the label.\r\nPossible values are:\r\n<ul>\r\n<li>\"bottom\"</li>\r\n<li>\"top\"</li>\r\n<li>\"left\"</li>\r\n<li>\"right\"</li>\r\n<li>\"none\" (no label is displayed)</li>\r\n</ul>"
+    },
+    {
+      "name": "labels",
+      "type": "bool|dict",
+      "default": null,
+      "doc": "The labels for specific points of the slider.\r\nIf set to True, this slider uses the labels of the <i>lov</i> if there are any.\r\nIf set to a dictionary, the slider uses the dictionary keys as a <i>lov</i> key or index, and the associated value as the label."
+    },
+    {
+      "name": "continuous",
+      "type": "bool",
+      "default": "TRUE",
+      "doc": "If set to False, the control emits an on_change notification only when the mouse button is released, \r\notherwise notifications are emitted during the cursor movements. \r\nIf <i>lov</i> is defined, the default value is False."
+    },
+    {
+      "name": "change_delay",
+      "type": "int",
+      "default": "<i>App config</i>",
+      "doc": "Minimum time between triggering two <i>on_change</i> calls.\r\nThe default value is defined at the application configuration level by the <strong>change_delay</strong> configuration option. if None or 0, there's no delay."
+    },
+    {
+      "name": "width",
+      "type": "str",
+      "default": "\"300px\"",
+      "doc": "The width, in CSS units, of this element."
+    },
+    {
+      "name": "height",
+      "type": "str",
+      "default": null,
+      "doc": "The height, in CSS units, of this element.\r\nIt defaults to the <i>width</i> value when using the vertical orientation."
+    },
+    {
+      "name": "orientation",
+      "type": "str",
+      "default": "\"horizontal\"",
+      "doc": "The orientation of this slider.\r\nValid values are \"horizontal\" or \"vertical\"."
+    }
+  ]
+}

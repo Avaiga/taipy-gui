@@ -1,0 +1,22 @@
+{
+  "default": "value",
+  "inherits": [
+    "sharedInput",
+    "on_change",
+    "propagate"
+  ],
+  "properties": [
+    {
+      "name": "value",
+      "type": "dynamic(any)",
+      "default": null,
+      "doc": "The numerical value represented by this control."
+    },
+    {
+      "name": "label",
+      "type": "str",
+      "default": "None",
+      "doc": "The label associated with the input."
+    }
+  ]
+}

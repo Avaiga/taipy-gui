@@ -1,0 +1,33 @@
+{
+  "default": "date",
+  "inherits": [
+    "on_change",
+    "propagate"
+  ],
+  "properties": [
+    {
+      "name": "date",
+      "type": "dynamic(datetime)",
+      "default": null,
+      "doc": "The date that this control represents and can modify.\r\nIt is typically bound to a <code>datetime</code> object."
+    },
+    {
+      "name": "with_time",
+      "type": "bool",
+      "default": false,
+      "doc": "Whether or not to show the time part of the date."
+    },
+    {
+      "name": "format",
+      "type": "str",
+      "default": null,
+      "doc": "The format to apply to the value.\r\nSee below."
+    },
+    {
+      "name": "editable",
+      "type": "dynamic(bool)",
+      "default": true,
+      "doc": "Shows the date as a formatted string if not editable."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "default": null,
+  "properties": [
+    {
+      "name": "change_delay",
+      "type": "int",
+      "default": "<i>App config</i>",
+      "doc": "Minimum time between triggering two <i>on_change</i> calls.\r\nThe default value is defined at the application configuration level by the <strong>change_delay</strong> configuration option. if None, the delay is set to 300ms."
+    },
+    {
+      "name": "on_action",
+      "type": "Callback",
+      "default": null,
+      "doc": "Name of a function that is triggered when a specific key is pressed.<br/>\r\nThe parameters of that function are all optional:\r\n<ul>\r\n<li>state (<code>State^</code>): the state instance.</li>\r\n<li>id (str): the identifier of the dialog.</li>\r\n<li>action (str): the name of the action that provoked the change.</li>\r\n<li>payload (dict): the details on this callback's invocation.<br/>\r\nThis dictionary has the following keys:\r\n<ul>\r\n<li>args (List):\r\n<ul><li>key name</li><li>variable name</li><li>current value</li></ul>\r\n</li>\r\n</ul>\r\n</li>\r\n</ul>\r\n"
+    },
+    {
+      "name": "action_keys",
+      "type": "str",
+      "default": "\"Enter\"",
+      "doc": "Semicolon (';')-separated list of supported key names.\r\nAuthorized values are Enter, Escape, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12."
+    }
+  ]
+}

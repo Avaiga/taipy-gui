@@ -1,0 +1,45 @@
+{
+  "default": "content",
+  "inherits": [
+    "active",
+    "shared"
+  ],
+  "properties": [
+    {
+      "name": "content",
+      "type": "dynamic(str)",
+      "default": null,
+      "doc": "The path or the list of paths of the uploaded files."
+    },
+    {
+      "name": "label",
+      "type": "str",
+      "default": null,
+      "doc": "The label of the button."
+    },
+    {
+      "name": "on_action",
+      "type": "Callback",
+      "default": null,
+      "doc": "The name of the function that will be triggered.\r\nAll the parameters of that function are optional:\r\n<ul>\r\n<li>state (<code>State^</code>): the state instance.</li>\r\n<li>id (optional[str]): the identifier of the button.</li>\r\n<li>action (optional[str]): the name of the action that provoked the change.</li>\r\n</ul>"
+    },
+    {
+      "name": "multiple",
+      "type": "bool",
+      "default": "FALSE",
+      "doc": "If set to True, multiple files can be uploaded."
+    },
+    {
+      "name": "extensions",
+      "type": "str",
+      "default": "\".csv,.xlsx\"",
+      "doc": "The list of file extensions that can be uploaded."
+    },
+    {
+      "name": "drop_message",
+      "type": "str",
+      "default": "\"Drop here to Upload\"",
+      "doc": "The message that is displayed when the user drags a file above the button."
+    }
+  ]
+}

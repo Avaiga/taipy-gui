@@ -1,0 +1,56 @@
+{
+  "default": "display",
+  "inherits": [
+    "shared"
+  ],
+  "properties": [
+    {
+      "name": "display",
+      "type": "dynamic(any)",
+      "default": null,
+      "doc": "The label to be displayed.\r\nThis can be formatted if it is a numerical value."
+    },
+    {
+      "name": "value",
+      "type": "dynamic(int,float)",
+      "default": "<i>min</i>",
+      "doc": "The location of the label on the [<i>min</i>, <i>max</i>] range."
+    },
+    {
+      "name": "min",
+      "type": "int|float",
+      "default": "0",
+      "doc": "The minimum value of the range."
+    },
+    {
+      "name": "max",
+      "type": "int|float",
+      "default": "100",
+      "doc": "The maximum value of the range."
+    },
+    {
+      "name": "format",
+      "type": "str",
+      "default": null,
+      "doc": "The format to use when displaying the value.\r\nThis uses the <code>printf</code> syntax."
+    },
+    {
+      "name": "orientation",
+      "type": "str",
+      "default": "\"horizontal\"",
+      "doc": "The orientation of this slider."
+    },
+    {
+      "name": "width",
+      "type": "str",
+      "default": "None",
+      "doc": "The width, in CSS units, of the indicator (used when orientation is horizontal)."
+    },
+    {
+      "name": "height",
+      "type": "str",
+      "default": "None",
+      "doc": "The height, in CSS units, of the indicator (used when orientation is vartical)."
+    }
+  ]
+}

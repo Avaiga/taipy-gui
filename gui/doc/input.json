@@ -1,0 +1,40 @@
+{
+  "default": "value",
+  "inherits": [
+    "sharedInput",
+    "on_change",
+    "propagate"
+  ],
+  "properties": [
+    {
+      "name": "value",
+      "type": "dynamic(any)",
+      "default": "None",
+      "doc": "The value represented by this control."
+    },
+    {
+      "name": "password",
+      "type": "bool",
+      "default": "False",
+      "doc": "If True, the text is obscured: all input characters are displayed as an asterisk ('*')."
+    },
+    {
+      "name": "label",
+      "type": "str",
+      "default": "None",
+      "doc": "The label associated with the input."
+    },
+    {
+      "name": "multiline",
+      "type": "bool",
+      "default": "False",
+      "doc": "If True, the text is presented as a multi line input."
+    },
+    {
+      "name": "lines_shown",
+      "type": "int",
+      "default": "5",
+      "doc": "The height of the displayed element if multiline is True."
+    }
+  ]
+}

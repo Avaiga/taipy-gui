@@ -1,0 +1,26 @@
+{
+  "default": "columns",
+  "inherits": [
+    "shared"
+  ],
+  "properties": [
+    {
+      "name": "columns",
+      "type": "str",
+      "default": "\"1 1\"",
+      "doc": "The list of weights for each column.\r\nFor example, `\"1 2\"` creates a 2 column grid:\r\n<ul>\r\n<li>1fr</li>\r\n<li>2fr</li>\r\n</ul>\r\nThe creation of multiple same size columns can be simplified by using the multiply sign eg. \"5*1\" is equivalent to \"1 1 1 1 1\"."
+    },
+    {
+      "name": "columns[mobile]",
+      "type": "str",
+      "default": "\"1\"",
+      "doc": "The list of weights for each column, when displayed on a mobile device.\r\nThe syntax is the same as for <i>columns</i>."
+    },
+    {
+      "name": "gap",
+      "type": "str",
+      "default": "\"0.5rem\"",
+      "doc": "The size of the gap between the columns."
+    }
+  ]
+}

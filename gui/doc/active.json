@@ -1,0 +1,11 @@
+{
+  "default": null,
+  "properties": [
+    {
+      "name": "active",
+      "type": "dynamic(bool)",
+      "default": true,
+      "doc": "Indicates if this component is active.\r\nAn inactive component allows no user interaction."
+    }
+  ]
+}
