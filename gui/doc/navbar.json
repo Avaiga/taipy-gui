@@ -1,8 +1,0 @@
-{
-  "default": null,
-  "inherits": [
-    "lovComp",
-    "active",
-    "shared"
-  ]
-}
