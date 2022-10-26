@@ -7,32 +7,36 @@ directory contains all it needs to generate the functional documentation for Tai
 
 For every visual component, you need to provide or update two files:
 
-   - `<element_name>.md`: A free Markdown text introduction to the element, and a list of usage examples.
-     The generated reference part for this element type's documentation is inserted just before
-     the first occurence of "##" (level 2 title).
+   - `<element_name>.md`: A free Markdown text documentation of the element, and a list of
+     usage examples.
+
+     The first line (ending with two line skips) will be used as a summary of this
+     element's documentation.
+
+     You can add introduction paragraphs after that.
+
+     The generated reference part for this element type's documentation is inserted just before the first occurrence of "##" (level 2 title).
 
    - `viselements.json`: the list of all visual element descriptors.
 
      An element descriptor indicates all that needs to be exposed for user, in the
      documentation or in Taipy Studio.
   
-     Element descriptors appear in one of three lists: "controls", "blocks" or "others". The order
-     of the elements in the "controls" and "blocks" list is the one reflected in the documentation.
+     Element descriptors appear in one of three lists: "controls", "blocks" or
+     "undocumented". The order of the elements in the "controls" and "blocks" list is
+     used in the documentation when elements are listed.
 
-     Element descriptors *may* hold the following properties:
+     Element descriptors *may* hold the property "inherits": if the element inherits some
+     property interfaces (like "shared"), you must add those interface names to the
+     property value (like ["shared"]).
 
-     - "default": the name of the default property for the described element.
 
-     - "inherits": if the element inherits some property interfaces (like "shared"), you must
-       add those interface names to the property value (like ["shared"]).
+     Element descriptors *must* have the "properties" property that holds the list of its
+     properties, in the order you want them to appear on the visual element documentation
+     page.
 
-       All the properties of the interface will be listed as properties of the visual element.
-
-       If you need to have an inherited property appearing elsewhere in the property list,
-       simply indicate its name filling the other properties if needed.
-
-     Element descriptors *must* have the "properties" property that  holds the list of its properties,
-     in the order you want them to appear in the visual element documentation page.
+     If you need to have an inherited property appearing elsewhere in the property list,
+     simply indicate its name filling the other properties if needed.
 
      The following rules apply to the different properties for the element properties:
 
@@ -40,6 +44,14 @@ For every visual component, you need to provide or update two files:
 
        If the property is the default property, this property value must be reflected
        in the "default" property.
+
+     - "default_property": a Boolean value that indicates if this property is the element's
+       default property. A false value is equivalent to no "default_property" at all.
+
+       Elements must have one and only one default property.
+
+       If the element inherits another, then the inherited default property will be used
+       if not overridden in the inheriting element.
 
      - "type": the type of this property.
 
@@ -54,9 +66,11 @@ For every visual component, you need to provide or update two files:
        
        You cannot use any Markdown in this property value. You must use raw HTML.
 
-     - "default": the default value for this property.
+     - "default_value": the default value for this property.
 
-       If there is no default value, set this to null (or just drop the property itself).
+       If there is no default value, set this to null or just drop the property itself.
+
+       The contents of this property is exactly how it is represented in the documentation.
 
      - "doc": The actual documentation for this property.
 
