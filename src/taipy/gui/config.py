@@ -244,10 +244,10 @@ def _register_gui_config():
 
         @staticmethod
         def _configure(**properties):
-            """Configure GUI.
+            """Configure the Graphical User Interface.
 
             Parameters:
-                **properties (Dict[str, Any]): Keyword arguments that configure `Gui` behavior.<br/>
+                **properties (Dict[str, Any]): Keyword arguments that configure the behavior of the `Gui^` instances.<br/>
                     Please refer to the
                     [Configuration section](../gui/configuration.md#configuring-the-gui-instance)
                     of the User Manual for more information on the accepted arguments.
