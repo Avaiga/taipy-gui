@@ -213,6 +213,7 @@ def _register_gui_config():
 
     from taipy.config import Config as TaipyConfig
     from taipy.config import UniqueSection
+    from taipy.config import _inject_section
 
     from ._default_config import default_config
 
@@ -243,9 +244,20 @@ def _register_gui_config():
 
         @staticmethod
         def _configure(**properties):
+            """Configure GUI.
+
+            Parameters:
+                **properties (Dict[str, Any]): Keyword arguments that configure `Gui` behavior.<br/>
+                    Please refer to the
+                    [Configuration section](../gui/configuration.md#configuring-the-gui-instance)
+                    of the User Manual for more information on the accepted arguments.
+            Returns:
+                `_GuiSection^`: The gui configuration.
+
+            """
             section = _GuiSection(property_list=list(default_config), **properties)
             TaipyConfig._register(section)
             return TaipyConfig.unique_sections[_GuiSection.name]
 
-    TaipyConfig._register_default(_GuiSection(property_list=list(default_config)))
-    TaipyConfig.configure_gui = _GuiSection._configure
+    _inject_section(_GuiSection, "gui_config", _GuiSection(property_list=list(default_config)),
+                    [("configure_gui", _GuiSection._configure)])
