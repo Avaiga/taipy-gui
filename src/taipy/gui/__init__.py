@@ -89,7 +89,7 @@ from .renderers import Html, Markdown
 from .state import State
 from .utils import is_debugging
 
-if find_spec("taipy") or find_spec("taipy.config"):
+if find_spec("taipy") and find_spec("taipy.config"):
     from taipy.config import _inject_section
 
     from ._default_config import default_config
