@@ -25,6 +25,11 @@ from importlib import util
 from types import FrameType
 from urllib.parse import urlparse
 
+if util.find_spec("gevent"):
+    from gevent import monkey
+
+    monkey.patch_all()
+
 import __main__
 import markdown as md_lib
 import tzlocal
