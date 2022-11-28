@@ -25,9 +25,9 @@ import __main__
 from flask import Blueprint, Flask, json, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from gitignore_parser import parse_gitignore
 from kthread import KThread
 from werkzeug.serving import is_running_from_reloader
-from gitignore_parser import parse_gitignore
 
 from .renderers.json import _TaipyJsonProvider
 from .utils import _is_in_notebook, _RuntimeManager
@@ -64,6 +64,8 @@ class _Server:
             self._flask, cors_allowed_origins="*", ping_timeout=10, ping_interval=5, json=json, async_mode=async_mode
         )
 
+        self._apply_patch()
+
         CORS(self._flask)
 
         self.__path_mapping = path_mapping
@@ -79,10 +81,14 @@ class _Server:
     def __is_ignored(self, file_path: str) -> bool:
         if not hasattr(self, "_ignore_matches"):
             __IGNORE_FILE = ".taipyignore"
-            ignore_file = (pathlib.Path(__main__.__file__).parent / __IGNORE_FILE) if hasattr(__main__, "__file__") else None
+            ignore_file = (
+                (pathlib.Path(__main__.__file__).parent / __IGNORE_FILE) if hasattr(__main__, "__file__") else None
+            )
             if not ignore_file or not ignore_file.is_file():
                 ignore_file = pathlib.Path(self._gui._root_dir) / __IGNORE_FILE
-            self._ignore_matches = parse_gitignore(ignore_file) if ignore_file.is_file() and os.access(ignore_file, os.R_OK) else None
+            self._ignore_matches = (
+                parse_gitignore(ignore_file) if ignore_file.is_file() and os.access(ignore_file, os.R_OK) else None
+            )
 
         if callable(self._ignore_matches):
             return self._ignore_matches(file_path)
@@ -143,12 +149,17 @@ class _Server:
                         file_path := ((base_path := os.path.dirname(__main__.__file__) + os.path.sep) + path)
                     )
                 ).startswith(base_path)
-                and os.path.isfile(file_path) and not self.__is_ignored(file_path)
+                and os.path.isfile(file_path)
+                and not self.__is_ignored(file_path)
             ):
                 return send_from_directory(base_path, path)
-            if str(os.path.normpath(file_path := (base_path := self._gui._root_dir + os.path.sep) + path)).startswith(
-                base_path
-            ) and os.path.isfile(file_path) and not self.__is_ignored(file_path):
+            if (
+                str(os.path.normpath(file_path := (base_path := self._gui._root_dir + os.path.sep) + path)).startswith(
+                    base_path
+                )
+                and os.path.isfile(file_path)
+                and not self.__is_ignored(file_path)
+            ):
                 return send_from_directory(base_path, path)
             return ("", 404)
 
@@ -199,15 +210,14 @@ class _Server:
             from gevent import monkey
 
             if not monkey.is_anything_patched():
-                monkey.patch_all(ssl=False)
+                monkey.patch_all(ssl=False, thread=False)
         if self._get_async_mode() == "eventlet" and util.find_spec("eventlet"):
             from eventlet import monkey_patch, patcher
 
             if not patcher.already_patched:
-                monkey_patch()
+                monkey_patch(thread=False)
 
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread):
-        self._apply_patch()
         host_value = host if host != "0.0.0.0" else "localhost"
         if _is_in_notebook() or run_in_thread:
             runtime_manager = _RuntimeManager()

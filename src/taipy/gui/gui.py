@@ -1479,7 +1479,7 @@ class Gui:
         self,
         run_server: bool = True,
         run_in_thread: bool = False,
-        async_mode: str = "threading",
+        async_mode: str = "gevent",
         **kwargs,
     ) -> t.Optional[Flask]:
         """
@@ -1506,7 +1506,7 @@ class Gui:
                   the Flask reloader (the *use_reloader* option) and Debug mode (the *debug* option).
                 - "eventlet": Use eventlet server.
                 - "gevent": Use gevent server.
-                </br>The default value is "threading"</br>
+                </br>The default value is "gevent"</br>
                 If this argument is not set, Taipy uses, in that order: `"eventlet"`, `"gevent_uwsgi"`,
                 `"gevent"`, and finally `"threading"`. The first async mode value that can be used
                 (that is all the relevant dependencies are installed) is used.<br/>
