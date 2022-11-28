@@ -1507,14 +1507,6 @@ class Gui:
                 - "eventlet": Use eventlet server.
                 - "gevent": Use gevent server.
                 </br>The default value is "gevent"</br>
-                If this argument is not set, Taipy uses, in that order: `"eventlet"`, `"gevent_uwsgi"`,
-                `"gevent"`, and finally `"threading"`. The first async mode value that can be used
-                (that is all the relevant dependencies are installed) is used.<br/>
-                See
-                [SocketIO Deployment Strategies](https://python-socketio.readthedocs.io/en/latest/server.html#deployment-strategies)
-                for more information.</br>
-                Taipy GUI comes with the [gevent package](https://pypi.org/project/gevent/) preinstalled so "gevent"
-                would be the default option out-of-the-box.<br/>
                 Note that only the "threading" value provides support for the development reloader
                 functionality (*use_reloader* option). Any other value makes the *use_reloader* configuration parameter
                 ignored.<br/>
