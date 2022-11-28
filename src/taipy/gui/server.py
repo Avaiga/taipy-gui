@@ -19,6 +19,7 @@ import socket
 import time
 import typing as t
 import webbrowser
+from importlib import util
 
 import __main__
 from flask import Blueprint, Flask, json, jsonify, render_template, send_from_directory
@@ -180,7 +181,20 @@ class _Server:
         sock.close()
         return result == 0
 
+    def _apply_patch(self):
+        if self._get_async_mode() == "gevent" and util.find_spec("gevent"):
+            from gevent import monkey
+
+            if not monkey.is_anything_patched():
+                monkey.patch_all(ssl=False)
+        if self._get_async_mode() == "eventlet" and util.find_spec("eventlet"):
+            from eventlet import monkey_patch, patcher
+
+            if not patcher.already_patched:
+                monkey_patch()
+
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread):
+        self._apply_patch()
         host_value = host if host != "0.0.0.0" else "localhost"
         if _is_in_notebook() or run_in_thread:
             runtime_manager = _RuntimeManager()
@@ -208,5 +222,6 @@ class _Server:
     def stop_thread(self):
         if hasattr(self, "_thread") and self._thread.is_alive():
             self._thread.kill()
+            self._thread.join()
             while self._is_port_open(self._host, self._port):
                 time.sleep(0.1)

@@ -10,6 +10,7 @@ flask-cors = "==3.0.10"
 flask-socketio = "==5.3.0"
 gevent = "==21.12.0"
 gevent-websocket = "==0.10.1"
+eventlet = "==0.33.2"
 kthread = "==0.2.3"
 markdown = "==3.4.1"
 pandas = "==1.5.1"
@@ -19,7 +20,7 @@ python-dotenv = "==0.19"
 python-magic = {version = "==0.4.24", sys_platform = "!= 'win32'"}
 python-magic-bin = {version = "==0.4.14", sys_platform = "== 'win32'"}
 pytz = "==2021.3"
-simple-websocket = "==0.3"
+simple-websocket = "==0.9"
 taipy-config = {git = "https://git@github.com/avaiga/taipy-config.git@develop"}
 tzlocal = "==3.0"
 

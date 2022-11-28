@@ -19,16 +19,12 @@ import pathlib
 import re
 import sys
 import tempfile
+import time
 import typing as t
 import warnings
 from importlib import util
 from types import FrameType
 from urllib.parse import urlparse
-
-if util.find_spec("gevent"):
-    from gevent import monkey
-
-    monkey.patch_all()
 
 import __main__
 import markdown as md_lib
@@ -736,8 +732,10 @@ class Gui:
                     payload,
                     to=self.__get_ws_receiver(),
                 )
+                time.sleep(0)
                 if ack_id := self._get_ack_id():
                     self._server._ws.emit("message", {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id})
+                    time.sleep(0)
             except Exception as e:
                 warnings.warn(f"Exception raised in Web Socket communication in '{self.__frame.f_code.co_name}':\n{e}")
         else:
@@ -1479,7 +1477,7 @@ class Gui:
         self,
         run_server: bool = True,
         run_in_thread: bool = False,
-        async_mode: t.Optional[str] = None,
+        async_mode: str = "threading",
         **kwargs,
     ) -> t.Optional[Flask]:
         """
@@ -1499,15 +1497,14 @@ class Gui:
                 If set to _True_, the Web server is run is a separated thread.
                 Note that if you are running in an IPython notebook context, the Web
                 server is always run in a separate thread.
-            async_mode (Optional[str]): The asynchronous model to use for the Flask-SocketIO.
+            async_mode (str): The asynchronous model to use for the Flask-SocketIO.
                 Valid values are:</br>
 
                 - "threading": Use the Flask Development Server. This allows the application to use
                   the Flask reloader (the *use_reloader* option) and Debug mode (the *debug* option).
                 - "eventlet": Use eventlet server.
                 - "gevent": Use gevent server.
-                - "gevent_uwsgi": Use uwsgi server.
-
+                </br>The default value is "threading"</br>
                 If this argument is not set, Taipy uses, in that order: `"eventlet"`, `"gevent_uwsgi"`,
                 `"gevent"`, and finally `"threading"`. The first async mode value that can be used
                 (that is all the relevant dependencies are installed) is used.<br/>

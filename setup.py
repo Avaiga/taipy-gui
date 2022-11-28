@@ -20,8 +20,7 @@ from pathlib import Path
 from setuptools import find_namespace_packages, find_packages, setup
 from setuptools.command.build_py import build_py
 
-with open("README.md") as readme_file:
-    readme = readme_file.read()
+readme = Path("README.md").read_text()
 
 with open(f"src{os.sep}taipy{os.sep}gui{os.sep}version.json") as version_file:
     version = json.load(version_file)
@@ -39,8 +38,7 @@ requirements = [
     "pytz>=2021.3,<2022.2",
     "tzlocal>=3.0,<5.0",
     "backports.zoneinfo>=0.2.1,<0.3;python_version<'3.9'",
-    "gevent>=21.12.0,<22.0",
-    "gevent-websocket>=0.10.1,<0.11",
+    "simple-websocket>=0.9,<1.0",
     "kthread>=0.2.3,<0.3",
     "taipy-config>=2.0,<3.0",
 ]
@@ -54,12 +52,16 @@ extras_require = {
         "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'",
     ],
     "arrow": ["pyarrow>=9.0,<10.0"],
-    "simple-websocket": ["simple-websocket>=0.8,<1.0"],
+    "gevent": [
+        "gevent>=21.12.0,<22.0",
+        "gevent-websocket>=0.10.1,<0.11",
+    ],
+    "eventlet": ["eventlet>=0.33.2,<0.34"],
 }
 
 
 def _build_webapp():
-    already_exists = Path(f"./src/taipy/gui/webapp/index.html").exists()
+    already_exists = Path("./src/taipy/gui/webapp/index.html").exists()
     if not already_exists:
         os.system("cd gui/dom && npm ci")
         os.system("cd gui && npm ci --omit=optional && npm run build")
