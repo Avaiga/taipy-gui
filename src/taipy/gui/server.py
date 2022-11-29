@@ -209,13 +209,13 @@ class _Server:
         if self._get_async_mode() == "gevent" and util.find_spec("gevent"):
             from gevent import monkey
 
-            if not monkey.is_anything_patched():
-                monkey.patch_all(ssl=False, thread=False)
+            if not monkey.is_module_patched("time"):
+                monkey.patch_time()
         if self._get_async_mode() == "eventlet" and util.find_spec("eventlet"):
             from eventlet import monkey_patch, patcher
 
-            if not patcher.already_patched:
-                monkey_patch(thread=False)
+            if not patcher.is_monkey_patched("time"):
+                monkey_patch(time=True)
 
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread):
         host_value = host if host != "0.0.0.0" else "localhost"
