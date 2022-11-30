@@ -19,6 +19,7 @@ import socket
 import time
 import typing as t
 import webbrowser
+from importlib import util
 
 import __main__
 from flask import Blueprint, Flask, json, jsonify, render_template, send_from_directory
@@ -61,6 +62,8 @@ class _Server:
         self._ws = SocketIO(
             self._flask, cors_allowed_origins="*", ping_timeout=10, ping_interval=5, json=json, async_mode=async_mode
         )
+
+        self._apply_patch()
 
         CORS(self._flask)
 
@@ -179,6 +182,18 @@ class _Server:
         result = sock.connect_ex((host, port))
         sock.close()
         return result == 0
+
+    def _apply_patch(self):
+        if self._get_async_mode() == "gevent" and util.find_spec("gevent"):
+            from gevent import monkey
+
+            if not monkey.is_module_patched("time"):
+                monkey.patch_time()
+        if self._get_async_mode() == "eventlet" and util.find_spec("eventlet"):
+            from eventlet import monkey_patch, patcher
+
+            if not patcher.is_monkey_patched("time"):
+                monkey_patch(time=True)
 
     def runWithWS(self, host, port, debug, use_reloader, flask_log, run_in_thread):
         host_value = host if host != "0.0.0.0" else "localhost"
