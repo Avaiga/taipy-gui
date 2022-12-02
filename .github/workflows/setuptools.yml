@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 40
     strategy:
       matrix:
-        python-versions: ['3.8', '3.9', '3.10']
+        python-versions: ['3.8', '3.9', '3.10', '3.11']
         os: [ubuntu-22.04, windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 40
     strategy:
       matrix:
-        python-versions: ['3.8', '3.9', '3.10']
+        python-versions: ['3.8', '3.9', '3.10', '3.11']
         os: [ubuntu-22.04, windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
