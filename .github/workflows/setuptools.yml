@@ -38,7 +38,7 @@ jobs:
           echo "installing playwright"
           pip install pytest pytest-mock playwright pytest-playwright pytest-timeout testbook
           pip install ipython ipykernel
-          ipython kernel install --name "python3" --user
+          ipykernel install --name "python3" --user
           playwright install chromium --with-deps
 
           echo "running pytest"
@@ -84,7 +84,7 @@ jobs:
           echo "installing playwright"
           pip install pytest pytest-mock playwright pytest-playwright pytest-timeout testbook
           pip install ipython ipykernel
-          ipython kernel install --name "python3" --user
+          ipykernel install --name "python3" --user
           playwright install chromium --with-deps
 
           echo "running pytest"
