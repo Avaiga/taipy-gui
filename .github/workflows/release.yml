@@ -65,7 +65,7 @@ jobs:
           pip install dist/*.tar.gz
           pip install pytest pytest-mock playwright pytest-playwright pytest-timeout testbook
           pip install ipython ipykernel
-          ipykernel install --name "python3" --user
+          ipython kernel install --name "python3" --user
           playwright install chromium --with-deps
           pytest
 
