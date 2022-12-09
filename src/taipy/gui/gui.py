@@ -734,10 +734,10 @@ class Gui:
                     payload,
                     to=self.__get_ws_receiver(),
                 )
-                time.sleep(0)
+                time.sleep(0.001)
                 if ack_id := self._get_ack_id():
                     self._server._ws.emit("message", {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id})
-                    time.sleep(0)
+                    time.sleep(0.001)
             except Exception as e:
                 warnings.warn(f"Exception raised in Web Socket communication in '{self.__frame.f_code.co_name}':\n{e}")
         else:

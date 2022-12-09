@@ -244,6 +244,9 @@ class _Server:
 
     def stop_thread(self):
         if hasattr(self, "_thread") and self._thread.is_alive():
-            self._thread.kill()
+            if self._get_async_mode() in ["gevent", "eventlet"]:
+                self._ws.stop()
+            else:
+                self._thread.kill()
             while self._is_port_open(self._host, self._port):
                 time.sleep(0.1)
