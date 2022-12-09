@@ -28,7 +28,6 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from gitignore_parser import parse_gitignore
 from kthread import KThread
-from threading import Thread
 from werkzeug.serving import is_running_from_reloader
 
 from .renderers.json import _TaipyJsonProvider
