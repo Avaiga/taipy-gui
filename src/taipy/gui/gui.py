@@ -1653,7 +1653,7 @@ class Gui:
         if not hasattr(self, "_root_dir"):
             self._root_dir = run_root_dir
 
-        kwargs |= {
+        kwargs |= {  # type: ignore
             "run_server": run_server,
             "run_in_thread": run_in_thread,
             "async_mode": async_mode,
