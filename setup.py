@@ -42,6 +42,7 @@ requirements = [
     "gevent-websocket>=0.10.1,<0.11",
     "kthread>=0.2.3,<0.3",
     "taipy-config>=2.0,<3.0",
+    "simple-websocket>=0.9,<1.0",
 ]
 
 test_requirements = ["pytest>=3.8"]
@@ -53,9 +54,6 @@ extras_require = {
         "python-magic-bin>=0.4.14,<0.5;platform_system=='Windows'",
     ],
     "arrow": ["pyarrow>=9.0,<10.0"],
-    "simple-websocket": [
-        "simple-websocket>=0.9,<1.0",
-    ],
 }
 
 
