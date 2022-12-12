@@ -257,7 +257,7 @@ class _Server:
         }
         # flask-socketio specific conditions for 'allow_unsafe_werkzeug' parameters to be popped out of kwargs
         if not sys.stdin or not sys.stdin.isatty():
-            run_config |= {"allow_unsafe_werkzeug": allow_unsafe_werkzeug}
+            run_config = {**run_config, "allow_unsafe_werkzeug": allow_unsafe_werkzeug}
         self._ws.run(**run_config)
 
     def stop_thread(self):
