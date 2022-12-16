@@ -65,6 +65,7 @@ import {
     iconInRowSx,
     DEFAULT_SIZE,
     OnRowSelection,
+    getRowIndex,
 } from "./tableUtils";
 import { useClassNames, useDispatchRequestUpdateOnFirstRender, useDynamicProperty, useFormatConfig } from "../../utils/hooks";
 import TableFilter, { FilterDesc } from "./TableFilter";
@@ -78,7 +79,6 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
     const {
         id,
         updateVarName,
-        pageSize = 100,
         pageSizeOptions,
         allowAllRows = false,
         showAll = false,
@@ -92,6 +92,7 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
         width = "100vw",
         size = DEFAULT_SIZE,
     } = props;
+    const pageSize = (props.pageSize === undefined || props.pageSize < 1) ? 100 : Math.round(props.pageSize);
     const [value, setValue] = useState<Record<string, unknown>>({});
     const [startIndex, setStartIndex] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(pageSize);
@@ -170,7 +171,7 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
     }, [props.data]);
 
     useEffect(() => {
-        const endIndex = showAll ? -1 : startIndex + rowsPerPage;
+        const endIndex = showAll ? -1 : startIndex + rowsPerPage - 1;
         const agg = aggregates.length
             ? colsOrder.reduce((pv, col, idx) => {
                   if (aggregates.includes(columns[col].dfid)) {
@@ -282,42 +283,6 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
         [startIndex, dispatch, updateVarName, onAdd]
     );
 
-    const onCellValidation: OnCellValidation = useCallback(
-        (value: RowValue, rowIndex: number, colName: string, userValue: string) =>
-            dispatch(
-                createSendActionNameAction(updateVarName, {
-                    action: onEdit,
-                    value: value,
-                    index: rowIndex,
-                    col: colName,
-                    user_value: userValue,
-                })
-            ),
-        [dispatch, updateVarName, onEdit]
-    );
-
-    const onRowDeletion: OnRowDeletion = useCallback(
-        (rowIndex: number) =>
-            dispatch(
-                createSendActionNameAction(updateVarName, {
-                    action: onDelete,
-                    index: rowIndex,
-                })
-            ),
-        [dispatch, updateVarName, onDelete]
-    );
-
-    const onRowSelection: OnRowSelection = useCallback(
-        (rowIndex: number) =>
-            dispatch(
-                createSendActionNameAction(updateVarName, {
-                    action: onAction,
-                    index: rowIndex,
-                })
-            ),
-        [dispatch, updateVarName, onAction]
-    );
-
     const tableContainerSx = useMemo(() => ({ maxHeight: height }), [height]);
 
     const pso = useMemo(() => {
@@ -329,11 +294,15 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                 console.log("PaginatedTable pageSizeOptions is wrong ", pageSizeOptions, e);
             }
         }
-        if (allowAllRows) {
-            return psOptions.concat([{ value: -1, label: "All" }]);
+        if (pageSize > 0 && !psOptions.some(ps => typeof ps === "number" ? ps === pageSize: (typeof ps.value === "number" ? ps.value === pageSize : false))) {
+            psOptions.push({ value: pageSize, label: "" + pageSize});
         }
+        if (allowAllRows) {
+            psOptions.push({ value: -1, label: "All" });
+        }
+        psOptions.sort((a, b) => (typeof a === "number" ? a : a.value) - (typeof b === "number" ? b : b.value));
         return psOptions;
-    }, [pageSizeOptions, allowAllRows]);
+    }, [pageSizeOptions, allowAllRows, pageSize]);
 
     const { rows, rowCount } = useMemo(() => {
         const ret = { rows: [], rowCount: 0 } as { rows: RowType[]; rowCount: number };
@@ -347,6 +316,42 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
         }
         return ret;
     }, [value]);
+
+    const onCellValidation: OnCellValidation = useCallback(
+        (value: RowValue, rowIndex: number, colName: string, userValue: string) =>
+            dispatch(
+                createSendActionNameAction(updateVarName, {
+                    action: onEdit,
+                    value: value,
+                    index: getRowIndex(rows[rowIndex], rowIndex, startIndex),
+                    col: colName,
+                    user_value: userValue,
+                })
+            ),
+        [dispatch, updateVarName, onEdit, rows, startIndex]
+    );
+
+    const onRowDeletion: OnRowDeletion = useCallback(
+        (rowIndex: number) =>
+            dispatch(
+                createSendActionNameAction(updateVarName, {
+                    action: onDelete,
+                    index: getRowIndex(rows[rowIndex], rowIndex, startIndex),
+                })
+            ),
+        [dispatch, updateVarName, onDelete, rows, startIndex]
+    );
+
+    const onRowSelection: OnRowSelection = useCallback(
+        (rowIndex: number) =>
+            dispatch(
+                createSendActionNameAction(updateVarName, {
+                    action: onAction,
+                    index: getRowIndex(rows[rowIndex], rowIndex, startIndex),
+                })
+            ),
+        [dispatch, updateVarName, onAction, rows, startIndex]
+    );
 
     const boxSx = useMemo(() => ({ ...baseBoxSx, width: width }), [width]);
 
@@ -462,7 +467,7 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                                                     colDesc={columns[col]}
                                                     value={row[col]}
                                                     formatConfig={formatConfig}
-                                                    rowIndex={startIndex + index}
+                                                    rowIndex={index}
                                                     onValidation={
                                                         active && !columns[col].notEditable && onEdit ? onCellValidation : undefined
                                                     }
