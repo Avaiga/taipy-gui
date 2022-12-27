@@ -77,6 +77,8 @@ class _Chart_iprops(Enum):
     high = 25
     low = 26
     locations = 27
+    values = 28
+    labels = 29
 
 
 class _Builder:
@@ -104,11 +106,13 @@ class _Builder:
             _Chart_iprops.low,
         ),
         "bar": (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.base),
-        "pie": (_Chart_iprops.x,),
+        "pie": (_Chart_iprops.values, _Chart_iprops.labels),
         "choropleth": (_Chart_iprops.locations, _Chart_iprops.z),
+        "funnelarea": (_Chart_iprops.values, )
     }
     __CHART_DEFAULT_AXIS: t.Iterable[_Chart_iprops] = (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.z)
     __CHART_MARKER_TO_COLS: t.Iterable[str] = ("color", "size", "symbol", "opacity")
+    __CHART_NO_INDEX: t.Iterable[str] = ("pie", "histogram", "heatmap", "funnelarea")
 
     def __init__(
         self,
@@ -597,11 +601,6 @@ class _Builder:
         # list of data columns name indexes with label text
         dt_idx = tuple(e.value for e in axis[0] + (_Chart_iprops.label, _Chart_iprops.text))
 
-        # add trace for non used indexed columns
-        # max_idx = max(_get_idx_from_col(c) for c in col_types.keys())
-        # traces.extend([x if i not in dt_idx else None for i, x in enumerate(traces[0])]
-        #               for _ in range(len(traces), max_idx + 1))
-
         # configure columns
         columns = set()
         for j, trace in enumerate(traces):
@@ -635,7 +634,7 @@ class _Builder:
             if i < len(axis):
                 used_cols = {tr[ax.value] for ax in axis[i] if tr[ax.value]}
                 unused_cols = [c for c in icols[i] if c not in used_cols]
-                if unused_cols and any(not tr[ax.value] for ax in axis[i]):
+                if unused_cols and not any(tr[ax.value] for ax in axis[i]):
                     traces[i] = tuple(
                         v or (unused_cols.pop(0) if unused_cols and _Chart_iprops(j) in axis[i] else v)
                         for j, v in enumerate(tr)
@@ -690,6 +689,7 @@ class _Builder:
                 "textAnchors": [tr[_Chart_iprops.text_anchor.value] for tr in traces],
                 "options": [tr[_Chart_iprops.options.value] for tr in traces],
                 "axisNames": [[e.name for e in ax] for ax in used_axis],
+                "addIndex": [tr[_Chart_iprops.type.value] not in _Builder.__CHART_NO_INDEX for tr in traces]
             }
 
             self.__set_json_attribute("config", ret_dict)
