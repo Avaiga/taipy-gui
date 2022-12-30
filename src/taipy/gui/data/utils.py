@@ -62,7 +62,7 @@ class Decimator(ABC):
         Returns:
             A Boolean mask array for the original data.
         """
-        return NotImplemented
+        return NotImplementedError
 
 
 def _df_data_filter(
