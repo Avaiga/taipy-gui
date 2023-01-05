@@ -238,6 +238,7 @@ or even shorter:
 ```
 page = "<|...|chart|...|index_property={value1}|index_property[2]={value2}|index_property[3]={value3}|...|>"
 ```
+
 Supported types for the *data* property types are:
 
 - A Pandas DataFrame;
