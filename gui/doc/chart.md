@@ -3,16 +3,16 @@ Displays data sets in a chart or a group of charts.
 The chart control is based on the [plotly.js](https://plotly.com/javascript/)
 graphs library.
 
-Plotly is an amazing graphing library that provides a very large number of visual
-representations of datasets, with all sorts of customization capabilities. Taipy
-exposes the Plotly components through the `chart` control, and heavily depends on
+Plotly is a graphing library that provides a vast number of visual
+representations of datasets with all sorts of customization capabilities. Taipy
+exposes the Plotly components through the `chart` control and heavily depends on
 the underlying implementation.
 
 The core principles of how to create charts in Taipy are explained in the
 [Basic concepts](charts/basics.md) page.
 
 Because there are so many different ways of representing data, we have sorted
-the representations supported by Taipy by application categories:
+the chart types supported by Taipy by application category:
 
 <style>
 .h2 {
@@ -234,6 +234,10 @@ is equivalent to
 page = "<|...|chart|...|index_property[1]={value1}|index_property[2]={value2}|index_property[3]={value3}|...|>"
 ```
 
+or even shorter:
+```
+page = "<|...|chart|...|index_property={value1}|index_property[2]={value2}|index_property[3]={value3}|...|>"
+```
 Supported types for the *data* property types are:
 
 - A Pandas DataFrame;
