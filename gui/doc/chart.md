@@ -40,18 +40,21 @@ the chart types supported by Taipy by application category:
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: stretch;
     justify-content: flex-start;
     list-style: none;
     gap: 16px;
     padding: 0;
 }
 .list li {
+    display: flex;
     margin: 0 !important;
     padding: 0;
     width: 171px;
 }
 .list a {
     display: flex;
+    flex: 0 0 100%;
     flex-direction: column;
     align-items: center;
     padding: 16px;
@@ -67,6 +70,7 @@ the chart types supported by Taipy by application category:
 .list span {
     line-height: 17px;
     display: flex;
+    flex: 1 1 0;
     justify-content: space-between;
     align-items: center;
     width: 100%;
