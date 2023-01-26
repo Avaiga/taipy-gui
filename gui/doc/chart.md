@@ -79,8 +79,8 @@ property without the index operator ([]) syntax. That means it applies to all th
 of the chart control.<br/>
 *specific_value*, on the other hand, applies only to the second trace.
 
-An indexed property can also be assigned an array. Then each value of the array is set to the
-property at the appropriate index, in sequence:
+An indexed property can also be assigned an array, without the index operator syntax.
+Then each value of the array is set to the property at the appropriate index, in sequence:
 
 ```
 values = [
@@ -89,19 +89,19 @@ values = [
     value3
 ]
     
-page = "<|...|chart|...|index_property={values}|...|>"
+page = "<|...|chart|...|i_property={values}|...|>"
 ```
 
 is equivalent to
 
 ```
-page = "<|...|chart|...|index_property[1]={value1}|index_property[2]={value2}|index_property[3]={value3}|...|>"
+page = "<|...|chart|...|i_property[1]={value1}|i_property[2]={value2}|i_property[3]={value3}|...|>"
 ```
 
 or slightly shorter (and if there are no more than three traces):
 
 ```
-page = "<|...|chart|...|index_property={value1}|index_property[2]={value2}|index_property[3]={value3}|...|>"
+page = "<|...|chart|...|i_property={value1}|i_property[2]={value2}|i_property[3]={value3}|...|>"
 ```
 
 ## Usage
