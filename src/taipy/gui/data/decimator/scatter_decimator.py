@@ -17,10 +17,13 @@ from ..utils import Decimator
 
 
 class ScatterDecimator(Decimator):
-    """An implementation of the `Decimator` class. This class can only be used with scatter charts.
-    This algorithm fits the data points into a grid. If multiple points are in the same grid cell,
-    depending on the chart configuration, some points will be removed to reduce the number points
-    being displayed.
+    """A decimator designed for scatter charts.
+    
+    This algorithm fits the data points into a grid. If multiple points are in the same grid
+    cell, depending on the chart configuration, some points are removed to reduce the number
+    points being displayed.
+
+    This class can only be used with scatter charts.
     """
 
     _CHART_MODES = ["markers"]
@@ -35,14 +38,14 @@ class ScatterDecimator(Decimator):
         """Initialize a new `ScatterDecimator`.
 
         Arguments:
-            binning_ratio (Optional[float]): this values determines the size of the data grid
-                for the algorithm. The higher the value, the smaller the grid size.
+            binning_ratio (Optional[float]): the size of the data grid for the algorithm.
+                The higher the value, the smaller the grid size.
             max_overlap_points (Optional(int)): the maximum number of points for a single cell
                 within the data grid within the algorithm. This dictates how dense a single
-                grid cell could be.
+                grid cell can be.
             threshold (Optional[int]): The minimum amount of data points before the
-                decimator class is applied.
-            zoom (Optional[bool]): set to True to reapply the decimator class
+                decimation is applied.
+            zoom (Optional[bool]): set to True to reapply the decimation
                 when zoom or re-layout events are triggered.
         """
         super().__init__(threshold, zoom)

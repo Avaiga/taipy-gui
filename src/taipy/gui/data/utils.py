@@ -40,7 +40,7 @@ class Decimator(ABC):
         Arguments:
             threshold (Optional[int]): The minimum amount of data points before the
                 decimator class is applied.
-            zoom (Optional[bool]): set to True to reapply the decimator class
+            zoom (Optional[bool]): set to True to reapply the decimation
                 when zoom or re-layout events are triggered.
         """
         super().__init__()
@@ -63,7 +63,7 @@ class Decimator(ABC):
         """Decimate function.
 
         This method is executed when the appropriate conditions specified in the
-        constructor are met. This function implements the algorithm that determiness
+        constructor are met. This function implements the algorithm that determines
         which data points are kept or dropped.
 
         Arguments:

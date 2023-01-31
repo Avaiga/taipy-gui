@@ -17,10 +17,13 @@ from ..utils import Decimator
 
 
 class RDP(Decimator):
-    """An implementation of the `Decimator` class. This class can only be used with line charts.
-    The RDP algorithm reduces a curve of line segments into a similar curve with less points. This
-    algorithm should be used if the final visual representation is prioritized over the performance
-    of the application.
+    """A decimator using the RDP algorithm.
+    
+    The RDP algorithm reduces a shape made of line segments into a similar shape with
+    less points. This algorithm should be used if the final visual representation is
+    prioritized over the performance of the application.
+
+    This class can only be used with line charts.
     """
 
     _CHART_MODES = ["lines+markers"]
@@ -35,15 +38,15 @@ class RDP(Decimator):
         """Initialize a new `RDP`.
 
         Arguments:
-            epsilon (Optional[int]): The epsilon value for the RDP algorithm. If this value is being used,
-                the `n_out` property will be ignored.
-            n_out (Optional(int)): The maximum number of points that will be displayed after decimation.
-                This value will be ignored if the epsilon value is being used. This process is not highly
-                efficient so consider using `LTTB` or `MinMaxDecimator` if the provided data have more than
-                100k data points.
+            epsilon (Optional[int]): The epsilon value for the RDP algorithm. If this value
+                is being used, the *n_out* argument is ignored.
+            n_out (Optional(int)): The maximum number of points that are displayed after
+                decimation. This value is ignored if the epsilon value is used.<br/>
+                This process is not very efficient so consider using `LTTB` or `MinMaxDecimator`
+                if the provided data has more than 100.000 data points.
             threshold (Optional[int]): The minimum amount of data points before the
-                decimator class is applied.
-            zoom (Optional[bool]): set to True to reapply the decimator class
+                decimation is applied.
+            zoom (Optional[bool]): set to True to reapply the decimation
                 when zoom or re-layout events are triggered.
         """
         super().__init__(threshold, zoom)
