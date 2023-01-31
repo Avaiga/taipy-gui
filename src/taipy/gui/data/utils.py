@@ -22,9 +22,10 @@ if t.TYPE_CHECKING:
 
 
 class Decimator(ABC):
-    """Decimate chart data.
-
-    TODO
+    """Decimator provides a way to reduce the number of data being displayed in charts
+    while retaining the overall shape of the charts. This is a base class that could be
+    extended by the user. taipy-gui comes out-of-the-box with several implementation of
+    this class for different use cases.
     """
 
     _CHART_MODES: t.List[str] = []
@@ -32,7 +33,11 @@ class Decimator(ABC):
     def __init__(self, threshold: t.Optional[int], zoom: t.Optional[bool]) -> None:
         """Initialize a new Decimator.
 
-        TODO
+        Arguments:
+            threshold (Optional[int]): The minimum amount of data points before the
+                decimator class can be applied
+            zoom (Optional[bool]): set to True if you want to reapply the decimator class
+                whenever a zoom/relayout event is triggered
         """
         super().__init__()
         self.threshold = threshold
@@ -53,14 +58,17 @@ class Decimator(ABC):
     def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
         """Decimate function for decimator.
 
-        This function is executed when the appropriate conditions are met.
-        TODO: Further explanation
+        This function is executed when the appropriate conditions are met. This function holds
+        the algorithm to determines which data points will be kept or removed.
 
         Arguments:
-            data (numpy.array): A 2-dimensional array....
+            data (numpy.array): A 2D or 3D numpy array.
+            payload (Dict[str, any]): additional information on charts that will be provided
+                during runtime
 
         Returns:
-            A Boolean mask array for the original data.
+            A boolean mask array for the original data. Return True to keep the row, False
+            to remove the row.
         """
         return NotImplementedError  # type: ignore
 
