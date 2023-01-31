@@ -17,6 +17,11 @@ from ..utils import Decimator
 
 
 class RDP(Decimator):
+    """An implementation of the `Decimator` class. This class can only be used with line charts.
+    The RDP algorithm reduces a curve of line segments into a similar curve with less points. This
+    algorithm should be used if the final visual representation is prioritized over the performance
+    of the application.
+    """
 
     _CHART_MODES = ["lines+markers"]
 
@@ -27,6 +32,20 @@ class RDP(Decimator):
         threshold: t.Optional[int] = None,
         zoom: t.Optional[bool] = True,
     ):
+        """Initialize a new `RDP`.
+
+        Arguments:
+            epsilon (Optional[int]): The epsilon value for the RDP algorithm. If this value is being used,
+                the `n_out` property will be ignored.
+            n_out (Optional(int)): The maximum number of points that will be displayed after decimation.
+                This value will be ignored if the epsilon value is being used. This process is not highly
+                efficient so consider using `LTTB` or `MinMaxDecimator` if the provided data have more than
+                100k data points.
+            threshold (Optional[int]): The minimum amount of data points before the
+                decimator class is applied.
+            zoom (Optional[bool]): set to True to reapply the decimator class
+                when zoom or re-layout events are triggered.
+        """
         super().__init__(threshold, zoom)
         self._epsilon = epsilon
         self._n_out = n_out

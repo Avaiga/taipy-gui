@@ -17,10 +17,23 @@ from ..utils import Decimator
 
 
 class MinMaxDecimator(Decimator):
+    """An implementation of the `Decimator` class. This class can only be used with line charts.
+    The MinMax algorithm is an efficient algorithm that preserves the peaks within the data. It
+    can work very well with noisy signal data where data peeks need to be highlighted.
+    """
 
     _CHART_MODES = ["lines+markers"]
 
     def __init__(self, n_out: int, threshold: t.Optional[int] = None, zoom: t.Optional[bool] = True):
+        """Initialize a new `MinMaxDecimator`.
+
+        Arguments:
+            n_out (int): The maximum number of points that will be displayed after decimation
+            threshold (Optional[int]): The minimum amount of data points before the
+                decimator class is applied.
+            zoom (Optional[bool]): set to True to reapply the decimator class
+                when zoom or re-layout events are triggered.
+        """
         super().__init__(threshold, zoom)
         self._n_out = n_out // 2
 

@@ -17,10 +17,24 @@ from ..utils import Decimator
 
 
 class LTTB(Decimator):
+    """An implementation of the `Decimator` class. This class can only be used with line charts.
+    The LTTB algorithm is an high performance algorithm that significantly reduce the number of
+    data points. It can work very well with time-series data to show trends using by using only
+    a few data points.
+    """
 
     _CHART_MODES = ["lines+markers"]
 
     def __init__(self, n_out: int, threshold: t.Optional[int] = None, zoom: t.Optional[bool] = True) -> None:
+        """Initialize a new `LTTB`.
+
+        Arguments:
+            n_out (int): The maximum number of points that will be displayed after decimation
+            threshold (Optional[int]): The minimum amount of data points before the
+                decimator class is applied.
+            zoom (Optional[bool]): set to True to reapply the decimator class
+                when zoom or re-layout events are triggered.
+        """
         super().__init__(threshold, zoom)
         self._n_out = n_out
 
