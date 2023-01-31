@@ -22,22 +22,26 @@ if t.TYPE_CHECKING:
 
 
 class Decimator(ABC):
-    """Decimator provides a way to reduce the number of data being displayed in charts
-    while retaining the overall shape of the charts. This is a base class that could be
-    extended by the user. taipy-gui comes out-of-the-box with several implementation of
-    this class for different use cases.
+    """Base class for decimating chart data.
+    
+    *Decimating* is the term used to name the process of reducing the number of
+    data points displayed in charts while retaining the overall shape of the traces.
+    `Decimator` is a base class that does decimation on data sets.
+    
+    Taipy GUI comes out-of-the-box with several implementation of this class for
+    different use cases.
     """
 
     _CHART_MODES: t.List[str] = []
 
     def __init__(self, threshold: t.Optional[int], zoom: t.Optional[bool]) -> None:
-        """Initialize a new Decimator.
+        """Initialize a new `Decimator`.
 
         Arguments:
             threshold (Optional[int]): The minimum amount of data points before the
-                decimator class can be applied
-            zoom (Optional[bool]): set to True if you want to reapply the decimator class
-                whenever a zoom/relayout event is triggered
+                decimator class is applied.
+            zoom (Optional[bool]): set to True to reapply the decimator class
+                when zoom or re-layout events are triggered.
         """
         super().__init__()
         self.threshold = threshold
@@ -56,19 +60,23 @@ class Decimator(ABC):
 
     @abstractmethod
     def decimate(self, data: np.ndarray, payload: t.Dict[str, t.Any]) -> np.ndarray:
-        """Decimate function for decimator.
+        """Decimate function.
 
-        This function is executed when the appropriate conditions are met. This function holds
-        the algorithm to determines which data points will be kept or removed.
+        This method is executed when the appropriate conditions specified in the
+        constructor are met. This function implements the algorithm that determiness
+        which data points are kept or dropped.
 
         Arguments:
-            data (numpy.array): A 2D or 3D numpy array.
-            payload (Dict[str, any]): additional information on charts that will be provided
-                during runtime
+            data (numpy.array): An array containing all the data points represented as
+                tuples.
+            payload (Dict[str, any]): additional information on charts that is provided
+                at runtime.
 
         Returns:
-            A boolean mask array for the original data. Return True to keep the row, False
-            to remove the row.
+            An array of Boolean mask values. The array should set True or False for each
+                of its indexes where True indicates that the corresponding data point
+                from *data* should be preserved, or False requires that this
+                data point be dropped.
         """
         return NotImplementedError  # type: ignore
 
