@@ -24,7 +24,7 @@ import webbrowser
 from importlib import util
 
 import __main__
-from flask import Blueprint, Flask, json, jsonify, render_template, send_from_directory
+from flask import Blueprint, Flask, json, jsonify, render_template, send_file, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from gitignore_parser import parse_gitignore
@@ -139,14 +139,18 @@ class _Server:
                 return send_from_directory(base_path, path)
             # use the path mapping to detect and find resources
             for k, v in self.__path_mapping.items():
-                if (
-                    path.startswith(f"{k}/")
-                    and str(
-                        os.path.normpath(file_path := ((base_path := v + os.path.sep) + path[len(k) + 1 :]))
-                    ).startswith(base_path)
-                    and os.path.isfile(file_path)
-                ):
-                    return send_from_directory(base_path, path[len(k) + 1 :])
+                if path.startswith(f"{k}/"):
+                    if not callable(v):
+                        if str(
+                            os.path.normpath(file_path := ((base_path := v + os.path.sep) + path[len(k) + 1 :]))
+                        ).startswith(base_path) and os.path.isfile(file_path):
+                            return send_from_directory(base_path, path[len(k) + 1 :])
+                    else:
+                        state_id = path.split("/")[-1]
+                        bytes_io = self._gui._call_user_callback(state_id, v, [path], None)
+                        bytes_io.seek(0)
+                        result = send_file(bytes_io, mimetype="text/html")
+                        return result
             if (
                 hasattr(__main__, "__file__")
                 and str(
