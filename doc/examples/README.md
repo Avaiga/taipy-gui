@@ -7,4 +7,4 @@ These script files are examples of how to build simple Taipy GUI applications,
 to demonstrate specific features of the taipy-gui package.
 
 These examples are organized by theme under this directory and are referenced
-from the Taipy documentation.
+from the [Taipy documentation](docs.taipy.io).
