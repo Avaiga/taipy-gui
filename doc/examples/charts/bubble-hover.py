@@ -37,9 +37,8 @@ marker = {
 
 page = """
 # Bubble - Hover text
-<|toggle|theme|>
 
 <|{data}|chart|mode=markers|x=x|y=y|marker={marker}|text=Texts|height=340px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

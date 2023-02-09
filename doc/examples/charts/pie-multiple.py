@@ -93,9 +93,8 @@ layout = {
 
 page = """
 # Pie - Multiple
-<|toggle|theme|>
 
 <|{data}|chart|type=pie|x[1]=0/values|x[2]=1/values|options={options}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

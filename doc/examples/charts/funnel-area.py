@@ -29,9 +29,8 @@ layout = {
 
 page = """
 # Funnel - Area
-<|toggle|theme|>
 
 <|{data}|chart|type=funnelarea|values=Visits|text=Types|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

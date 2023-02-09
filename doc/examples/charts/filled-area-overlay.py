@@ -31,10 +31,9 @@ options = [
 
 page = """
 # Filled Area - Overlay
-<|toggle|theme|>
 
 <|{data}|chart|mode=none|x=Day|y[1]=Items|y[2]=Price|options={options}|>
 """ 
 
-Gui(page).run(run_browser=False)
+Gui(page).run()
 

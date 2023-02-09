@@ -26,9 +26,8 @@ data = {
 
 page = """
 # Heatmap - Basic
-<|toggle|theme|>
 
-<|{data}|chart|type=heatmap|z=Temperatures|x=Seasons|y=Cities|width=60%|>
+<|{data}|chart|type=heatmap|z=Temperatures|x=Seasons|y=Cities|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

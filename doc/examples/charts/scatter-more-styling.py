@@ -105,9 +105,8 @@ layout = {
 
 page = """
 ## Scatter - Customize markers
-<|toggle|theme|>
 
-<|{data}|chart|mode=markers|layout={layout}|marker={markers}|width=60%|>
+<|{data}|chart|mode=markers|layout={layout}|marker={markers}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

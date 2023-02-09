@@ -55,9 +55,8 @@ layout = {
 
 page = """
 # Advanced - Annotations
-<|toggle|theme|>
 
 <|{data}|chart|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

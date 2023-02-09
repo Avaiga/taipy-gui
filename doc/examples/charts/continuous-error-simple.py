@@ -70,9 +70,8 @@ properties = {
 
 page = """
 # Continuous Error - Simple
-<|toggle|theme|>
  
 <|{data}|chart|properties={properties}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

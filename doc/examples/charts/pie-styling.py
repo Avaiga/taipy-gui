@@ -37,9 +37,8 @@ options = {
 
 page = """
 # Pie - Simple
-<|toggle|theme|>
 
 <|{values}|chart|type=pie|marker={marker}|options={options}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

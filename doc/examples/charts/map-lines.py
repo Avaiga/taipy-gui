@@ -180,9 +180,8 @@ for i, flight in enumerate(flights):
 
 page = """
 # Maps - Multiple Lines
-<|toggle|theme|>
 
 <|chart|properties={properties}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

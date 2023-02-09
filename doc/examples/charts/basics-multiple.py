@@ -29,9 +29,8 @@ data = {
 
 page = """
 # Basics - Multiple traces
-<|toggle|theme|>
 
 <|{data}|chart|x=x|y[1]=y1|y[2]=y2|height=300px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

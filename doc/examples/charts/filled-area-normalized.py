@@ -47,9 +47,8 @@ layout = {
 
 page = """
 # Filled Area - Stacked Normalized
-<|toggle|theme|>
 
 <|{data}|chart|mode=none|x=Products|y={ys}|options={options}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

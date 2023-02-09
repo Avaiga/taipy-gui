@@ -51,9 +51,8 @@ properties = {
 
 page = """
 # Histogram - Binning function
-<|toggle|theme|>
 
 <|{data}|chart|type=histogram|properties={properties}|>
 """
 
-Gui(page=page).run(run_browser=False)
+Gui(page).run()

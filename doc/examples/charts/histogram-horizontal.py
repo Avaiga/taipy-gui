@@ -16,15 +16,15 @@
 from taipy import Gui
 import random
 
+# Random data set
 data = {
     "Count": [random.random() for i in range(100)]
 }
 
 page = """
 # Histograms - Horizontal
-<|toggle|theme|>
 
-<|{data}|chart|type=histogram|y=Count|width=60%|>
+<|{data}|chart|type=histogram|y=Count|>
 """
 
-Gui(page=page).run(run_browser=False)
+Gui(page).run()

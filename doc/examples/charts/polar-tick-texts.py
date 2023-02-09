@@ -119,8 +119,7 @@ def on_navigate(state, page):
 
 page = """
 # Polar - Areas
-<|toggle|theme|>
 
 <|{data}|chart|type=scatterpolar|properties={properties}|>
 """
-Gui(page).run(run_browser=False)
+Gui(page).run()

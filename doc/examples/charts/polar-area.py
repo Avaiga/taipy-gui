@@ -52,9 +52,8 @@ layout = {
 
 page = """
 # Polar - Area
-<|toggle|theme|>
 
 <|{data}|chart|type=scatterpolar|mode=none|layout={layout}|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

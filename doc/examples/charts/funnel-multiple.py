@@ -30,9 +30,8 @@ names = ["US", "EU", "AP"]
 
 page = """
 # Funnel - Multiple traces
-<|toggle|theme|>
 
 <|{data}|type=funnel|chart|x={x}|y=Types|name={names}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

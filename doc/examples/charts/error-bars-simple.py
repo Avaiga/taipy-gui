@@ -46,9 +46,8 @@ options = {
 
 page = """
 # Error bars - Simple
-<|toggle|theme|>
 
 <|{data}|chart|x=x|y[1]=y1|y[2]=y2|options[1]={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

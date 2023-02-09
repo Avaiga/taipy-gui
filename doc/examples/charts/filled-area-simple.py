@@ -27,10 +27,9 @@ options = {
 
 page = """
 # Filled Area - Simple
-<|toggle|theme|>
 
 <|{data}|chart|x=Day|y=Items|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()
 

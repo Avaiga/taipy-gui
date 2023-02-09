@@ -56,9 +56,8 @@ options = {
 
 page = """
 ## Heatmap - Unequal block sizes
-<|toggle|theme|>
 
 <|{data}|chart|type=heatmap|z=0/z|x=1/x|y=1/y|layout={layout}|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

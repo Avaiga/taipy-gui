@@ -31,9 +31,8 @@ data = [
 
 page = """
 # Heatmap - Unbalanced
-<|toggle|theme|>
 
 <|{data}|chart|type=heatmap|z=0/Temperatures|x=1/Seasons|y=0/Cities|height=300px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

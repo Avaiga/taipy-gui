@@ -32,9 +32,8 @@ options = {
 
 page = """
 # Filled Area - Stacked
-<|toggle|theme|>
 
 <|{data}|chart|mode=none|x=Month|y={items}|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

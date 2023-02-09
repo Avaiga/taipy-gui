@@ -25,9 +25,8 @@ data = {
 
 page = """
 # Basics - Timeline
-<|toggle|theme|>
 
 <|{data}|chart|x=Date|y=Value|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

@@ -39,9 +39,8 @@ data = [
 
 page = """
 # Advanced - Unbalanced data sets
-<|toggle|theme|>
 
 <|{data}|chart|x[1]=0/x|y[1]=0/Coarse|x[2]=1/x|y[2]=1/Fine|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

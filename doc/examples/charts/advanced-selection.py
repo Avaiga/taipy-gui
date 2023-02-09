@@ -48,11 +48,10 @@ def on_change(state, var, val):
 
 page = """
 # Advanced - Selection
-<|toggle|theme|>
 
 ## Mean of <|{len(selected_indices)}|raw|> selected points: <|{mean_value}|format=%.2f|raw|>
 
 <|{data}|chart|selected={selected_indices}|layout={layout}|plot_config={config}|height=300px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

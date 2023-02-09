@@ -53,9 +53,8 @@ line = {
 
 page = """
 # Maps - Simple
-<|toggle|theme|>
 
 <|{data}|chart|type=scattergeo|mode=lines|lat=lat|lon=lon|line={line}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

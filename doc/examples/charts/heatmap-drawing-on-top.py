@@ -84,9 +84,8 @@ ys = ["1/y", "2/ySpiral"]
 
 page = """
 ## Heatmap - Drawing on top
-<|toggle|theme|>
 
 <|{data}|chart|type={types}|z[1]=0/z|x={xs}|y={ys}|layout={layout}|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

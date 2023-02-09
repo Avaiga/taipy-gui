@@ -23,9 +23,8 @@ data = {
 
 page = """
 # Pie - Simple
-<|toggle|theme|>
 
 <|{data}|chart|type=pie|values=Area|label=Country|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

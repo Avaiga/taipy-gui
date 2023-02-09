@@ -34,9 +34,8 @@ marker = {
 
 page = """
 # Bubble - Symbols
-<|toggle|theme|>
 
 <|{data}|chart|mode=markers|x=x|y=y|marker={marker}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

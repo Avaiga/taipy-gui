@@ -19,9 +19,8 @@ from taipy import Gui
 # code.
 page = """
 # Basics - Simple line
-<|toggle|theme|>
 
 <|{[x*x for x in range(0, 11)]}|chart|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

@@ -16,7 +16,7 @@
 from taipy import Gui
 import random
 
-# Array of two data sets
+# Data set made of two series of random numbers
 data = {
     "A": [random.random() for i in range(200)],
     "B": [random.random() for i in range(200)]
@@ -35,9 +35,8 @@ layout = {
 
 page = """
 # Histogram - Stacked
-<|toggle|theme|>
 
-<|{data}|chart|type=histogram|x[1]=A|x[2]=B|name={names}|layout={layout}|width=70%|>
+<|{data}|chart|type=histogram|x[1]=A|x[2]=B|name={names}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

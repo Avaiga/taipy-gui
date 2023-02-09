@@ -34,9 +34,8 @@ data = {
 
 page = """
 # Line - Texts
-<|toggle|theme|>
 
 <|{data}|chart|x=Date|y[1]=Temp°C|y[2]=Week|mode[2]=text|text[2]=WeekN|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

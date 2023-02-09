@@ -16,6 +16,7 @@
 from taipy import Gui
 import random
 
+# Data set made of two series of random numbers
 data = [
     {
         "x": [random.random() + 1 for i in range(100)]
@@ -47,8 +48,7 @@ layout = {
 
 page = """
 # Histogram - Overlay
-<|toggle|theme|>
 
-<|{data}|chart|type=histogram|options={options}|layout={layout}|width=60%|>
+<|{data}|chart|type=histogram|options={options}|layout={layout}|>
 """
-Gui(page=page).run(run_browser=False)
+Gui(page).run()

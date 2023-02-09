@@ -52,9 +52,8 @@ theta = ["0/Skills",  "1/Skills"]
 
 page = """
 # Radar - Multiple
-<|toggle|theme|>
 
 <|{data}|chart|type=scatterpolar|name={names}|r={r}|theta={theta}|options={options}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

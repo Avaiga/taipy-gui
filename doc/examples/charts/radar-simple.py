@@ -50,9 +50,8 @@ options = {
 
 md = """
 # Radar - Simple
-<|toggle|theme|>
 
 <|{data}|chart|type=scatterpolar|r=%|theta=Language|options={options}|layout={layout}|height=300%|>
 """
 
-Gui(md).run(run_browser=False)
+Gui(md).run()

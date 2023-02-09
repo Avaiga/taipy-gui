@@ -150,10 +150,9 @@ layout = {
 
 page = """
 # Maps - Bubbles
-<|toggle|theme|>
 
 <|{data}|chart|type=scattergeo|lat=lat|lon=lon|mode=markers|marker={marker}|text=text|layout={layout}|>
 
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

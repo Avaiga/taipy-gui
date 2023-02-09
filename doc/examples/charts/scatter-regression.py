@@ -12,13 +12,14 @@
 # To execute this script, make sure that the taipy-gui package is installed in your
 # Python environment and run:
 #     python <script>
-# You may need to install the sklearn.datasets and sklearn.linear_model packages as well.
+# You may need to install the scikit-learn package as well.
 # -----------------------------------------------------------------------------------------
 from taipy import Gui
 from os.path import exists
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LinearRegression
 
+# Let scikit-learn generate a random regression problem
 n_samples = 300
 X, y, coef = make_regression(n_samples=n_samples, n_features=1, n_informative=1, n_targets=1, noise=25, coef=True)
 
@@ -36,9 +37,8 @@ data = {
 
 page = """
 # Scatter - Regression
-<|toggle|theme|>
 
-<|{data}|chart|x=x|y[1]=y|mode[1]=markers|y[2]=Regression|mode[2]=line|width=60%|>
+<|{data}|chart|x=x|y[1]=y|mode[1]=markers|y[2]=Regression|mode[2]=line|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

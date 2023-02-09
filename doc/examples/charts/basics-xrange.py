@@ -26,9 +26,8 @@ data = {
 
 page = """
 # Basics - X range
-<|toggle|theme|>
 
 <|{data}|chart|x=X|y=Y|height=300px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

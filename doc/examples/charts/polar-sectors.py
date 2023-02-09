@@ -46,9 +46,8 @@ layout = {
 
 md = """
 # Polar - Sectors
-<|toggle|theme|>
 
 <|{data}|chart|type=scatterpolar|layout={layout}|options={options}|>
 """
 
-Gui(md).run(run_browser=False)
+Gui(md).run()

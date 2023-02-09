@@ -22,6 +22,7 @@ n_years = 10
 proportions_female = numpy.zeros(n_years)
 proportions_male = numpy.zeros(n_years)
 
+# Prepare the data set with random variations
 proportions_female[0] = 0.4
 proportions_male[0] = proportions_female[0] * (1 + numpy.random.normal(0, 0.1))
 
@@ -37,6 +38,7 @@ for i in range(1,n_years):
 data = {
   "Hobbies" : ["Archery", "Tennis", "Football", "Basket", "Volley", "Golf", "Video-Games", "Reading", "Singing", "Music"],
   "Female" : proportions_female,
+  # Negate these values so they appear to the left side
   "Male" : -proportions_male
 }
 
@@ -65,9 +67,8 @@ properties = {
 
 page = """
 # Bar - Facing
-<|toggle|theme|>
 
-<|{data}|chart|type=bar|properties={properties}|width=60%|>
+<|{data}|chart|type=bar|properties={properties}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

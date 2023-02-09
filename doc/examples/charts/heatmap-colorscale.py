@@ -28,9 +28,8 @@ options = { "colorscale": "Portland" }
 
 page = """
 # Heatmap - Colorscale
-<|toggle|theme|>
 
-<|{data}|chart|type=heatmap|z=Temperatures|x=Seasons|y=Cities|options={options}|width=60%|>
+<|{data}|chart|type=heatmap|z=Temperatures|x=Seasons|y=Cities|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

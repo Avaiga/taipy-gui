@@ -28,9 +28,8 @@ options = {
 
 page = """
 # Histogram - Cumulative
-<|toggle|theme|>
 
-<|{data}|chart|type=histogram|options={options}|width=60%|>
+<|{data}|chart|type=histogram|options={options}|>
 """
 
-Gui(page=page).run(run_browser=False)
+Gui(page).run()

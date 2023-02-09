@@ -86,9 +86,8 @@ layout = {
 
 page = """
 # Funnel Area - Multiple Charts
-<|toggle|theme|>
 
 <|{data}|chart|type=funnelarea|values={values}|options={options}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

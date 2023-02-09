@@ -25,9 +25,8 @@ data['Lost'] = lost
 
 page = """
 # Bar - Multiple
-<|toggle|theme|>
 
-<|{data}|chart|type=bar|x=Year|y[1]=Won|y[2]=Lost|width=60%|>
+<|{data}|chart|type=bar|x=Year|y[1]=Won|y[2]=Lost|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

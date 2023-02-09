@@ -12,7 +12,7 @@
 # To execute this script, make sure that the taipy-gui package is installed in your
 # Python environment and run:
 #     python <script>
-# You may need to install the sklearn.datasets package as well.
+# You may need to install the scikit-learn package as well.
 # -----------------------------------------------------------------------------------------
 from taipy import Gui
 
@@ -20,6 +20,7 @@ import numpy
 import pandas
 from sklearn.datasets import make_classification
 
+# Let scikit-learn generate a random 2-class classification problem
 features, label = make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0)
 
 random_data = pandas.DataFrame({
@@ -40,9 +41,8 @@ data = {
 
 page = """
 # Scatter - Classification
-<|toggle|theme|>
 
 <|{data}|chart|mode=markers|x=x|y[1]=Class A|y[2]=Class B|width=60%|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

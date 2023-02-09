@@ -44,7 +44,6 @@ layout = {
 
 page = """
 # Basics - Multiple axis
-<|toggle|theme|>
 
 Shared axis:
 <|{data}|chart|x=x|y[1]=y1|y[2]=y2|height=300px|>
@@ -54,4 +53,4 @@ With two axis:
 
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

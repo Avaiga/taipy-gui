@@ -23,9 +23,8 @@ data = {
 
 page = """
 # Funnel Chart - Simple
-<|toggle|theme|>
 
 <|{data}|chart|type=funnel|x=Visits|y=Opps|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

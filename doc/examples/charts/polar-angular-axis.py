@@ -59,9 +59,8 @@ layout = {
 
 page = """
 # Polar Charts - Direction
-<|toggle|theme|>
 
 <|{data}|chart|type=scatterpolar|layout={layout}|options={options}|height=300px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

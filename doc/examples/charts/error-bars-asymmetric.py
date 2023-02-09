@@ -43,9 +43,8 @@ options = {
 
 page = """
 # Error bars - Asymmetric
-<|toggle|theme|>
 
 <|{data}|chart|type=bar|x=x|y=y|orientation=h|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

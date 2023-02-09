@@ -43,9 +43,8 @@ options = {
 
 page = """
 # Funnel Chart - Custom markers
-<|toggle|theme|>
 
 <|{data}|chart|type=funnel|x=Visits|y=Types|marker={marker}|options={options}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

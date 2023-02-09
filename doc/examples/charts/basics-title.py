@@ -24,9 +24,8 @@ layout = {
 
 page = """
 # Basics - Title
-<|toggle|theme|>
 
 <|{[x*x for x in range(0, 11)]}|chart|title=Plotting x squared|layout={layout}|height=300px|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

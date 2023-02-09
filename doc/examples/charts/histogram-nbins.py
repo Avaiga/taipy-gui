@@ -44,8 +44,7 @@ layout = {
 
 page = """
 # Histogram - NBins
-<|toggle|theme|>
 
-<|{data}|chart|type=histogram|options={options}|layout={layout}|width=60%|>
+<|{data}|chart|type=histogram|options={options}|layout={layout}|>
 """
-Gui(page=page).run(run_browser=False)
+Gui(page).run()

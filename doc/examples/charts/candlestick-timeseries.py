@@ -54,9 +54,8 @@ data = {
 
 md = """
 # Candlestick - Timeline
-<|toggle|theme|>
 
 <|{data}|chart|type=candlestick|x=Date|open=Open|close=Close|low=Low|high=High|>
 """
 
-Gui(md).run(run_browser=False)
+Gui(md).run()

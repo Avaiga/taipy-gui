@@ -16,13 +16,13 @@
 from taipy import Gui
 import random
 
+# Random data set
 data = [random.gauss(0, 5) for i in range(1000)]
 
 page = """
 # Histogram - Simple
-<|toggle|theme|>
 
-<|{data}|chart|type=histogram|width=60%|>
+<|{data}|chart|type=histogram|>
 """
 
-Gui(page=page).run(run_browser=False)
+Gui(page).run()

@@ -50,9 +50,8 @@ layout = {
 
 page = """
 # Gantt - Simple
-<|toggle|theme|>
 
 <|{data}|chart|type=bar|orientation=h|y=Task|x=Date|base=start|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

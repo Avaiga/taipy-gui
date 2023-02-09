@@ -69,9 +69,8 @@ for city in range(len(cities)):
 
 page = """
 ## Heatmap - Annotated
-<|toggle|theme|>
 
 <|{data}|chart|type=heatmap|z=Temperatures|x=Seasons|y=Cities|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()

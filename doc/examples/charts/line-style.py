@@ -32,10 +32,9 @@ data = {
 
 page = """
 # Line - Style
-<|toggle|theme|>
 
-<|{data}|chart|mode=lines|x=Date|y[1]=Temp°C|y[2]=Min|y[3]=Max|line[1]=dash|color[2]=blue|color[3]=red|width=60%|>
+<|{data}|chart|mode=lines|x=Date|y[1]=Temp°C|y[2]=Min|y[3]=Max|line[1]=dash|color[2]=blue|color[3]=red|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()
 

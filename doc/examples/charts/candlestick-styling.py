@@ -51,9 +51,8 @@ layout = {
 
 page = """
 # Candlestick - Styling
-<|toggle|theme|>
 
 <|{stock}|chart|type=candlestick|x=Date|open=Open|close=Close|low=Low|high=High|options={options}|layout={layout}|>
 """
 
-Gui(page).run(run_browser=False)
+Gui(page).run()
