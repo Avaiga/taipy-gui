@@ -60,7 +60,7 @@ layout = {
 page = """
 # Polar Charts - Direction
 
-<|{data}|chart|type=scatterpolar|layout={layout}|options={options}|height=300px|>
+<|{data}|chart|type=scatterpolar|layout={layout}|options={options}|>
 """
 
 Gui(page).run()

@@ -25,7 +25,7 @@ layout = {
 page = """
 # Basics - Title
 
-<|{[x*x for x in range(0, 11)]}|chart|title=Plotting x squared|layout={layout}|height=300px|>
+<|{[x*x for x in range(0, 11)]}|chart|title=Plotting x squared|layout={layout}|>
 """
 
 Gui(page).run()

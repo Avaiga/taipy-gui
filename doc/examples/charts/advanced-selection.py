@@ -51,7 +51,7 @@ page = """
 
 ## Mean of <|{len(selected_indices)}|raw|> selected points: <|{mean_value}|format=%.2f|raw|>
 
-<|{data}|chart|selected={selected_indices}|layout={layout}|plot_config={config}|height=300px|>
+<|{data}|chart|selected={selected_indices}|layout={layout}|plot_config={config}|>
 """
 
 Gui(page).run()

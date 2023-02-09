@@ -38,7 +38,7 @@ marker = {
 page = """
 # Bubble - Hover text
 
-<|{data}|chart|mode=markers|x=x|y=y|marker={marker}|text=Texts|height=340px|>
+<|{data}|chart|mode=markers|x=x|y=y|marker={marker}|text=Texts|>
 """
 
 Gui(page).run()

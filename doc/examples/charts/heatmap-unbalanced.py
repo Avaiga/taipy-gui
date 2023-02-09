@@ -32,7 +32,7 @@ data = [
 page = """
 # Heatmap - Unbalanced
 
-<|{data}|chart|type=heatmap|z=0/Temperatures|x=1/Seasons|y=0/Cities|height=300px|>
+<|{data}|chart|type=heatmap|z=0/Temperatures|x=1/Seasons|y=0/Cities|>
 """
 
 Gui(page).run()

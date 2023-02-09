@@ -51,7 +51,7 @@ options = {
 md = """
 # Radar - Simple
 
-<|{data}|chart|type=scatterpolar|r=%|theta=Language|options={options}|layout={layout}|height=300%|>
+<|{data}|chart|type=scatterpolar|r=%|theta=Language|options={options}|layout={layout}|>
 """
 
 Gui(md).run()
