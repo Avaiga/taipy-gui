@@ -506,7 +506,8 @@ class Gui:
             var_name = var_name[:first_dot_index]
         var_name_decode, module_name = _variable_decode(self._get_expr_from_hash(var_name))
         current_context = self._get_locals_context()
-        if module_name == current_context:
+        # #583: allow module resolution var_name in current_context and __main__
+        if module_name in [current_context, "__main__"]:
             var_name = var_name_decode
         else:
             if var_name not in self.__var_dir._var_head:
