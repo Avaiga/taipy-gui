@@ -72,12 +72,12 @@ is the root directory of the repository:
 $ cd gui
 # Install the DOM dependencies (once and for all)
 $ cd dom
-$ npm ci
+$ npm i
 $ cd ..
 # Install the Web app dependencies
-$ npm ci --omit=optional
+$ npm i --omit=optional
 # Build the Web application
-$ npm run build --if-present
+$ npm run build
 $ cd ..
 # Current directory is the repository's root directory
 ```
@@ -95,7 +95,7 @@ $ npm run build:dev
 
 instead of the *standard* build option.
 
-This will preserve the debugging symbols, and we will be able to navigate in the
+This will preserve the debugging symbols, and you will be able to navigate in the
 TypeScript code from your debugger.
 
 > **Note:** Web application location
