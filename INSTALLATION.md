@@ -33,6 +33,7 @@ The development version of Taipy GUI is updated daily with changes from the
 Taipy R&D and external contributors that we praise for their input.
 
 The development version of Taipy GUI can be installed using _pip_ and _git_:
+
 ```console
 $ pip install git+https://git@github.com/Avaiga/taipy-gui
 ```
