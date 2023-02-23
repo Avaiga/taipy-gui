@@ -6,6 +6,6 @@
 //
 // Note that we export the 'SimpleLabel' component as 'MyLabel', which is the name
 // used in the element declaration in the element library.
-import SimpleLabel from "./SimpleLabel";
+import Label from "./Label";
 
-export { SimpleLabel as MyLabel };
+export { Label as ExampleLabel };

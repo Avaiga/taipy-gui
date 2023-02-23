@@ -1,5 +1,5 @@
 {
-    "name": "taipy-gui-doc-extension",
+    "name": "taipy-gui-extension-example",
     "version": "1.0.0",
     "private": true,
     "devDependencies": {
@@ -17,7 +17,8 @@
         "webpack-cli": "^4.10.0"
     },
     "dependencies": {
-        "react": "^18.2.0"
+        "react": "^18.2.0",
+        "taipy-gui": "file:../../../../src/taipy/gui/webapp"
     },
     "scripts": {
         "build:dev": "webpack --mode development",

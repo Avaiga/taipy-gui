@@ -99,7 +99,7 @@ needs. Here are the important settings that you must check:
     (located in the `webui` directory, where the bundle is built).
   - `output.library.name`: Indicates the name of the JavaScript module that holds the code
     for the generated library.</br>
-    It must be derived from the name of the element library (the value of the `get_name()`
+    It can be derived from the name of the element library (the value of the `get_name()`
     method for the custom library in `my_custom_lib/my_library.py`): the name of the
     JavaScript object should be a camel case version of the library name.<br/>
     If `get_name()` returns `"the_name_of_the_library"` then this setting should be set
@@ -122,7 +122,7 @@ The previous section explained what to change and where.
 Another way of looking at things is to list the different settings that can be
 modified, and check that they all match:
 
-- The element library name: set by overriding `ElementLibrary.get_name()`.<br/>
+- The element library name: Is set by overriding `ElementLibrary.get_name()`.<br/>
   This is the prefix that is used in page description texts to find the visual
   element to instantiate.
 - The JavaScript module name: Is specified in `webpack.config.js` (setting is

@@ -1,1 +1,4 @@
-!demo.py
+dist/
+*.egg-info/
+example_library/frontend/package-lock.json
+example_library/frontend/node_modules/

@@ -1,14 +1,14 @@
 from taipy.gui import Gui
-from my_custom_lib import MyLibrary
+from example_library import ExampleLibrary
 import random
 import string
 
 value = "a"
 
 page = """
-# A custom element
+# Demonstrating the example custom elements
 
-*My custom label:* <|{value}|my_custom.label|>
+*My custom label:* <|{value}|example.label|>
 
 <|Add a character|button|>
 """
@@ -16,6 +16,4 @@ page = """
 def on_action(state):
   state.value = state.value + random.choice(string.ascii_letters)
 
-gui = Gui(page)
-gui.add_library(MyLibrary())
-gui.run()
+Gui(page, libraries=[ExampleLibrary()]).run()
