@@ -91,8 +91,9 @@ class Element:
         Arguments:
             default_property (str): the name of the default property for this element.
             properties (List[ElementProperty]): The list of properties for this element.
-            react_component (Optional[str]): The name of the component to be created on the frontend
-                If not specified, it is set to a camel case version of `name` ("one_name" => "OneName").
+            react_component (Optional[str]): The name of the component to be created on the front-end.<br/>
+                If not specified, it is set to a camel case version of the element's name
+                ("one_name" is transformed to "OneName").
             render_xhtml (Optional[callable[[dict[str, Any]], str]]): A function that receives a
                 dictionary containing the element's properties and their values
                 and that must return a valid XHTML string.
@@ -191,8 +192,7 @@ class ElementLibrary(ABC):
     In order to use those elements you must register the element library
     using the function `Gui.add_library()^`.
 
-    Element libraries can mix static and dynamic elements. See
-    []
+    An element library can mix *static* and *dynamic* elements.
     """
 
     @abstractmethod
@@ -322,12 +322,12 @@ class ElementLibrary(ABC):
     def get_data(self, library_name: str, payload: t.Dict, var_name: str, value: t.Any) -> t.Optional[t.Dict]:
         """
         TODO
-        Called if implemented (ie returns a dict).
+        Called if implemented (i.e returns a dict).
 
         Arguments:
 
             library_name (str): The name of this library.
-            payload (dict): The payload send by the `createRequestDataUpdateAction()` frontend function.
+            payload (dict): The payload send by the `createRequestDataUpdateAction()` front-end function.
             var_name (str): The name of the variable holding the data.
             value (any): The current value of the variable identified by *var_name*.
         """

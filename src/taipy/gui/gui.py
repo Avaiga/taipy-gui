@@ -309,7 +309,8 @@ class Gui:
         if env_filename is not None:
             self.__env_filename = env_filename
         if libraries is not None:
-            map(Gui.add_library, libraries)
+            for library in libraries:
+                Gui.add_library(library)
 
     @staticmethod
     def add_library(library: ElementLibrary) -> None:
