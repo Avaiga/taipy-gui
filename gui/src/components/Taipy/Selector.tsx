@@ -12,7 +12,6 @@
  */
 
 import React, { useState, useContext, useCallback, useEffect, useMemo, CSSProperties, MouseEvent } from "react";
-import { Theme, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
 import FormLabel from "@mui/material/FormLabel";
@@ -30,6 +29,7 @@ import FormControl from "@mui/material/FormControl";
 import Tooltip from "@mui/material/Tooltip";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
+import { Theme, useTheme } from "@mui/material";
 
 import { doNotPropagateEvent, getUpdateVar } from "./utils";
 import { TaipyContext } from "../../context/taipyContext";
@@ -41,7 +41,6 @@ import {
     SelTreeProps,
     showItem,
     SingleItem,
-    treeSelBaseSx,
     useLovListMemo,
 } from "./lovUtils";
 import { useClassNames, useDispatchRequestUpdateOnFirstRender, useDynamicProperty } from "../../utils/hooks";
@@ -97,7 +96,7 @@ const Selector = (props: SelTreeProps) => {
         propagate = true,
         lov,
         updateVars = "",
-        width = 360,
+        width = "100%",
         height,
         valueById,
     } = props;
@@ -113,7 +112,7 @@ const Selector = (props: SelTreeProps) => {
     useDispatchRequestUpdateOnFirstRender(dispatch, id, updateVars, updateVarName);
 
     const lovList = useLovListMemo(lov, defaultLov);
-    const listSx = useMemo(() => ({ ...treeSelBaseSx, maxWidth: width }), [width]);
+    const listSx = useMemo(() => ({ bgcolor: "transparent", overflowY: "auto", width: "100%", maxWidth: width }), [width]);
     const paperSx = useMemo(() => {
         let sx = paperBaseSx;
         if (height !== undefined) {
@@ -124,7 +123,7 @@ const Selector = (props: SelTreeProps) => {
         }
         return sx;
     }, [height, width]);
-    const controlSx = useMemo(() => ({ m: 1, width: width }), [width]);
+    const controlSx = useMemo(() => ({ my: 1, mx: 0, width: width , display: "flex"}), [width]);
 
     useEffect(() => {
         if (value !== undefined && value !== null) {
