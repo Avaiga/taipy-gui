@@ -34,4 +34,6 @@ def on_action(state, id):
     if len(state.label) > 0:
       state.label = state.label[1:]
 
-Gui(page, libraries=[ExampleLibrary()]).run(debug=True)
+
+Gui.add_library(ExampleLibrary())
+Gui(page).run(debug=True)
