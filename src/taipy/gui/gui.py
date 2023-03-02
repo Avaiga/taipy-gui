@@ -53,6 +53,7 @@ from .renderers import _EmptyPage
 from .renderers._markdown import _TaipyMarkdownExtension
 from .renderers.factory import _Factory
 from .renderers.json import _TaipyJsonEncoder
+from .renderers.utils import _get_columns_dict, _to_camel_case
 from .server import _Server
 from .state import State
 from .types import _WsType
@@ -62,15 +63,18 @@ from .utils import (
     _get_client_var_name,
     _get_module_name_from_frame,
     _get_non_existent_file_path,
+    _get_css_var_value,
     _getscopeattr,
     _getscopeattr_drill,
     _hasscopeattr,
+    _is_boolean_true,
     _is_in_notebook,
     _LocalsContext,
     _MapDict,
     _setscopeattr,
     _setscopeattr_drill,
     _TaipyBase,
+    _TaipyBool,
     _TaipyContent,
     _TaipyContentImage,
     _TaipyData,
@@ -83,7 +87,6 @@ from .utils._bindings import _Bindings
 from .utils._evaluator import _Evaluator
 from .utils._variable_directory import _MODULE_ID, _VariableDirectory
 from .utils.types import _HOLDER_PREFIX, _HOLDER_PREFIXES
-from .renderers.utils import _get_columns_dict
 
 
 class Gui:
@@ -170,7 +173,7 @@ class Gui:
     __UPLOAD_URL = "/taipy-uploads"
     _EXTENSION_ROOT = "/taipy-extension/"
     __SELF_VAR = "__gui"
-    __JSON_DO_NOT_UPDATE = "Taipy: Do not update"
+    __DO_NOT_UPDATE_VALUE = "Taipy: Do not update"
 
     __RE_HTML = re.compile(r"(.*?)\.html")
     __RE_MD = re.compile(r"(.*?)\.md")
@@ -246,8 +249,9 @@ class Gui:
         self._flask = flask
         if css_file is None:
             script_file = pathlib.Path(self.__frame.f_code.co_filename or ".").resolve()
-            css_file = script_file.stem or "Taipy"
-        self._css_file = css_file
+            if script_file.with_suffix(".css").exists():
+                css_file = f'{script_file.stem or "Taipy"}.css'
+        self.__css_file = css_file
 
         self._config = _Config()
         self.__content_accessor = None
@@ -421,7 +425,6 @@ class Gui:
         try:
             self.__set_client_id_in_context(message.get("client_id"))
             self._set_locals_context(message.get("module_context") or None)
-            self._set_ack_id(message.get("ack_id"))
             if msg_type == _WsType.UPDATE.value:
                 payload = message.get("payload", {})
                 self.__front_end_update(
@@ -440,6 +443,7 @@ class Gui:
             elif msg_type == _WsType.CLIENT_ID.value:
                 self._bindings()._get_or_create_scope(message.get("payload", ""))
             self._reset_locals_context()
+            self.__send_ack(message.get("ack_id"))
         except Exception as e: # pragma: no cover
             warnings.warn(f"Decoding Message has failed: {message}\n{e}")
 
@@ -681,9 +685,11 @@ class Gui:
     ):
         ws_dict = {}
         values = {v: _getscopeattr_drill(self, v) for v in modified_vars}
-        for v in values.values():
+        for k, v in values.items():
             if isinstance(v, _TaipyData) and v.get_name() in modified_vars:
                 modified_vars.remove(v.get_name())
+            elif isinstance(v, str) and v == Gui.__DO_NOT_UPDATE_VALUE:
+                modified_vars.remove(k)
         for _var in modified_vars:
             newvalue = values.get(_var)
             # self._scopes.broadcast_data(_var, newvalue)
@@ -760,13 +766,19 @@ class Gui:
                     to=self.__get_ws_receiver(),
                 )
                 time.sleep(0.001)
-                if ack_id := self._get_ack_id():
-                    self._server._ws.emit("message", {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id})
-                    time.sleep(0.001)
             except Exception as e: # pragma: no cover
                 warnings.warn(f"Exception raised in Web Socket communication in '{self.__frame.f_code.co_name}':\n{e}")
         else:
             grouping_message.append(payload)
+
+    def __send_ack(self, ack_id: t.Optional[str]) -> None:
+        if ack_id:
+            try:
+                self._server._ws.emit("message", {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id})
+                time.sleep(0.001)
+            except Exception as e: # pragma: no cover
+                warnings.warn(f"Exception raised in Web Socket communication (send ack) in '{self.__frame.f_code.co_name}':\n{e}")
+
 
     def _send_ws_id(self, id: str) -> None:
         self.__send_ws(
@@ -974,31 +986,31 @@ class Gui:
 
     # make components resettable
 
-    def _calculate_table_columns(self, rebuild: bool, rebuild_hash: t.Optional[str],
+    def _calculate_table_columns(self, rebuild: t.Any, rebuild_hash: t.Optional[str],
                                     data: t.Any, data_hash: str,
                                     columns: t.Any, columns_hash: t.Optional[str],
                                     date_format: str, number_format: str) -> t.Tuple[t.Dict[str, t.Dict[str, t.Any]], t.Dict[str, str], t.Optional[str]]:
         col_types = self._accessors._get_col_types(data_hash, _TaipyData(data, data_hash))
         columns_str = columns if isinstance(columns, str) else ""
         col_dict = _get_columns_dict(data, columns, col_types, date_format, number_format)
+        rebuild_val = _TaipyBool(rebuild, rebuild_hash).get() if rebuild_hash else _is_boolean_true(t.cast(bool, rebuild))
         expr_hash: t.Optional[str] = None
-        if data_hash and (rebuild_hash or rebuild):
-            empty_str = '""'
+        if data_hash and (rebuild_hash or rebuild_val):
             data_var_name = self.__get_real_var_name(data_hash)[0]
-            columns_var_name = self.__get_real_var_name(columns_hash)[0] if columns_hash else empty_str
-            rebuild_var_name = self.__get_real_var_name(rebuild_hash)[0] if rebuild_hash else empty_str
+            columns_var_name = self.__get_real_var_name(columns_hash)[0] if columns_hash else '""'
+            rebuild_var_name = self.__get_real_var_name(rebuild_hash)[0] if rebuild_hash else 'None'
             expr_hash = self._evaluate_expr(
-                "{"+f"{Gui.__SELF_VAR}._tbl_cols({rebuild}, {rebuild_var_name}, {data_var_name}, '{data_hash}', '{columns_str}', {columns_var_name}, '{date_format or ''}', '{number_format or ''}')" + "}")
+                "{"+f"{Gui.__SELF_VAR}._tbl_cols({rebuild_val}, {bool(rebuild_hash)}, {rebuild_var_name}, {data_var_name}, '{data_hash}', '{columns_str}', {columns_var_name}, '{date_format or ''}', '{number_format or ''}')" + "}")
         return col_dict, col_types, expr_hash
 
-    def _tbl_cols(self, rebuild: bool, rebuild_val: t.Any, data: t.Any, data_hash: str, columns: str, columns_val: t.Any, date_format: str, number_format: str) -> str:
+    def _tbl_cols(self, rebuild: bool, is_rebuild_var: bool, rebuild_val: t.Any, data: t.Any, data_hash: str, columns: str, columns_val: t.Any, date_format: str, number_format: str) -> str:
         try:
-            rebuild = rebuild_val if isinstance(rebuild_val, bool) else rebuild
+            rebuild = _TaipyBool(rebuild_val, '').get() if is_rebuild_var else rebuild
             if rebuild:
                 return json.dumps(_get_columns_dict(data, columns_val if columns_val else columns, self._accessors._get_col_types(data_hash, _TaipyData(data, data_hash)), date_format, number_format))
         except Exception as e: # pragma: no cover
             warnings.warn(f"Exception while rebuilding table columns {e}")
-        return Gui.__JSON_DO_NOT_UPDATE
+        return Gui.__DO_NOT_UPDATE_VALUE
 
     # Proxy methods for Adapter
 
@@ -1068,12 +1080,6 @@ class Gui:
 
     def _reset_locals_context(self) -> None:
         self.__locals_context.reset_locals_context()
-
-    def _set_ack_id(self, ack_id: t.Optional[str]) -> None:
-        setattr(g, "ack_id", ack_id)
-
-    def _get_ack_id(self) -> t.Optional[str]:
-        return getattr(g, "ack_id", None)
 
     @staticmethod
     def _get_root_page_name():
@@ -1539,7 +1545,18 @@ class Gui:
                         for n, e in lib.get_elements().items()
                         if isinstance(e, Element) and not e._is_server_only()
                     ]
+        if self._get_config("stylekit", False):
+            config["stylekit"] = {_to_camel_case(k): v for k, v in self._get_config("stylekit_variables", {}).items()}
         return config
+
+    def __get_css_vars(self) -> str:
+        css_vars = []
+        if self._get_config("stylekit", False):
+            stylekit = self._get_config("stylekit_variables", {})
+            for k,v in stylekit.items():
+                css_vars.append(f'--{k.replace("_", "-")}:{_get_css_var_value(v)};')
+        return " ".join(css_vars)
+
 
     def __init_server(self):
         app_config = self._config.config
@@ -1549,7 +1566,6 @@ class Gui:
                 self,
                 path_mapping=self._path_mapping,
                 flask=self._flask,
-                css_file=self._css_file,
                 async_mode=app_config["async_mode"],
             )
 
@@ -1561,7 +1577,6 @@ class Gui:
                 self,
                 path_mapping=self._path_mapping,
                 flask=self._flask,
-                css_file=self._css_file,
                 async_mode=app_config["async_mode"],
             )
             self._bindings()._new_scopes()
@@ -1623,6 +1638,11 @@ class Gui:
             for lib in libs
             for s in (lib.get_styles() or [])
         ]
+        if self._get_config("stylekit", False):
+            styles.append("/stylekit/stylekit.css")
+        if self.__css_file:
+            styles.append(f"/{self.__css_file}")
+
         self._flask_blueprint.append(extension_bp)
 
         _conf_webapp_path = (
@@ -1650,6 +1670,7 @@ class Gui:
                 version=self.__get_version(),
                 client_config=self.__get_client_config(),
                 watermark=self._get_config("watermark", None),
+                css_vars=self.__get_css_vars(),
             )
         )
 

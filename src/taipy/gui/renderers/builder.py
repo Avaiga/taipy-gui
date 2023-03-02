@@ -465,7 +465,7 @@ class _Builder:
                 warnings.warn(f"{self.__element_name} {name}[{k}] is not in the list of displayed columns")
 
     def _get_dataframe_attributes(self, date_format="MM/dd/yyyy", number_format=None) -> '_Builder': # noqa: C901
-        columns, col_types, rebuild_fn_hash = self.__gui._calculate_table_columns(_is_boolean_true(t.cast(bool, self.__attributes.get("rebuild", False))), self.__hashes.get("rebuild"),
+        columns, col_types, rebuild_fn_hash = self.__gui._calculate_table_columns(self.__attributes.get("rebuild", False), self.__hashes.get("rebuild"),
             self.__attributes.get("data"), self.__hashes.get("data", ""),
             self.__attributes.get("columns", {}), self.__hashes.get("columns"),
             _add_to_dict_and_get(self.__attributes, "date_format", date_format), _add_to_dict_and_get(self.__attributes, "number_format", number_format))
@@ -829,9 +829,9 @@ class _Builder:
         hash_name = self.__hashes.get(var_name)
         if content is None and hash_name is None:
             return self
+        value = self.__gui._get_content(hash_name or var_name, content, image)
         if hash_name:
             hash_name = self.__get_typed_hash_name(hash_name, PropertyType.image if image else PropertyType.content)
-        value = self.__gui._get_content(hash_name or var_name, content, image)
         if hash_name:
             self.__set_react_attribute(
                 var_name,
