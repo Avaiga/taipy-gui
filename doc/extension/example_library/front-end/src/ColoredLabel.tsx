@@ -12,16 +12,16 @@ interface ColoredLabelProps {
 
 // Sequence of colors
 const colorWheel = ["#FF0000", "#A0A000", "#00FF00", "#00A0A0", "#0000FF", "#A000A0"]
-// Return the color style depending on the character index
-const getColor = (index: number) => ({ color: colorWheel[index % 6] });
+// The array of styles using these colors
+const colorStyles = colorWheel.map(c => ({ color: c }))
 
 // ColoredLabel component definition
 const ColoredLabel = (props: ColoredLabelProps) => {
   // The dynamic property that holds the text value
   const value = useDynamicProperty(props.value, props.defaultValue, "");
-  // Empty text?
+  // Empty text? Returning null produces no output.
   if (!value) {
-    return <span />
+    return null;
   }
   // Create a <span> element for each letter with the proper style.
   // Note that React needs, in this situation, to set the 'key' property
@@ -29,7 +29,7 @@ const ColoredLabel = (props: ColoredLabelProps) => {
   return (
     <>
       {value.split("").map((letter, index) => (
-        <span key={"key" + index} style={getColor(index)}>{letter}</span>
+        <span key={"key" + index} style={colorStyles[index % 6]}>{letter}</span>
       ))}
     </>
   )

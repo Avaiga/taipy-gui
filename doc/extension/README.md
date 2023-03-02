@@ -151,7 +151,7 @@ the "TAIPY_GUI_DIR" variable is set, we can build the JavaScript module file:
   ```
   npm install
   ```
-  This command with fail with a message indicating that the Taipy GUI 'webapp' directory
+  This command will fail with a message indicating that the Taipy GUI 'webapp' directory
   could not be found if the "TAIPY_GUI_DIR" environment variable was not set properly.
 - You can now build the custom element library JavaScript bundle file:
   ```
