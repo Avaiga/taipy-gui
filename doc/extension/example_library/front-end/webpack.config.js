@@ -11,54 +11,54 @@
  * specific language governing permissions and limitations under the License.
  */
 
-// webpack should be in the node_modules directory, install if not.
-const path = require("path");
 const webpack = require("webpack");
+const path = require("path");
+require("dotenv").config();
 
-module.exports = (env, options) => {
-    return {
-        mode: options.mode, // "development" | "production"
-        entry: ["./src/index.ts"],
-        output: {
-            filename: "exampleLibrary.js",
-            path: path.resolve(__dirname, "dist"),
-            library: {
-                // Extension library name is "example"
-                name: "Example",
-                type: "umd"
-            },
-            publicPath: "/",
+module.exports = (_env, options) => {
+  return {
+    mode: options.mode, // "development" | "production"
+    entry: ["./src/index.ts"],
+    output: {
+      filename: "exampleLibrary.js",
+      path: path.resolve(__dirname, "dist"),
+      library: {
+        // Camel case transformation of the library name "example"
+        name: "Example",
+        type: "umd"
+      },
+      publicPath: "/",
+    },
+    // The Taipy GUI library is indicated as external so that it is
+    // excluded from bundling.
+    externals: {"taipy-gui": "TaipyGui"},
+
+    // Enable sourcemaps for debugging webpack's output.
+    devtool: options.mode === "development" && "inline-source-map",
+    resolve: {
+      extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
+    },
+
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: "ts-loader",
+          exclude: /node_modules/,
         },
-        // The Taipy GUI library is indicated as external so that it is
-        // excluded from bundling.
-        externals: {"taipy-gui": "TaipyGui"},
+      ],
+    },
 
-        // Enable sourcemaps for debugging webpack's output.
-        devtool: options.mode === "development" && "inline-source-map",
-
-        resolve: {
-            extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
-        },
-
-        module: {
-            rules: [
-                {
-                    test: /\.tsx?$/,
-                    use: "ts-loader",
-                    exclude: /node_modules/,
-                },
-            ],
-        },
-
-        plugins: [
-            new webpack.DllReferencePlugin({
-                // We assume the current directory is orignal directory in the taipy-gui repository.
-                // If this file is moved, this path must be updated
-                manifest: path.resolve(__dirname,
-                                       "../../../../src/taipy/gui/webapp/taipy-gui-deps-manifest.json"),
-                name: "TaipyGuiDependencies"
-            }),
-        ]
-
-    };
+    plugins: [
+      new webpack.DllReferencePlugin({
+        // We assume the current directory is orignal directory in the taipy-gui repository.
+        // If this file is moved, this path must be updated
+        manifest: path.resolve(
+          __dirname,
+          `${process.env.TAIPY_GUI_DIR}/taipy/gui/webapp/taipy-gui-deps-manifest.json`
+        ),
+        name: "TaipyGuiDependencies"
+      }),
+    ]
+  };
 };
