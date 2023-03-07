@@ -106,7 +106,7 @@ export const stylekitTheme = {
             },
         },
         // Button
-        MuiButtonBase: {
+        MuiButton: {
             styleOverrides: {
                 root: {
                     height: "auto",
