@@ -38,6 +38,6 @@
 **************************************************/
 
 /* .svg_bg: keep the original svg background */
-.taipy-chart:not(.svg_bg) .main-svg{
+.taipy-chart:not(.svg_bg) .main-svg {
   background: transparent !important;
 }
