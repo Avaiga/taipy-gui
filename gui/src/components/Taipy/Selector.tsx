@@ -289,6 +289,7 @@ const Selector = (props: SelTreeProps) => {
                     {filter && (
                         <Box>
                             <OutlinedInput
+                                margin="dense"
                                 placeholder="Search field"
                                 value={searchValue}
                                 onChange={handleInput}
