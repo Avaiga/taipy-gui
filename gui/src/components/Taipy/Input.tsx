@@ -98,7 +98,6 @@ const Input = (props: TaipyInputProps) => {
     return (
         <Tooltip title={hover || ""}>
             <TextField
-                margin="dense"
                 hiddenLabel
                 value={value ?? ""}
                 className={className}

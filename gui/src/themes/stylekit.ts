@@ -44,6 +44,9 @@ export const stylekitTheme = {
     components: {
         // Form control
         MuiFormControl: {
+            defaultProps: {
+                margin: 'dense',
+            },
             styleOverrides: {
                 root: {
                     // Fill the available width
@@ -113,6 +116,7 @@ export const stylekitTheme = {
                 root: {
                     height: "auto",
                     minHeight: window.taipyConfig?.stylekit?.inputButtonHeight,
+                    marginBottom: 4,
                 },
             },
         },
