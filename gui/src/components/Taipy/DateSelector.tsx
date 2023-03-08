@@ -11,8 +11,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import React, { useState, useEffect, useCallback, useContext } from "react";
-import TextField, { TextFieldProps } from "@mui/material/TextField";
+import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -76,11 +75,6 @@ const DateSelector = (props: DateSelectorProps) => {
         [updateVarName, dispatch, withTime, propagate, tz, props.onChange]
     );
 
-    const renderInput = useCallback(
-        (params: TextFieldProps) => <TextField id={id} {...params} className={className} />,
-        [id, className]
-    );
-
     // Run every time props.value get updated
     useEffect(() => {
         if (props.date !== undefined) {
@@ -97,7 +91,6 @@ const DateSelector = (props: DateSelectorProps) => {
                             <DateTimePicker
                                 value={value}
                                 onChange={handleChange}
-                                renderInput={renderInput}
                                 className={getSuffixedClassNames(className, "-picker")}
                                 disabled={!active}
                             />
@@ -105,7 +98,6 @@ const DateSelector = (props: DateSelectorProps) => {
                             <DatePicker
                                 value={value}
                                 onChange={handleChange}
-                                renderInput={renderInput}
                                 className={getSuffixedClassNames(className, "-picker")}
                                 disabled={!active}
                             />
@@ -116,7 +108,7 @@ const DateSelector = (props: DateSelectorProps) => {
                             defaultValue={props.defaultDate}
                             value={props.date}
                             format={props.format}
-                            id={id + "-field"}
+                            id={id && id + "-field"}
                             className={getSuffixedClassNames(className, "-text")}
                         />
                     )}

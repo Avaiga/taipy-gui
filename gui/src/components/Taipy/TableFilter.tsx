@@ -13,6 +13,7 @@
 
 import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Popover, { PopoverOrigin } from "@mui/material/Popover";
 import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
@@ -21,17 +22,16 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Tooltip from "@mui/material/Tooltip";
 import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import TextField, { TextFieldProps } from "@mui/material/TextField";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import TextField from "@mui/material/TextField";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SendIcon from "@mui/icons-material/Send";
+import { DateField } from "@mui/x-date-pickers";
 
 import { ColumnDesc, defaultDateFormat, iconInRowSx } from "./tableUtils";
 import { getDateTime, getTypeFromDf } from "../../utils";
-import { Button } from "@mui/material";
 
 export interface FilterDesc {
     col: string;
@@ -143,8 +143,6 @@ const getFilterDesc = (columns: Record<string, ColumnDesc>, colId?: string, act?
         }
     }
 };
-
-const renderInput = (params: TextFieldProps) => <TextField {...params} sx={valSx} />;
 
 const FilterRow = (props: FilterRowProps) => {
     const { idx, setFilter, columns, colsOrder, filter } = props;
@@ -270,12 +268,11 @@ const FilterRow = (props: FilterRowProps) => {
                     </Select>
                 </FormControl>
             ) : colType == "date" ? (
-                <DatePicker
-                    value={val || null}
+                <DateField
+                    value={(val && new Date(val)) || null}
                     onChange={onDateChange}
-                    renderInput={renderInput}
-                    inputFormat={colFormat}
-                    disableMaskedInput={true}
+                    format={colFormat}
+                    sx={valSx}
                 />
             ) : (
                 <TextField
