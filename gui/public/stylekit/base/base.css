@@ -11,16 +11,6 @@
  * specific language governing permissions and limitations under the License.
  */
 
- :root {
-    --color-background: var(--color-background-light);
-    --color-paper: var(--color-paper-light);
-}
-
-.taipy-dark {
-    --color-background: var(--color-background-dark);
-    --color-paper: var(--color-paper-dark);
-}
-
 html,
 body {
     height: 100%;
