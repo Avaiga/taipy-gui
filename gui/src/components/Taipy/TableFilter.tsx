@@ -28,7 +28,8 @@ import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SendIcon from "@mui/icons-material/Send";
-import { DateField } from "@mui/x-date-pickers";
+import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import { ColumnDesc, defaultDateFormat, iconInRowSx } from "./tableUtils";
 import { getDateTime, getTypeFromDf } from "../../utils";
@@ -348,22 +349,24 @@ const TableFilter = (props: TableFilterProps) => {
                 onClose={onShowFilterClick}
             >
                 <Box sx={filtersSx}>
-                    {filters.map((fd, idx) => (
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        {filters.map((fd, idx) => (
+                            <FilterRow
+                                key={"fd" + idx}
+                                idx={idx}
+                                filter={fd}
+                                columns={columns}
+                                colsOrder={colsOrder}
+                                setFilter={updateFilter}
+                            />
+                        ))}
                         <FilterRow
-                            key={"fd" + idx}
-                            idx={idx}
-                            filter={fd}
+                            idx={-(filters.length + 1)}
                             columns={columns}
                             colsOrder={colsOrder}
                             setFilter={updateFilter}
                         />
-                    ))}
-                    <FilterRow
-                        idx={-(filters.length + 1)}
-                        columns={columns}
-                        colsOrder={colsOrder}
-                        setFilter={updateFilter}
-                    />
+                    </LocalizationProvider>
                     <Box sx={buttonBoxSx}>
                         <Button
                             endIcon={<ClearIcon />}
