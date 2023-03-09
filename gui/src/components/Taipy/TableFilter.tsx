@@ -91,7 +91,7 @@ const filtersSx = {
     p: 1,
     m: 1,
     bgcolor: "background.paper",
-    borderRadius: 1,
+    borderRadius: window.taipyConfig?.stylekit?.borderRadius || 1,
 };
 
 const filterBoxSx = {
@@ -100,7 +100,7 @@ const filterBoxSx = {
     p: 1,
     m: 1,
     bgcolor: "background.paper",
-    borderRadius: 1,
+    borderRadius: window.taipyConfig?.stylekit?.borderRadius || 1,
     gap: "1em",
 };
 
@@ -111,7 +111,7 @@ const buttonBoxSx = {
     py: 1,
     m: 1,
     bgcolor: "background.paper",
-    borderRadius: 1,
+    borderRadius: window.taipyConfig?.stylekit?.borderRadius || 1,
     gap: "4em",
 };
 
@@ -225,7 +225,7 @@ const FilterRow = (props: FilterRowProps) => {
 
     return (
         <Box sx={filterBoxSx}>
-            <FormControl>
+            <FormControl margin="dense">
                 <InputLabel>Column</InputLabel>
                 <Select value={colId || ""} onChange={onColSelect} sx={colSx} input={<OutlinedInput label="Column" />}>
                     {colsOrder.map((col) =>
@@ -237,7 +237,7 @@ const FilterRow = (props: FilterRowProps) => {
                     )}
                 </Select>
             </FormControl>
-            <FormControl>
+            <FormControl margin="dense">
                 <InputLabel>Action</InputLabel>
                 <Select value={action || ""} onChange={onActSelect} sx={actSx} input={<OutlinedInput label="Action" />}>
                     {Object.keys(getActionsByType(colType)).map((a) => (
@@ -254,9 +254,10 @@ const FilterRow = (props: FilterRowProps) => {
                     onChange={onValueChange}
                     label="Number"
                     sx={valSx}
+                    margin="dense"
                 />
             ) : colType == "boolean" ? (
-                <FormControl>
+                <FormControl margin="dense">
                     <InputLabel>Boolean</InputLabel>
                     <Select
                         value={typeof val === "boolean" ? (val ? "1" : "0") : val || ""}
@@ -274,6 +275,7 @@ const FilterRow = (props: FilterRowProps) => {
                     onChange={onDateChange}
                     format={colFormat}
                     sx={valSx}
+                    margin="dense"
                 />
             ) : (
                 <TextField
@@ -281,6 +283,7 @@ const FilterRow = (props: FilterRowProps) => {
                     onChange={onValueChange}
                     label={`${val ? "" : "Empty "}String`}
                     sx={valSx}
+                    margin="dense"
                 />
             )}
             <Tooltip title="Validate">
@@ -372,8 +375,9 @@ const TableFilter = (props: TableFilterProps) => {
                             endIcon={<ClearIcon />}
                             onClick={onRemove}
                             disabled={appliedFilters.length == 0}
+                            variant="outlined"
                         >{`Reset list (remove applied filter${filters.length > 1 ? "s" : ""})`}</Button>
-                        <Button endIcon={<SendIcon />} onClick={onApply} disabled={filters.length == 0}>{`Apply ${
+                        <Button endIcon={<SendIcon />} onClick={onApply} disabled={filters.length == 0} variant="outlined">{`Apply ${
                             filters.length
                         } filter${filters.length > 1 ? "s" : ""}`}</Button>
                     </Box>
