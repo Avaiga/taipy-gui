@@ -77,7 +77,7 @@ const DateSelector = (props: DateSelectorProps) => {
     );
 
     const renderInput = useCallback(
-        (params: TextFieldProps) => <TextField id={id} {...params} margin="dense" className={className} />,
+        (params: TextFieldProps) => <TextField id={id} {...params} className={className} />,
         [id, className]
     );
 
