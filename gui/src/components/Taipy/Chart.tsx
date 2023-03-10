@@ -420,9 +420,7 @@ const Chart = (props: ChartProp) => {
                         .map(([k, v]) => `${k}=${v}`)
                         .join("-");
                     const dtKey = backCols.join("-") + (config.decimators ? `--${config.decimators.join("")}` : "") + "--" + eventDataKey;
-                    if (dataKey !== dtKey) {
-                        setDataKey(dtKey);
-                    }
+                    setDataKey(dtKey);
                     dispatch(
                         createRequestChartUpdateAction(
                             updateVarName,
