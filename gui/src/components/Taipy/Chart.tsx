@@ -249,9 +249,7 @@ const Chart = (props: ChartProp) => {
         if (refresh || !data[dataKey]) {
             const backCols = Object.values(config.columns).map((col) => col.dfid);
             const dtKey = backCols.join("-") + (config.decimators ? `--${config.decimators.join("")}` : "");
-            if (dataKey !== dtKey) {
-                setDataKey(dtKey);
-            }
+            setDataKey(dtKey);
             if (refresh || !data[dtKey]) {
                 dispatch(
                     createRequestChartUpdateAction(
@@ -442,7 +440,6 @@ const Chart = (props: ChartProp) => {
         },
         [
             dispatch,
-            dataKey,
             onRangeChange,
             id,
             config.modes,
