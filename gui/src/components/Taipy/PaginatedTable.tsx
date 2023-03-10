@@ -405,6 +405,7 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                                                             colsOrder={colsOrder}
                                                             onValidate={setAppliedFilters}
                                                             appliedFilters={appliedFilters}
+                                                            className={className}
                                                         />
                                                     ) : null,
                                                 ]

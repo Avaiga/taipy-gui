@@ -519,6 +519,7 @@ const AutoLoadingTable = (props: TaipyTableProps) => {
                                                             colsOrder={colsOrder}
                                                             onValidate={setAppliedFilters}
                                                             appliedFilters={appliedFilters}
+                                                            className={className}
                                                         />
                                                     ) : null,
                                                 ]
