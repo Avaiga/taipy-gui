@@ -366,7 +366,7 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
     const boxSx = useMemo(() => ({ ...baseBoxSx, width: width }), [width]);
 
     return (
-        <Box id={id} sx={boxSx}>
+        <Box id={id} sx={boxSx} className={className}>
             <Paper sx={paperSx}>
                 <Tooltip title={hover || ""}>
                     <TableContainer sx={tableContainerSx}>
@@ -374,7 +374,6 @@ const PaginatedTable = (props: TaipyPaginatedTableProps) => {
                             sx={tableSx}
                             aria-labelledby="tableTitle"
                             size={size}
-                            className={className}
                             stickyHeader={true}
                         >
                             <TableHead>

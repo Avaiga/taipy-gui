@@ -480,7 +480,7 @@ const AutoLoadingTable = (props: TaipyTableProps) => {
     const boxSx = useMemo(() => ({ ...baseBoxSx, width: width }), [width]);
 
     return (
-        <Box id={id} sx={boxSx}>
+        <Box id={id} sx={boxSx} className={className}>
             <Paper sx={paperSx}>
                 <Tooltip title={hover || ""}>
                     <TableContainer>
@@ -488,7 +488,6 @@ const AutoLoadingTable = (props: TaipyTableProps) => {
                             sx={tableSx}
                             aria-labelledby="tableTitle"
                             size={size}
-                            className={className}
                             stickyHeader={true}
                         >
                             <TableHead>
