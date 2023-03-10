@@ -288,7 +288,7 @@ const Selector = (props: SelTreeProps) => {
                                 />
                             </Box>
                         )}
-                        <List sx={listSx}>
+                        <List sx={listSx} id={id}>
                             {lovList
                                 .filter((elt) => showItem(elt, searchValue))
                                 .map((elt) =>
