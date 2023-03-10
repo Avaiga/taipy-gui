@@ -146,7 +146,7 @@ describe("Chart Component", () => {
             type: "REQUEST_DATA_UPDATE",
         });
     });
-    it.only("dispatch a well formed message on selection", async () => {
+    it("dispatch a well formed message on selection", async () => {
         const dispatch = jest.fn();
         const state: TaipyState = INITIAL_STATE;
         const { getByTestId } = render(
