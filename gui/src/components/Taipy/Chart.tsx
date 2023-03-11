@@ -269,7 +269,7 @@ const Chart = (props: ChartProp) => {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [refresh, dataKey, dispatch, config.columns, config.traces, config.modes, config.decimators, updateVarName, id]);
+    }, [refresh, dispatch, config.columns, config.traces, config.modes, config.decimators, updateVarName, id]);
 
     useDispatchRequestUpdateOnFirstRender(dispatch, id, updateVars);
 
