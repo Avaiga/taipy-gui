@@ -128,7 +128,7 @@ export const baseBoxSx = { width: "100%" };
 export const paperSx = { width: "100%", mb: 2 };
 export const tableSx = { minWidth: 250 };
 export const headBoxSx = { display: "flex", alignItems: "flex-start" };
-export const iconInRowSx = { fontSize: "body2.fontSize" };
+export const iconInRowSx = { gridColumnStart: 2, fontSize: "body2.fontSize" };
 const cellBoxSx = { display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center" } as CSSProperties;
 const tableFontSx = { fontSize: "body2.fontSize" };
 
