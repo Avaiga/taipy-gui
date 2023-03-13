@@ -195,10 +195,6 @@ const renderCellValue = (val: RowValue | boolean, col: ColumnDesc, formatConf: F
 
 const getCellProps = (col: ColumnDesc, base: Partial<TableCellProps> = {}): Partial<TableCellProps> => {
     switch (col.type) {
-        case "int":
-        case "float":
-            base.align = "left";
-            break;
         case "bool":
             base.align = "center";
             break;
