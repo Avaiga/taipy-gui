@@ -43,6 +43,15 @@ export const stylekitTheme = {
     // Components normalization
     components: {
         // Form control
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    // Remove the unwanted linear gradient overlay one the paper background color
+                    backgroundImage: 'none',
+                }
+            }
+        },
+        // Form control
         MuiFormControl: {
             styleOverrides: {
                 root: {
