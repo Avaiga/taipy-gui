@@ -42,7 +42,7 @@ export const stylekitTheme = {
     },
     // Components normalization
     components: {
-        // Form control
+        // Paper element
         MuiPaper: {
             styleOverrides: {
                 root: {
