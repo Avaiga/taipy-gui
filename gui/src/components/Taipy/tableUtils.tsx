@@ -197,7 +197,7 @@ const getCellProps = (col: ColumnDesc, base: Partial<TableCellProps> = {}): Part
     switch (col.type) {
         case "int":
         case "float":
-            base.align = "right";
+            base.align = "left";
             break;
         case "bool":
             base.align = "center";
