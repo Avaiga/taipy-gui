@@ -179,7 +179,7 @@ export const stylekitModeThemes = {
             MuiPopover: {
                 styleOverrides: {
                     paper: {
-                        backgroundColor: !!window?.taipyConfig?.stylekit?.colorPaperLight 
+                        backgroundColor: window.taipyConfig?.stylekit?.colorPaperLight 
                                             ? lighten(window.taipyConfig.stylekit.colorPaperLight, 0.5)
                                             : undefined,
                     },
@@ -211,7 +211,7 @@ export const stylekitModeThemes = {
             MuiPopover: {
                 styleOverrides: {
                     paper: {
-                        backgroundColor: !!window?.taipyConfig?.stylekit?.colorPaperDark 
+                        backgroundColor: window.taipyConfig?.stylekit?.colorPaperDark 
                                             ? lighten(window.taipyConfig.stylekit.colorPaperDark, 0.05)
                                             : undefined,
                     },
