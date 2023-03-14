@@ -50,7 +50,7 @@ default_config: Config = {
         "color_success": "#96E6B3",
 
         # Background and elevation color for LIGHT MODE
-        "color_background_light": "#f8fafb",
+        "color_background_light": "#f0f5f7",
         "color_paper_light": "#ffffff",
 
         # Background and elevation color for DARK MODE
