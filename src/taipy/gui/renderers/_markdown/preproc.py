@@ -165,7 +165,7 @@ class _Preprocessor(MdPreprocessor):
             warnings.warn(f"Opened tag {tag} in line {line_no} is not closed")
         return new_lines
 
-    def _process_control(self, prop_string: str, line_count: int, default_control_name: t.Optional[str] = _MarkdownFactory.DEFAULT_CONTROL) -> Tuple[str, List[Tuple[str, str]]]:
+    def _process_control(self, prop_string: str, line_count: int, default_control_name: str = _MarkdownFactory.DEFAULT_CONTROL) -> Tuple[str, List[Tuple[str, str]]]:
         fragments = [f for f in _Preprocessor.__SPLIT_RE.split(prop_string) if f]
         control_name = None
         default_prop_name = None
