@@ -61,7 +61,8 @@ export interface TaipyState {
     numberFormat?: string;
     alert?: AlertMessage;
     block?: BlockMessage;
-    to?: string;
+    navigateTo?: string;
+    navigateSameTab?: boolean;
     id: string;
     menu: MenuProps;
     download?: FileDownloadProps;
@@ -115,6 +116,7 @@ interface TaipyBlockAction extends TaipyBaseAction, BlockMessage {}
 
 interface NavigateMessage {
     to?: string;
+    sameTab?: boolean;
 }
 
 interface TaipyNavigateAction extends TaipyBaseAction, NavigateMessage {}
@@ -218,7 +220,7 @@ const messageToAction = (message: WsMessage) => {
         } else if (message.type === "BL") {
             return createBlockAction(message as unknown as BlockMessage);
         } else if (message.type === "NA") {
-            return createNavigateAction((message as unknown as NavigateMessage).to);
+            return createNavigateAction((message as unknown as NavigateMessage).to, (message as unknown as NavigateMessage).sameTab);
         } else if (message.type === "ID") {
             return createIdAction((message as unknown as IdMessage).id);
         } else if (message.type === "DF") {
@@ -358,7 +360,7 @@ export const taipyReducer = (state: TaipyState, baseAction: TaipyBaseAction): Ta
                 };
             }
         case Types.Navigate:
-            return { ...state, to: (action as unknown as TaipyNavigateAction).to };
+            return { ...state, navigateTo: (action as unknown as TaipyNavigateAction).to, navigateSameTab: (action as unknown as TaipyNavigateAction).sameTab };
         case Types.ClientId:
             const id = (action as unknown as TaipyIdAction).id;
             storeClientId(id);
@@ -708,9 +710,10 @@ export const createBlockAction = (block: BlockMessage): TaipyBlockAction => ({
     message: block.message,
 });
 
-export const createNavigateAction = (to?: string): TaipyNavigateAction => ({
+export const createNavigateAction = (to?: string, sameTab?: boolean): TaipyNavigateAction => ({
     type: Types.Navigate,
     to: to,
+    sameTab: sameTab
 });
 
 export const createIdAction = (id: string): TaipyIdAction => ({

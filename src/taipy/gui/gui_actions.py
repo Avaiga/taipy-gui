@@ -111,18 +111,37 @@ def resume_control(state: State):
         warnings.warn("'resume_actions()' must be called in the context of a callback")
 
 
-def navigate(state: State, to: t.Optional[str] = ""):
+def navigate(state: State, to: t.Optional[str] = "", same_tab = False):
     """Navigate to a page.
 
     Arguments:
         state (State^): The current user state as received in any callback.
-        to: The name of the page to navigate to. This must be a valid page identifier.
+        to: The name of the page to navigate to. This can be a page identifier.
             If ommitted, the application navigates to the root page.
+        same_tab: When navigating to a page that is not a known page, the page is opened in a new tab if same_tab is ommitted or False.
     """
     if state and isinstance(state._gui, Gui):
-        state._gui._navigate(to)
+        state._gui._navigate(to, same_tab)
     else:
         warnings.warn("'navigate()' must be called in the context of a callback")
+
+def get_user_content_url(state: State, name: str, path: t.Optional[str] = None, query_args: t.Optional[t.Dict[str, str]] = None) -> t.Optional[str]:
+    """TODO
+
+    Arguments:
+        state (State^): The current user state as received in any callback.
+        name:
+        path:
+        query_args:
+
+    Returns:
+        A string that
+    """
+    if state and isinstance(state._gui, Gui):
+        return state._gui._get_user_content_url(name, path, query_args)
+    else:
+        warnings.warn("'get_user_content_url()' must be called in the context of a callback")
+    return None
 
 
 def get_state_id(state: State) -> t.Optional[str]:

@@ -24,7 +24,7 @@ import typing as t
 import warnings
 from importlib import util
 from types import FrameType
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, urlencode
 
 import __main__
 import markdown as md_lib
@@ -175,9 +175,13 @@ class Gui:
     __UI_BLOCK_NAME = "TaipyUiBlockVar"
     __MESSAGE_GROUPING_NAME = "TaipyMessageGrouping"
     __ON_INIT_NAME = "TaipyOnInit"
-    __CONTENT_ROOT = "/taipy-content/"
-    __UPLOAD_URL = "/taipy-uploads"
-    _EXTENSION_ROOT = "/taipy-extension/"
+    __ARG_CLIENT_ID = "client_id"
+    __INIT_URL = "taipy-init"
+    __JSX_URL = "taipy-jsx"
+    __CONTENT_ROOT = "taipy-content"
+    __UPLOAD_URL = "taipy-uploads"
+    _EXTENSION_ROOT = "taipy-extension"
+    __USER_CONTENT_URL = "taipy-user-content"
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
 
@@ -185,7 +189,7 @@ class Gui:
     __RE_MD = re.compile(r"(.*?)\.md")
     __RE_PAGE_NAME = re.compile(r"^[\w\-\/]+$")
 
-    __reserved_routes: t.List[str] = ["taipy-init", "taipy-jsx", "taipy-content", "taipy-uploads"]
+    __reserved_routes: t.List[str] = [__INIT_URL, __JSX_URL, __CONTENT_ROOT, __UPLOAD_URL, _EXTENSION_ROOT, __USER_CONTENT_URL]
     _aggregate_functions: t.List[str] = ["count", "sum", "mean", "median", "min", "max", "std", "first", "last"]
 
     __LOCAL_TZ = str(tzlocal.get_localzone())
@@ -278,6 +282,9 @@ class Gui:
         self.on_navigate: t.Optional[t.Callable] = None
         self.on_exception: t.Optional[t.Callable] = None
         self.on_status: t.Optional[t.Callable] = None
+
+        # user content
+        self.__user_content: t.Dict[str, t.Callable] = {}
 
         # sid from client_id
         self.__client_id_2_sid: t.Dict[str, t.Set[str]] = {}
@@ -385,12 +392,12 @@ class Gui:
 
     def _get_client_id(self) -> str:
         return (
-            _DataScopes._GLOBAL_ID if self._bindings()._get_single_client() else getattr(g, "client_id", "unknown id")
+            _DataScopes._GLOBAL_ID if self._bindings()._get_single_client() else getattr(g, Gui.__ARG_CLIENT_ID, "unknown id")
         )
 
     def __set_client_id_in_context(self, client_id: t.Optional[str] = None):
         if not client_id and request:
-            client_id = request.args.get("client_id", "")
+            client_id = request.args.get(Gui.__ARG_CLIENT_ID, "")
         if client_id and request:
             if sid := getattr(request, "sid", None):
                 sids = self.__client_id_2_sid.get(client_id, None)
@@ -430,7 +437,7 @@ class Gui:
 
     def _manage_message(self, msg_type: _WsType, message: dict) -> None:
         try:
-            self.__set_client_id_in_context(message.get("client_id"))
+            self.__set_client_id_in_context(message.get(Gui.__ARG_CLIENT_ID))
             self._set_locals_context(message.get("module_context") or None)
             if msg_type == _WsType.UPDATE.value:
                 payload = message.get("payload", {})
@@ -583,7 +590,7 @@ class Gui:
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
         ret_value = self.__get_content_accessor().get_info(var_name, value, image)
-        return Gui.__CONTENT_ROOT + ret_value[0] if isinstance(ret_value, tuple) else ret_value
+        return f"/{Gui.__CONTENT_ROOT}/{ret_value[0] if isinstance(ret_value, tuple) else ret_value}"
 
     def __serve_content(self, path: str) -> t.Any:
         self.__set_client_id_in_context()
@@ -595,6 +602,44 @@ class Gui:
             )
             if dir_path:
                 return send_from_directory(str(dir_path), file_name, as_attachment=as_attachment)
+        return ("", 404)
+
+    def _get_user_content_url(self, name: str, path: t.Optional[str] = None, query_args: t.Optional[t.Dict[str, str]] = None) -> t.Optional[str]:
+        if isinstance(name, str):
+            qargs = query_args or {}
+            qargs.update({Gui.__ARG_CLIENT_ID: self._get_client_id()})
+            return f"/{Gui.__USER_CONTENT_URL}/{name}/{path or ''}?{urlencode(qargs)}"
+        warnings.warn(f"name {name} should be a string.")
+        return None
+
+    def _register_user_content_handler(self, name: str, on_request: t.Callable):
+        if not isinstance(name, str) or "/" in name:
+            warnings.warn(f"name {name} should be a string with no '/'.")
+            return
+        if not callable(on_request):
+            warnings.warn(f"on_request should be a function.")
+            return
+        self.__user_content[name] = on_request
+
+    def __serve_user_content(self, path: str) -> t.Any:
+        self.__set_client_id_in_context()
+        parts = path.split("/")
+        if len(parts) > 0:
+            cb = self.__user_content.get(parts[0])
+            if callable(cb):
+                try:
+                    qargs: t.Dict[str, str] = {}
+                    qargs.update(request.args)
+                    qargs.pop(Gui.__ARG_CLIENT_ID, None)
+                    args: t.List[t.Any] = [qargs]
+                    if len(parts) > 1:
+                        args.insert(0, "/".join(parts[1:]))
+                    return (self._call_function_with_state(cb, args), 200)
+                except Exception as e:  # pragma: no cover
+                    if not self._call_on_exception(parts[0], e):
+                        warnings.warn(f"{parts[0]}: on_request callback function raised an exception:\n{e}")
+            else:
+                warnings.warn(f"{parts[0]} is not a valid user extension identifier")
         return ("", 404)
 
     def __serve_extension(self, path: str) -> t.Any:
@@ -708,7 +753,7 @@ class Gui:
                         front_var, newvalue.get(), isinstance(newvalue, _TaipyContentImage)
                     )
                     if isinstance(ret_value, tuple):
-                        newvalue = Gui.__CONTENT_ROOT + ret_value[0]
+                        newvalue = f"/{Gui.__CONTENT_ROOT}/{ret_value[0]}"
                     else:
                         newvalue = ret_value
                 elif isinstance(newvalue, _TaipyLov):
@@ -836,12 +881,14 @@ class Gui:
 
     def __send_ws_navigate(
         self,
-        to: t.Optional[str] = None,
+        to: str,
+        same_tab: bool,
     ):
         self.__send_ws(
             {
                 "type": _WsType.NAVIGATE.value,
                 "to": to,
+                "sameTab": same_tab
             }
         )
 
@@ -1415,12 +1462,8 @@ class Gui:
             _setscopeattr(self, Gui.__UI_BLOCK_NAME, False)
         self.__send_ws_block(close=True)
 
-    def _navigate(self, to: t.Optional[str] = ""):
-        to = to or Gui.__root_page_name
-        if to not in self._config.routes:
-            warnings.warn(f'Cannot navigate to "{to if to != Gui.__root_page_name else "/"}": unknown page.')
-            return False
-        self.__send_ws_navigate(to)
+    def _navigate(self, to: t.Optional[str] = "", same_tab: bool = False):
+        self.__send_ws_navigate(to or Gui.__root_page_name, same_tab)
         return True
 
     def __init_route(self):
@@ -1567,7 +1610,7 @@ class Gui:
             config["extensions"] = {}
             for libs in self.__extensions.values():
                 for lib in libs:
-                    config["extensions"][f".{Gui._EXTENSION_ROOT}{lib.get_js_module_name()}"] = [  # type: ignore
+                    config["extensions"][f"./{Gui._EXTENSION_ROOT}/{lib.get_js_module_name()}"] = [  # type: ignore
                         e._get_js_name(n)
                         for n, e in lib.get_elements().items()
                         if isinstance(e, Element) and not e._is_server_only()
@@ -1641,25 +1684,30 @@ class Gui:
 
         # server URL Rule for taipy images
         images_bp = Blueprint("taipy_images", __name__)
-        images_bp.add_url_rule(f"{Gui.__CONTENT_ROOT}<path:path>", view_func=self.__serve_content)
+        images_bp.add_url_rule(f"/{Gui.__CONTENT_ROOT}/<path:path>", view_func=self.__serve_content)
         self._flask_blueprint.append(images_bp)
 
         # server URL for uploaded files
         upload_bp = Blueprint("taipy_upload", __name__)
-        upload_bp.add_url_rule(Gui.__UPLOAD_URL, view_func=self.__upload_files, methods=["POST"])
+        upload_bp.add_url_rule(f"/{Gui.__UPLOAD_URL}", view_func=self.__upload_files, methods=["POST"])
         self._flask_blueprint.append(upload_bp)
+
+        # server URL for user content
+        user_content_bp = Blueprint("taipy_user_content", __name__)
+        user_content_bp.add_url_rule(f"/{Gui.__USER_CONTENT_URL}/<path:path>", view_func=self.__serve_user_content)
+        self._flask_blueprint.append(user_content_bp)
 
         # server URL for extension resources
         extension_bp = Blueprint("taipy_extensions", __name__)
-        extension_bp.add_url_rule(f"{Gui._EXTENSION_ROOT}<path:path>", view_func=self.__serve_extension)
+        extension_bp.add_url_rule(f"/{Gui._EXTENSION_ROOT}/<path:path>", view_func=self.__serve_extension)
         scripts = [
-            s if bool(urlparse(s).netloc) else f"{Gui._EXTENSION_ROOT}{name}/{s}"
+            s if bool(urlparse(s).netloc) else f"/{Gui._EXTENSION_ROOT}/{name}/{s}"
             for name, libs in Gui.__extensions.items()
             for lib in libs
             for s in (lib.get_scripts() or [])
         ]
         styles = [
-            s if bool(urlparse(s).netloc) else f"{Gui._EXTENSION_ROOT}{name}/{s}"
+            s if bool(urlparse(s).netloc) else f"/{Gui._EXTENSION_ROOT}/{name}/{s}"
             for name, libs in Gui.__extensions.items()
             for lib in libs
             for s in (lib.get_styles() or [])
@@ -1703,10 +1751,10 @@ class Gui:
         )
 
         # Run parse markdown to force variables binding at runtime
-        pages_bp.add_url_rule("/taipy-jsx/<path:page_name>", view_func=self.__render_page)
+        pages_bp.add_url_rule(f"/{Gui.__JSX_URL}/<path:page_name>", view_func=self.__render_page)
 
         # server URL Rule for flask rendered react-router
-        pages_bp.add_url_rule("/taipy-init", view_func=self.__init_route)
+        pages_bp.add_url_rule(f"/{Gui.__INIT_URL}", view_func=self.__init_route)
 
         # Register Flask Blueprint if available
         for bp in self._flask_blueprint:
