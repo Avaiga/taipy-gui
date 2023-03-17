@@ -126,16 +126,16 @@ def navigate(state: State, to: t.Optional[str] = "", same_tab = False):
         warnings.warn("'navigate()' must be called in the context of a callback")
 
 def get_user_content_url(state: State, name: str, path: t.Optional[str] = None, query_args: t.Optional[t.Dict[str, str]] = None) -> t.Optional[str]:
-    """TODO
+    """Get a user content URL.
 
     Arguments:
         state (State^): The current user state as received in any callback.
-        name:
-        path:
-        query_args:
+        name: The name registered through Gui.register_user_content_handler(name, on_request)^.
+        path: An optional additional path to the URL
+        query_args: An optional dict that will be adding to the arguments or the query string.
 
     Returns:
-        A string that
+        An URL that will allow the on_request to be fired.
     """
     if state and isinstance(state._gui, Gui):
         return state._gui._get_user_content_url(name, path, query_args)

@@ -612,7 +612,16 @@ class Gui:
         warnings.warn(f"name {name} should be a string.")
         return None
 
-    def _register_user_content_handler(self, name: str, on_request: t.Callable):
+    def register_user_content_handler(self, name: str, on_request: t.Callable):
+        """Register a user content handler function.
+
+        Arguments:
+            name: A key to the handler.
+            on_request: The callback function that is called when the URL is requested. The parameters are optionnals and are: <li>
+             <ul>state: State^,</ul>
+             <ul>path: str,</ul>
+             <ul>query_args: dict[str, str]</ul>.</li>
+        """
         if not isinstance(name, str) or "/" in name:
             warnings.warn(f"name {name} should be a string with no '/'.")
             return
