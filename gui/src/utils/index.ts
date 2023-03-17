@@ -50,7 +50,7 @@ interface StyleKitVars {
     // Base border radius in px
     borderRadius: number;
     // DEFINING MUI COMPONENTS STYLES
-    // Matching input and button height
+    // Matching input and button height in css size unit
     inputButtonHeight: string;
 }
 

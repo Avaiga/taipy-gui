@@ -66,7 +66,7 @@ default_config: Config = {
         "border_radius": 8,
 
         # DEFINING MUI COMPONENTS STYLES
-        # Matching input and button height
+        # Matching input and button height in css size unit
         "input_button_height": "48px"
     },
     "upload_folder": None,
