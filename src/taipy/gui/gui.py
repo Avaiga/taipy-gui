@@ -631,9 +631,11 @@ class Gui:
                     qargs: t.Dict[str, str] = {}
                     qargs.update(request.args)
                     qargs.pop(Gui.__ARG_CLIENT_ID, None)
-                    args: t.List[t.Any] = [qargs]
+                    args: t.List[t.Any] = []
                     if len(parts) > 1:
-                        args.insert(0, "/".join(parts[1:]))
+                        args.append("/".join(parts[1:]))
+                    if len(qargs):
+                        args.append(qargs)
                     return (self._call_function_with_state(cb, args), 200)
                 except Exception as e:  # pragma: no cover
                     if not self._call_on_exception(parts[0], e):
