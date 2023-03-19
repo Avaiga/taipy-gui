@@ -18,10 +18,10 @@ import { createNavigateAction } from "../../context/taipyReducers";
 
 interface NavigateProps {
     to?: string;
-    sameTab?: boolean;
+    tab?: string;
 }
 
-const Navigate = ({ to, sameTab }: NavigateProps) => {
+const Navigate = ({ to, tab }: NavigateProps) => {
     const { dispatch, state } = useContext(TaipyContext);
     const navigate = useNavigate();
 
@@ -31,11 +31,11 @@ const Navigate = ({ to, sameTab }: NavigateProps) => {
             if (Object.keys(state.locations || {}).some((route) => tos === route)) {
                 navigate(tos);
             } else {
-                window.open(to, sameTab ? "_self" : "_blank")?.focus();
+                window.open(to, tab || "_blank")?.focus();
             }
             dispatch(createNavigateAction());
         }
-    }, [to, sameTab, state.locations, dispatch, navigate]);
+    }, [to, tab, state.locations, dispatch, navigate]);
 
     return null;
 };

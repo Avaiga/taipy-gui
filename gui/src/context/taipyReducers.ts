@@ -62,7 +62,7 @@ export interface TaipyState {
     alert?: AlertMessage;
     block?: BlockMessage;
     navigateTo?: string;
-    navigateSameTab?: boolean;
+    navigateTab?: string;
     id: string;
     menu: MenuProps;
     download?: FileDownloadProps;
@@ -116,7 +116,7 @@ interface TaipyBlockAction extends TaipyBaseAction, BlockMessage {}
 
 interface NavigateMessage {
     to?: string;
-    sameTab?: boolean;
+    tab?: string;
 }
 
 interface TaipyNavigateAction extends TaipyBaseAction, NavigateMessage {}
@@ -220,7 +220,7 @@ const messageToAction = (message: WsMessage) => {
         } else if (message.type === "BL") {
             return createBlockAction(message as unknown as BlockMessage);
         } else if (message.type === "NA") {
-            return createNavigateAction((message as unknown as NavigateMessage).to, (message as unknown as NavigateMessage).sameTab);
+            return createNavigateAction((message as unknown as NavigateMessage).to, (message as unknown as NavigateMessage).tab);
         } else if (message.type === "ID") {
             return createIdAction((message as unknown as IdMessage).id);
         } else if (message.type === "DF") {
@@ -360,7 +360,7 @@ export const taipyReducer = (state: TaipyState, baseAction: TaipyBaseAction): Ta
                 };
             }
         case Types.Navigate:
-            return { ...state, navigateTo: (action as unknown as TaipyNavigateAction).to, navigateSameTab: (action as unknown as TaipyNavigateAction).sameTab };
+            return { ...state, navigateTo: (action as unknown as TaipyNavigateAction).to, navigateTab: (action as unknown as TaipyNavigateAction).tab };
         case Types.ClientId:
             const id = (action as unknown as TaipyIdAction).id;
             storeClientId(id);
@@ -710,20 +710,20 @@ export const createBlockAction = (block: BlockMessage): TaipyBlockAction => ({
     message: block.message,
 });
 
-export const createNavigateAction = (to?: string, sameTab?: boolean): TaipyNavigateAction => ({
+export const createNavigateAction = (to?: string, tab?: string): TaipyNavigateAction => ({
     type: Types.Navigate,
-    to: to,
-    sameTab: sameTab
+    to,
+    tab
 });
 
 export const createIdAction = (id: string): TaipyIdAction => ({
     type: Types.ClientId,
-    id: id,
+    id,
 });
 
 export const createAckAction = (id: string): TaipyAckAction => ({
     type: Types.Acknowledgement,
-    id: id,
+    id,
 });
 
 export const createDownloadAction = (dMessage?: FileDownloadProps): TaipyDownloadAction => ({
@@ -735,18 +735,18 @@ export const createDownloadAction = (dMessage?: FileDownloadProps): TaipyDownloa
 
 export const createSetMenuAction = (menu: MenuProps): TaipySetMenuAction => ({
     type: Types.SetMenu,
-    menu: menu,
+    menu,
 });
 
 export const createPartialAction = (name: string, create: boolean): TaipyPartialAction => ({
     type: Types.Partial,
-    name: name,
-    create: create,
+    name,
+    create,
 });
 
 export const createModuleContextAction = (context: string): TaipyModuleContextAction => ({
     type: Types.ModuleContext,
-    context: context,
+    context,
 });
 
 type WsMessageType = "A" | "U" | "DU" | "MU" | "RU" | "AL" | "BL" | "NA" | "ID" | "MS" | "DF" | "PR" | "ACK";

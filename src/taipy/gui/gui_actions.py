@@ -111,17 +111,17 @@ def resume_control(state: State):
         warnings.warn("'resume_actions()' must be called in the context of a callback")
 
 
-def navigate(state: State, to: t.Optional[str] = "", same_tab = False):
+def navigate(state: State, to: t.Optional[str] = "", tab: t.Optional[str] = None):
     """Navigate to a page.
 
     Arguments:
         state (State^): The current user state as received in any callback.
         to: The name of the page to navigate to. This can be a page identifier.
             If ommitted, the application navigates to the root page.
-        same_tab: When navigating to a page that is not a known page, the page is opened in a new tab if same_tab is ommitted or False.
+        tab: When navigating to a page that is not a known page, the page is opened in a tab identified by this (as in [window.open](https://developer.mozilla.org/en-US/docs/Web/API/Window/open)). Defaults to _blank.
     """
     if state and isinstance(state._gui, Gui):
-        state._gui._navigate(to, same_tab)
+        state._gui._navigate(to, tab)
     else:
         warnings.warn("'navigate()' must be called in the context of a callback")
 
@@ -132,7 +132,7 @@ def get_user_content_url(state: State, name: str, path: t.Optional[str] = None, 
         state (State^): The current user state as received in any callback.
         name: The name registered through Gui.register_user_content_handler(name, on_request)^.
         path: An optional additional path to the URL
-        query_args: An optional dict that will be adding to the arguments or the query string.
+        query_args: An optional dict that will be adding to the arguments of the query string.
 
     Returns:
         An URL that will allow the on_request to be fired.

@@ -893,13 +893,13 @@ class Gui:
     def __send_ws_navigate(
         self,
         to: str,
-        same_tab: bool,
+        tab: t.Optional[str],
     ):
         self.__send_ws(
             {
                 "type": _WsType.NAVIGATE.value,
                 "to": to,
-                "sameTab": same_tab
+                "tab": tab
             }
         )
 
@@ -1473,8 +1473,8 @@ class Gui:
             _setscopeattr(self, Gui.__UI_BLOCK_NAME, False)
         self.__send_ws_block(close=True)
 
-    def _navigate(self, to: t.Optional[str] = "", same_tab: bool = False):
-        self.__send_ws_navigate(to or Gui.__root_page_name, same_tab)
+    def _navigate(self, to: t.Optional[str] = "", tab: t.Optional[str] = None):
+        self.__send_ws_navigate(to or Gui.__root_page_name, tab)
         return True
 
     def __init_route(self):
