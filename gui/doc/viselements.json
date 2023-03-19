@@ -1113,6 +1113,11 @@
             "default_property": true,
             "type": "dynamic(str)",
             "doc": "List of CSS class names that will be associated with the generated HTML Element.\nThis class names will be added to the default <code>taipy-part</code>."
+          },
+          {
+            "name": "page",
+            "type": "dynamic(str)",
+            "doc": "The page name to show as the content of the block (page id or URL).\nThis should not be defined if <i>partial</i> is set."
           }
         ]
       }
