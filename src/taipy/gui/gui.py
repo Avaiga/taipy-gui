@@ -201,7 +201,8 @@ class Gui:
     __RE_MD = re.compile(r"(.*?)\.md")
     __RE_PAGE_NAME = re.compile(r"^[\w\-\/]+$")
 
-    __reserved_routes: t.List[str] = [__INIT_URL, __JSX_URL, __CONTENT_ROOT, __UPLOAD_URL, _EXTENSION_ROOT, __USER_CONTENT_URL]
+    __reserved_routes: t.List[str] = [__INIT_URL, __JSX_URL,
+                                      __CONTENT_ROOT, __UPLOAD_URL, _EXTENSION_ROOT, __USER_CONTENT_URL]
 
     __LOCAL_TZ = str(tzlocal.get_localzone())
 
@@ -618,7 +619,6 @@ class Gui:
         qargs.update({Gui.__ARG_CLIENT_ID: self._get_client_id()})
         return f"/{Gui.__USER_CONTENT_URL}/{path or ''}?{urlencode(qargs)}"
 
-
     def __serve_user_content(self, path: str) -> t.Any:
         if hasattr(self, "on_user_content") and callable(self.on_user_content):
             self.__set_client_id_in_context()
@@ -660,8 +660,32 @@ class Gui:
     def __get_version(self) -> str:
         return f'{self.__version.get("major", 0)}.{self.__version.get("minor", 0)}.{self.__version.get("patch", 0)}'
 
+    def __append_libraries_to_status(self, status: t.Dict[str, t.Any]):
+        if self.__extensions:
+            libraries: t.Dict[str, t.Any] = {}
+            for k, v in self.__extensions.items():
+                if isinstance(v, list):
+                    for l in v:
+                        if isinstance(l, ElementLibrary):
+                            libs = libraries.get(l.get_name())
+                            if libs is None:
+                                libs = []
+                                libraries[l.get_name()] = libs
+                            elts: t.List[t.Dict[str, str]] = []
+                            libs.append({"js module": l.get_js_module_name(), "elements": elts})
+                            for ke, ee in l.get_elements().items():
+                                if isinstance(ee, Element):
+                                    elt_dict = {"name": ke}
+                                    if hasattr(ee, "_render_xhtml"):
+                                        elt_dict["render xhtml"] = ee._render_xhtml.__code__.co_name
+                                    else:
+                                        elt_dict["js name"] = ee._get_js_name(ke)
+                                    elts.append(elt_dict)
+            status.update({"libraries" : libraries})
+        return status
+
     def _serve_status(self, template: pathlib.Path) -> t.Dict[str, t.Dict[str, str]]:
-        base_json = {"user_status": str(self.__call_on_status() or "")}
+        base_json: t.Dict[str, t.Any] = {"user_status": str(self.__call_on_status() or "")}
         if self._get_config("extended_status", False):
             base_json.update(
                 {
@@ -671,6 +695,7 @@ class Gui:
                     "python_version": sys.version,
                 }
             )
+            self.__append_libraries_to_status(base_json)
             try:
                 base_json.update(json.loads(template.read_text()))
             except Exception as e:  # pragma: no cover
