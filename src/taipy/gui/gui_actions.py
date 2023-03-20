@@ -140,8 +140,7 @@ def get_user_content_url(state: State, path: t.Optional[str] = None, query_args:
     """
     if state and isinstance(state._gui, Gui):
         return state._gui._get_user_content_url(path, query_args)
-    else:
-        warnings.warn("'get_user_content_url()' must be called in the context of a callback")
+    warnings.warn("'get_user_content_url()' must be called in the context of a callback")
     return None
 
 

@@ -202,7 +202,6 @@ class Gui:
     __RE_PAGE_NAME = re.compile(r"^[\w\-\/]+$")
 
     __reserved_routes: t.List[str] = [__INIT_URL, __JSX_URL, __CONTENT_ROOT, __UPLOAD_URL, _EXTENSION_ROOT, __USER_CONTENT_URL]
-    _aggregate_functions: t.List[str] = ["count", "sum", "mean", "median", "min", "max", "std", "first", "last"]
 
     __LOCAL_TZ = str(tzlocal.get_localzone())
 
