@@ -663,23 +663,23 @@ class Gui:
     def __append_libraries_to_status(self, status: t.Dict[str, t.Any]):
         if self.__extensions:
             libraries: t.Dict[str, t.Any] = {}
-            for k, v in self.__extensions.items():
-                if isinstance(v, list):
-                    for l in v:
-                        if isinstance(l, ElementLibrary):
-                            libs = libraries.get(l.get_name())
+            for libs_list in self.__extensions.values():
+                if isinstance(libs_list, list):
+                    for lib in libs_list:
+                        if isinstance(lib, ElementLibrary):
+                            libs = libraries.get(lib.get_name())
                             if libs is None:
                                 libs = []
-                                libraries[l.get_name()] = libs
+                                libraries[lib.get_name()] = libs
                             elts: t.List[t.Dict[str, str]] = []
-                            libs.append({"js module": l.get_js_module_name(), "elements": elts})
-                            for ke, ee in l.get_elements().items():
-                                if isinstance(ee, Element):
-                                    elt_dict = {"name": ke}
-                                    if hasattr(ee, "_render_xhtml"):
-                                        elt_dict["render xhtml"] = ee._render_xhtml.__code__.co_name
+                            libs.append({"js module": lib.get_js_module_name(), "elements": elts})
+                            for element_name, elt in lib.get_elements().items():
+                                if isinstance(elt, Element):
+                                    elt_dict = {"name": element_name}
+                                    if hasattr(elt, "_render_xhtml"):
+                                        elt_dict["render function"] = elt._render_xhtml.__code__.co_name
                                     else:
-                                        elt_dict["js name"] = ee._get_js_name(ke)
+                                        elt_dict["react name"] = elt._get_js_name(element_name)
                                     elts.append(elt_dict)
             status.update({"libraries" : libraries})
         return status
