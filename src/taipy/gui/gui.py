@@ -167,6 +167,8 @@ class Gui:
             - *path*: the path provided to the `get_user_content_url^` to build the URL.
             - *query_args*: An optional dictionnary as defined in the `get_user_content_url^` call.
 
+            The *on_user_content* callback function must return the content of the page to be displayed by the browser.
+
         state (State^): **Only defined when running in an IPython notebook context.**<br/>
             The unique instance of `State^` that you can use to change bound variables
             directly, potentially impacting the user interface in real-time.
