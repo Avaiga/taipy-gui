@@ -622,7 +622,6 @@ class Gui:
     def __serve_user_content(self, path: str) -> t.Any:
         if hasattr(self, "on_user_content") and callable(self.on_user_content):
             self.__set_client_id_in_context()
-            parts = path.split("/")
             try:
                 qargs: t.Dict[str, str] = {}
                 qargs.update(request.args)
@@ -637,7 +636,7 @@ class Gui:
                 if not self._call_on_exception("on_user_content", e):
                     warnings.warn(f"on_user_content callback function raised an exception:\n{e}")
         else:
-            warnings.warn(f"on_user_content callback function has not been defined.")
+            warnings.warn("on_user_content callback function has not been defined.")
         return ("", 404)
 
     def __serve_extension(self, path: str) -> t.Any:
