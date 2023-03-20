@@ -1117,7 +1117,7 @@
           {
             "name": "page",
             "type": "dynamic(str)",
-            "doc": "The page name to show as the content of the block (page id or URL).\nThis should not be defined if <i>partial</i> is set."
+            "doc": "The page to show as the content of the block (page name if defined or an URL in a iframe).\nThis should not be defined if <i>partial</i> is set."
           }
         ]
       }

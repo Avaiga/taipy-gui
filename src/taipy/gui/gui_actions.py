@@ -116,7 +116,7 @@ def navigate(state: State, to: t.Optional[str] = "", tab: t.Optional[str] = None
 
     Arguments:
         state (State^): The current user state as received in any callback.
-        to: The name of the page to navigate to. This can be a page identifier (as created by `Gui.add_page^` with no leading /) or an URL.
+        to: The name of the page to navigate to. This can be a page identifier (as created by `Gui.add_page()^` with no leading /) or an URL.
             If ommitted, the application navigates to the root page.
         tab: When navigating to a page that is not a known page, the page is opened in a tab identified by this (as in [window.open](https://developer.mozilla.org/en-US/docs/Web/API/Window/open)).
             The default value creates a new tab for the page (which is equivalent to setting tab to "_blank").
@@ -136,7 +136,7 @@ def get_user_content_url(state: State, path: t.Optional[str] = None, query_args:
         query_args: An optional dict that will be adding to the arguments of the query string.
 
     Returns:
-        An URL that will allow the on_request to be fired.
+        An URL that will allow the `on_user_content()^` to be fired.
     """
     if state and isinstance(state._gui, Gui):
         return state._gui._get_user_content_url(path, query_args)
