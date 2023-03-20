@@ -599,7 +599,7 @@ class Gui:
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
         ret_value = self.__get_content_accessor().get_info(var_name, value, image)
-        return f"/{Gui.__CONTENT_ROOT}/{ret_value[0] if isinstance(ret_value, tuple) else ret_value}"
+        return f"/{Gui.__CONTENT_ROOT}/{ret_value[0]}" if isinstance(ret_value, tuple) else ret_value
 
     def __serve_content(self, path: str) -> t.Any:
         self.__set_client_id_in_context()
