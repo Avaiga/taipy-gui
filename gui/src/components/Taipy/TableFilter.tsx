@@ -329,7 +329,7 @@ const TableFilter = (props: TableFilterProps) => {
     }, []);
 
     const onApply = useCallback(() => {
-        onValidate(filters);
+        onValidate([...filters]);
         onShowFilterClick();
     }, [onValidate, filters, onShowFilterClick]);
     const onRemove = useCallback(() => {
@@ -340,7 +340,13 @@ const TableFilter = (props: TableFilterProps) => {
     return (
         <>
             <Tooltip title="Filter list">
-                <IconButton onClick={onShowFilterClick} size="small" ref={filterRef} sx={iconInRowSx}>
+                <IconButton
+                    onClick={onShowFilterClick}
+                    size="small"
+                    ref={filterRef}
+                    sx={iconInRowSx}
+                    className={getSuffixedClassNames(className, "-filter-icon")}
+                >
                     <FilterListIcon fontSize="inherit" />
                 </IconButton>
             </Tooltip>
@@ -372,10 +378,19 @@ const TableFilter = (props: TableFilterProps) => {
                             endIcon={<ClearIcon />}
                             onClick={onRemove}
                             disabled={appliedFilters.length == 0}
-                        >{`Reset list (remove applied filter${filters.length > 1 ? "s" : ""})`}</Button>
-                        <Button endIcon={<SendIcon />} onClick={onApply} disabled={filters.length == 0}>{`Apply ${
-                            filters.length
-                        } filter${filters.length > 1 ? "s" : ""}`}</Button>
+                            variant="outlined"
+                            color="inherit"
+                        >
+                            {`Reset list (remove applied filter${appliedFilters.length > 1 ? "s" : ""})`}
+                        </Button>
+                        <Button
+                            endIcon={<SendIcon />}
+                            onClick={onApply}
+                            disabled={filters.length == 0}
+                            variant="outlined"
+                        >
+                            {`Apply ${filters.length} filter${filters.length > 1 ? "s" : ""}`}
+                        </Button>
                     </Box>
                 </Box>
             </Popover>
