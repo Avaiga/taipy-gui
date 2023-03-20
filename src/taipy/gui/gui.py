@@ -1461,6 +1461,10 @@ class Gui:
         self.__send_ws_block(close=True)
 
     def _navigate(self, to: t.Optional[str] = "", tab: t.Optional[str] = None):
+        to = to or Gui.__root_page_name
+        if not to.startswith("/") and to not in self._config.routes and not urlparse(to).netloc:
+            warnings.warn(f'Cannot navigate to "{to if to != Gui.__root_page_name else "/"}": unknown page.')
+            return False
         self.__send_ws_navigate(to or Gui.__root_page_name, tab)
         return True
 
