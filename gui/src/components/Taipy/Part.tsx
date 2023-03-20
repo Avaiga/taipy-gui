@@ -23,32 +23,36 @@ interface PartProps extends TaipyBaseProps {
     render?: boolean;
     defaultRender?: boolean;
     page?: string;
-    defaultPage?: string
+    defaultPage?: string;
     children?: ReactNode;
     partial?: boolean;
 }
 
 const Part = (props: PartProps) => {
-    const {id, children, partial} = props;
+    const { id, children, partial } = props;
     const { state } = useContext(TaipyContext);
 
     const className = useClassNames(props.libClassName, props.dynamicClassName, props.className);
     const render = useDynamicProperty(props.render, props.defaultRender, true);
     const page = useDynamicProperty(props.page, props.defaultPage, "");
     const iFrame = useMemo(() => {
-        if (page) {
+        if (page && !partial) {
             if (/^https?\:\/\//.test(page)) {
                 return true;
             }
             const sPage = "/" + page;
-            return !(Object.keys(state.locations || {}).some((route) => sPage === route))
+            return !Object.keys(state.locations || {}).some((route) => sPage === route);
         }
         return false;
     }, [state.locations, page]);
 
     return render ? (
         <Box id={id} className={className}>
-            {iFrame ? <iframe src={page} /> : page ? <TaipyRendered path={"/" + page} partial={partial} fromBlock={true} /> : null}
+            {iFrame ? (
+                <iframe src={page} />
+            ) : page ? (
+                <TaipyRendered path={"/" + page} partial={partial} fromBlock={true} />
+            ) : null}
             {children}
         </Box>
     ) : null;
