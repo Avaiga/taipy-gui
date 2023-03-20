@@ -44,7 +44,7 @@ const Part = (props: PartProps) => {
             return !Object.keys(state.locations || {}).some((route) => sPage === route);
         }
         return false;
-    }, [state.locations, page]);
+    }, [state.locations, page, partial]);
 
     return render ? (
         <Box id={id} className={className}>
