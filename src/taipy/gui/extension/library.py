@@ -332,3 +332,16 @@ class ElementLibrary(ABC):
             value (any): The current value of the variable identified by *var_name*.
         """
         return None
+
+    def on_init(self, gui: "Gui") -> t.Optional[t.Tuple[str, t.Any]]:
+        """
+        TODO
+        Called by `Gui.run()^`.
+
+        Arguments
+
+            gui: The `Gui^` instance.
+
+        Returns an optional Tuple composed of a context name (a valid Python identifier) and it's value
+        """
+        return None
