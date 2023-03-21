@@ -681,8 +681,7 @@ class Gui:
                                     else:
                                         elt_dict["react name"] = elt._get_js_name(element_name)
                                     elts.append(elt_dict)
-            status.update({"libraries" : libraries})
-        return status
+            status.update({"libraries": libraries})
 
     def _serve_status(self, template: pathlib.Path) -> t.Dict[str, t.Dict[str, str]]:
         base_json: t.Dict[str, t.Any] = {"user_status": str(self.__call_on_status() or "")}
