@@ -1896,16 +1896,16 @@ class Gui:
                         lib_context = lib.on_init(self)
                         if isinstance(lib_context, tuple) and len(lib_context) > 1 and isinstance(lib_context[0], str) and lib_context[0].isidentifier():
                             if lib_context[0] in glob_ctx:
-                                warnings.warn(f"Method {name}.on_init return a name already defined '{lib_context[0]}'.")
+                                warnings.warn(f"Method {name}.on_init() returned a name already defined '{lib_context[0]}'.")
                             else:
                                 glob_ctx[lib_context[0]] = lib_context[1]
                         elif lib_context:
-                            warnings.warn(f"Method {name}.on_init should return a Tuple[str, Any] and the first element must be a valid Python identifier.")
+                            warnings.warn(f"Method {name}.on_init() should return a Tuple[str, Any] where the first element must be a valid Python identifier.")
                     except Exception as e:  # pragma: no cover
                         if not self._call_on_exception(f"{name}.on_init", e):
-                            warnings.warn(f"Method {name}.on_init raised an exception:\n{e}.")
+                            warnings.warn(f"Method {name}.on_init() raised an exception:\n{e}.")
 
-        # Initiate the Evalualtor with the right context
+        # Initiate the Evaluator with the right context
         self.__evaluator = _Evaluator(glob_ctx)
 
         self.__register_blueprint()

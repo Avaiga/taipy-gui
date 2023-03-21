@@ -302,7 +302,6 @@ class ElementLibrary(ABC):
         - <library_name> the value returned by `get_name()`
 
         Arguments:
-
             name (str): The name of the resource for which a local Path should be returned.
         """
         module = self.__class__.__module__
@@ -325,7 +324,6 @@ class ElementLibrary(ABC):
         Called if implemented (i.e returns a dict).
 
         Arguments:
-
             library_name (str): The name of this library.
             payload (dict): The payload send by the `createRequestDataUpdateAction()` front-end function.
             var_name (str): The name of the variable holding the data.
@@ -339,9 +337,9 @@ class ElementLibrary(ABC):
         Called by `Gui.run()^`.
 
         Arguments
-
             gui: The `Gui^` instance.
 
-        Returns an optional Tuple composed of a context name (a valid Python identifier) and it's value
+        Returns:
+            An optional Tuple composed of a unique name for the library (that *must* be a valid Python identifier) and it's value
         """
         return None
