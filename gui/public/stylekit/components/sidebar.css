@@ -24,7 +24,7 @@
     z-index: 1;
     height: 100vh;
     min-width: var(--sidebar-min-width);
-    padding: var(--spacing2);
+    padding: var(--component-padding);
     background-color: var(--color-paper);
     overflow: auto;
     overflow-x: clip;
