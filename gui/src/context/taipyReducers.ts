@@ -215,6 +215,8 @@ const messageToAction = (message: WsMessage) => {
     if (message.type) {
         if (message.type === "MU" && Array.isArray(message.payload)) {
             return createMultipleUpdateAction(message.payload as NamePayload[]);
+        } else if (message.type === "U") {
+            return createUpdateAction(message as unknown as NamePayload);
         } else if (message.type === "AL") {
             return createAlertAction(message as unknown as AlertMessage);
         } else if (message.type === "BL") {
@@ -455,6 +457,11 @@ export const taipyReducer = (state: TaipyState, baseAction: TaipyBaseAction): Ta
     if (ackId) return { ...state, ackList: [...state.ackList, ackId] };
     return state;
 };
+
+const createUpdateAction = (payload: NamePayload): TaipyAction => ({
+    ...payload,
+    type: Types.Update
+});
 
 const createMultipleUpdateAction = (payload: NamePayload[]): TaipyMultipleAction => ({
     type: Types.MultipleUpdate,

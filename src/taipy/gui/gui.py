@@ -844,6 +844,16 @@ class Gui:
         else:
             grouping_message.append(payload)
 
+    def __broadcast_ws(self, payload: dict):
+        try:
+            self._server._ws.emit(
+                "message",
+                payload,
+            )
+            time.sleep(0.001)
+        except Exception as e:  # pragma: no cover
+            warnings.warn(f"Exception raised in Web Socket communication in '{self.__frame.f_code.co_name}':\n{e}")
+
     def __send_ack(self, ack_id: t.Optional[str]) -> None:
         if ack_id:
             try:
@@ -861,7 +871,7 @@ class Gui:
             }
         )
 
-    def _send_ws_download(self, content: str, name: str, on_action: str) -> None:
+    def __send_ws_download(self, content: str, name: str, on_action: str) -> None:
         self.__send_ws({"type": _WsType.DOWNLOAD_FILE.value, "content": content, "name": name, "on_action": on_action})
 
     def __send_ws_alert(self, type: str, message: str, system_notification: bool, duration: int) -> None:
@@ -919,6 +929,10 @@ class Gui:
             for k, v in modified_values.items()
         ]
         self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
+
+    def __send_ws_broadcast(self, var_name: str, var_value: t.Any):
+        self.__broadcast_ws({"type": _WsType.UPDATE.value, "name": _get_client_var_name(
+            var_name), "payload": {"value": var_value}})
 
     def __get_ws_receiver(self) -> t.Union[t.List[str], t.Any, None]:
         if self._bindings()._get_single_client():
@@ -1444,9 +1458,19 @@ class Gui:
     def load_config(self, config: Config) -> None:
         self._config._load(config)
 
+    def broadcast(self, name: str, value: t.Any):
+        """
+        Send a new value for a variable to all connected clients.
+
+        Arguments:
+            name: The name of the variable to update/create.
+            value: The value (should be serializable to json format)
+        """
+        self.__send_ws_broadcast(name, value)
+
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
         content_str = self._get_content("Gui.download", content, False)
-        self._send_ws_download(content_str, str(name), str(on_action))
+        self.__send_ws_download(content_str, str(name), str(on_action))
 
     def _notify(
         self,
@@ -1899,11 +1923,13 @@ class Gui:
                     lib_context = lib.on_init(self)
                     if isinstance(lib_context, tuple) and len(lib_context) > 1 and isinstance(lib_context[0], str) and lib_context[0].isidentifier():
                         if lib_context[0] in glob_ctx:
-                            warnings.warn(f"Method {name}.on_init() returned a name already defined '{lib_context[0]}'.")
+                            warnings.warn(
+                                f"Method {name}.on_init() returned a name already defined '{lib_context[0]}'.")
                         else:
                             glob_ctx[lib_context[0]] = lib_context[1]
                     elif lib_context:
-                        warnings.warn(f"Method {name}.on_init() should return a Tuple[str, Any] where the first element must be a valid Python identifier.")
+                        warnings.warn(
+                            f"Method {name}.on_init() should return a Tuple[str, Any] where the first element must be a valid Python identifier.")
                 except Exception as e:  # pragma: no cover
                     if not self._call_on_exception(f"{name}.on_init", e):
                         warnings.warn(f"Method {name}.on_init() raised an exception:\n{e}.")
