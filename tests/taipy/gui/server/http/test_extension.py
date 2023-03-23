@@ -16,6 +16,7 @@ import pytest
 from taipy.gui import Gui
 from taipy.gui.extension import ElementLibrary, Element
 
+
 class MyLibrary(ElementLibrary):
     def get_name(self) -> str:
         return "taipy_extension_example"
@@ -23,7 +24,6 @@ class MyLibrary(ElementLibrary):
     def get_elements(self):
         return dict()
 
-    def det
 
 def test_extension_no_config(gui: Gui, helpers):
     gui.run(run_server=False, single_client=True)
@@ -31,6 +31,7 @@ def test_extension_no_config(gui: Gui, helpers):
     with pytest.warns(UserWarning):
         ret = flask_client.get("/taipy-extension/toto/titi")
         assert ret.status_code == 404
+
 
 def test_extension_config_wrong_path(gui: Gui, helpers):
     Gui.add_library(MyLibrary())
