@@ -632,12 +632,16 @@ class Gui:
                     args.append(path)
                 if len(qargs):
                     args.append(qargs)
-                return (self._call_function_with_state(self.on_user_content, args), 200)
+                ret = self._call_function_with_state(self.on_user_content, args)
+                if ret is None:
+                    warnings.warn(f"on_user_content() callback function should return a value.")
+                else:
+                    return (ret, 200)
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception("on_user_content", e):
-                    warnings.warn(f"on_user_content callback function raised an exception:\n{e}")
+                    warnings.warn(f"on_user_content() callback function raised an exception:\n{e}")
         else:
-            warnings.warn("on_user_content callback function has not been defined.")
+            warnings.warn("on_user_content() callback function has not been defined.")
         return ("", 404)
 
     def __serve_extension(self, path: str) -> t.Any:
