@@ -936,7 +936,7 @@ class Gui:
         self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
     def __send_ws_broadcast(self, var_name: str, var_value: t.Any):
-        self.__broadcast_ws({"type": _WsType.UPDATE.value, "name": _get_client_var_name(
+        self.__broadcast_ws({"type": _WsType.UPDATE.value, "name": _get_broadcast_var_name(
             var_name), "payload": {"value": var_value}})
 
     def __get_ws_receiver(self) -> t.Union[t.List[str], t.Any, None]:
@@ -1474,7 +1474,7 @@ class Gui:
             name: The name of the variable to update/create.
             value: The value (should be serializable to json format)
         """
-        self.__send_ws_broadcast(_get_broadcast_var_name(name), value)
+        self.__send_ws_broadcast(name, value)
 
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
         content_str = self._get_content("Gui.download", content, False)
