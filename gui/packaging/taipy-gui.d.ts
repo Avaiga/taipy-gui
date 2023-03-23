@@ -145,9 +145,10 @@ export declare const createRequestDataUpdateAction: (name: string | undefined, i
  * *names* on the front-end.
  * @param id - The identifier of the visual element.
  * @param names - The names of the requested variable as received in updateVarName and/or updateVars properties.
+ * @param forceRefresh - Should Taipy recalculate the variables or use the current values.
  * @returns The action fed to the reducer.
  */
-export declare const createRequestUpdateAction: (id: string | undefined, names: string[]) => Action;
+export declare const createRequestUpdateAction: (id: string | undefined, names: string[], forceRefresh?: boolean) => Action;
 /**
  * A column description as received by the backend.
  */

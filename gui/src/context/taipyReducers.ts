@@ -663,14 +663,16 @@ export const createRequestDataUpdateAction = (
  * *names* on the front-end.
  * @param id - The identifier of the visual element.
  * @param names - The names of the requested variable as received in updateVarName and/or updateVars properties.
+ * @param forceRefresh - Should Taipy recalculate the variables or use the current values
  * @returns The action fed to the reducer.
  */
-export const createRequestUpdateAction = (id: string | undefined, names: string[]): TaipyAction => ({
+export const createRequestUpdateAction = (id: string | undefined, names: string[], forceRefresh = false): TaipyAction => ({
     type: Types.RequestUpdate,
     name: "",
     payload: {
         id: id,
         names: names,
+        refresh: forceRefresh
     },
 });
 

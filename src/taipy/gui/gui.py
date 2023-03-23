@@ -828,6 +828,10 @@ class Gui:
 
     def __request_var_update(self, payload: t.Any):
         if isinstance(payload, dict) and isinstance(payload.get("names"), list):
+            if payload.get("refresh", False):
+                # refresh vars
+                for _var in t.cast(list, payload.get("names")):
+                    self._refresh_expr(_var)
             self.__send_var_list_update(payload["names"])
 
     def __send_ws(self, payload: dict) -> None:
@@ -1061,6 +1065,9 @@ class Gui:
 
     def _re_evaluate_expr(self, var_name: str) -> t.Set[str]:
         return self.__evaluator.re_evaluate_expr(self, var_name)
+
+    def _refresh_expr(self, var_name: str):
+        return self.__evaluator.refresh_expr(self, var_name)
 
     def _get_expr_from_hash(self, hash_val: str) -> str:
         return self.__evaluator.get_expr_from_hash(hash_val)
