@@ -32,7 +32,7 @@ def test_user_content_with_wrong_callback(gui: Gui, helpers):
     gui.run(run_server=False, single_client=True)
     flask_client = gui._server.test_client()
     with pytest.warns(UserWarning):
-        ret = flask_client.get(gui._get_user_content_url("path"))
+        ret = flask_client.get(gui._get_user_content_url("path", {"a": "b"}))
         assert ret.status_code == 404
 
 
