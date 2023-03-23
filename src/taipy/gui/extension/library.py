@@ -48,12 +48,15 @@ class ElementProperty:
                 "my_property_name", then this property is referred to as "myPropertyName" in the
                 JavaScript code.
         """
+        self.default_value = default_value
         if property_type == PropertyType.broadcast:
-            self.default_value = _get_broadcast_var_name(default_value) if isinstance(default_value, str) else default_value
+            if isinstance(default_value, str):
+                self.default_value = _get_broadcast_var_name(default_value)
+            else:
+                warnings.warn("Element property with type 'broadcast' should define a string default value")
             self.property_type = PropertyType.react
         else:
             self.property_type = property_type
-            self.default_value = default_value
         self._js_name = js_name
         super().__init__()
 
