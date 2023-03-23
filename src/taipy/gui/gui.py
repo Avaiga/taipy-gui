@@ -60,6 +60,7 @@ from .types import _WsType
 from .utils import (
     _delscopeattr,
     _filter_locals,
+    _get_broadcast_var_name,
     _get_client_var_name,
     _get_module_name_from_frame,
     _get_non_existent_file_path,
@@ -1466,7 +1467,7 @@ class Gui:
             name: The name of the variable to update/create.
             value: The value (should be serializable to json format)
         """
-        self.__send_ws_broadcast(name, value)
+        self.__send_ws_broadcast(_get_broadcast_var_name(name), value)
 
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
         content_str = self._get_content("Gui.download", content, False)

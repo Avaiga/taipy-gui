@@ -139,6 +139,16 @@ export declare const createSendActionNameAction: (name: string | undefined, valu
  */
 export declare const createRequestDataUpdateAction: (name: string | undefined, id: string | undefined, columns: string[], pageKey: string, payload: Record<string, unknown>, allData?: boolean, library?: string) => Action;
 /**
+ * Creates a *request update* `Action` that will be used to update the `Context`.
+ *
+ * This action will generate an update of the elements holding the variables named
+ * *names* on the front-end.
+ * @param id - The identifier of the visual element.
+ * @param names - The names of the requested variable as received in updateVarName and/or updateVars properties.
+ * @returns The action fed to the reducer.
+ */
+export declare const createRequestUpdateAction: (id: string | undefined, names: string[]) => Action;
+/**
  * A column description as received by the backend.
  */
 export interface ColumnDesc {

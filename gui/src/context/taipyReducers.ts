@@ -656,6 +656,15 @@ export const createRequestDataUpdateAction = (
     };
 };
 
+/**
+ * Creates a *request update* `Action` that will be used to update the `Context`.
+ *
+ * This action will generate an update of the elements holding the variables named
+ * *names* on the front-end.
+ * @param id - The identifier of the visual element.
+ * @param names - The names of the requested variable as received in updateVarName and/or updateVars properties.
+ * @returns The action fed to the reducer.
+ */
 export const createRequestUpdateAction = (id: string | undefined, names: string[]): TaipyAction => ({
     type: Types.RequestUpdate,
     name: "",
