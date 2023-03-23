@@ -634,7 +634,7 @@ class Gui:
                     args.append(qargs)
                 ret = self._call_function_with_state(self.on_user_content, args)
                 if ret is None:
-                    warnings.warn(f"on_user_content() callback function should return a value.")
+                    warnings.warn("on_user_content() callback function should return a value.")
                 else:
                     return (ret, 200)
             except Exception as e:  # pragma: no cover
