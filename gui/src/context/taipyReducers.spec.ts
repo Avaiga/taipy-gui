@@ -43,6 +43,9 @@ describe("reducer", () => {
     it("set Acknowledgement", async () => {
         expect(taipyReducer({...INITIAL_STATE}, {type: "ACKNOWLEDGEMENT", id: "id"} as TaipyBaseAction)).toEqual(INITIAL_STATE);
     });
+    it("remove Acknowledgement", async () => {
+        expect(taipyReducer({...INITIAL_STATE, ackList: ["ack"]}, {type: "ACKNOWLEDGEMENT", id: "ack"} as TaipyBaseAction)).toEqual(INITIAL_STATE);
+    });
     it("set Theme", async () => {
         expect(taipyReducer({...INITIAL_STATE}, {type: "SET_THEME", payload: {value: "dark"}} as TaipyBaseAction).theme).toBeDefined();
     });
