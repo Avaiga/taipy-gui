@@ -142,7 +142,6 @@ class Element:
         is_html: t.Optional[bool] = False,
     ) -> t.Union[t.Any, t.Tuple[str, str]]:
         attributes = properties or {}
-        hash_names = _Builder._get_variable_hash_names(gui, attributes)  # variable replacement
         # call user render if any
         if self._is_server_only():
             xhtml = self._render_xhtml(attributes)
@@ -157,6 +156,7 @@ class Element:
                 warnings.warn(f"{name}.render_xhtml() did not return a valid XHTML string.\n{e}")
                 return f"{name}.render_xhtml() did not return a valid XHTML string. {e}"
         else:
+            hash_names = _Builder._get_variable_hash_names(gui, attributes)  # variable replacement
             default_attr: t.Optional[ElementProperty] = None
             default_value = None
             default_name = None

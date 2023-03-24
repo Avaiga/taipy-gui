@@ -565,7 +565,7 @@ class _Factory:
         built = None
         if builder is None:
             parts = name.split(".")
-            if len(parts) > 0:
+            if len(parts) > 1:
                 lib_name = parts[0]
                 libs = _Factory.__LIBRARIES.get(lib_name)
                 if libs:
