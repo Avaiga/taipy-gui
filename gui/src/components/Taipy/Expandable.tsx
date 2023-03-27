@@ -11,7 +11,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -21,8 +21,11 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useClassNames, useDynamicProperty } from "../../utils/hooks";
 import { TaipyActiveProps } from "./utils";
 import TaipyRendered from "../pages/TaipyRendered";
+import { TaipyContext } from "../../context/taipyContext";
+import { createSendActionNameAction } from "../../context/taipyReducers";
 
 interface ExpandableProps extends TaipyActiveProps {
+    onAction?: string;
     expanded?: boolean;
     defaultExpanded?: boolean;
     children?: ReactNode;
@@ -33,8 +36,9 @@ interface ExpandableProps extends TaipyActiveProps {
 }
 
 const Expandable = (props: ExpandableProps) => {
-    const { id, expanded = true, defaultExpanded, title, defaultTitle, page, partial } = props;
+    const { id, onAction = "", expanded = true, defaultExpanded, title, defaultTitle, page, partial } = props;
     const [opened, setOpened] = useState(defaultExpanded === undefined ? expanded : defaultExpanded);
+    const { dispatch } = useContext(TaipyContext);
 
     const className = useClassNames(props.libClassName, props.dynamicClassName, props.className);
     const active = useDynamicProperty(props.active, props.defaultActive, true);
@@ -43,6 +47,10 @@ const Expandable = (props: ExpandableProps) => {
     useEffect(() => {
         expanded !== undefined && setOpened(expanded);
     }, [expanded]);
+
+    useEffect(() => {
+        dispatch(createSendActionNameAction(id, onAction, opened));
+    }, [opened, dispatch, id, onAction]);
 
     const onChange = useCallback(() => setOpened((op) => !op), []);
 

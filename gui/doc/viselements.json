@@ -1141,6 +1141,12 @@
             "type": "dynamic(bool)",
             "default_value": "True",
             "doc": "If True, the block is expanded, and the content is displayed.<br/>\nIf False, the block is collapsed and its content is hidden."
+          },
+          {
+            "name": "on_action",
+            "type": "Callback",
+            "doc": "The name of a function that is triggered when the state of the expandable is changed.\nThe parameters of that function are all optional:\n<ul>\n<li>state (<code>State^</code>): the state instance.</li>\n<li>id (optional[str]): the identifier of the expandable.</li>\n<li>action (optional[str]): the name of the action that provoked the change.</li>\n<li>payload (optional[dict]): additional arguments containing the state of the expandable</li>\n</ul>",
+            "signature": [["state", "State"], ["id", "str"], ["action", "str"], ["payload", "dict"]]
           }
         ]
       }
