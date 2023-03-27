@@ -53,7 +53,7 @@ class ElementProperty:
             if isinstance(default_value, str):
                 self.default_value = _get_broadcast_var_name(default_value)
             else:
-                warnings.warn("Element property with type 'broadcast' should define a string default value")
+                warnings.warn("Element property with type 'broadcast' must define a string default value")
             self.property_type = PropertyType.react
         else:
             self.property_type = property_type

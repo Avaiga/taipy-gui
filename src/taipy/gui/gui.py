@@ -1475,8 +1475,8 @@ class Gui:
         Send a new value for a variable to all connected clients.
 
         Arguments:
-            name: The name of the variable to update/create.
-            value: The value (should be serializable to json format)
+            name: The name of the variable to update or create.
+            value: The value (must be serializable to json format)
         """
         self.__send_ws_broadcast(name, value)
 
