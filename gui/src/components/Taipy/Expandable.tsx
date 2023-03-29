@@ -18,7 +18,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Tooltip from "@mui/material/Tooltip";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { useClassNames, useDynamicProperty } from "../../utils/hooks";
+import { useClassNames, useDispatch, useDynamicProperty } from "../../utils/hooks";
 import { TaipyActiveProps, TaipyChangeProps, getUpdateVar } from "./utils";
 import TaipyRendered from "../pages/TaipyRendered";
 import { createSendUpdateAction } from "../../context/taipyReducers";
@@ -36,7 +36,7 @@ interface ExpandableProps extends TaipyActiveProps, TaipyChangeProps {
 
 const Expandable = (props: ExpandableProps) => {
     const { id, expanded, defaultExpanded, title, defaultTitle, page, partial, updateVars, propagate = true } = props;
-    const { dispatch } = useContext(TaipyContext);
+    const dispatch = useDispatch();
     const [opened, setOpened] = useState(
         defaultExpanded === undefined ? (expanded === undefined ? true : expanded) : defaultExpanded
     );
