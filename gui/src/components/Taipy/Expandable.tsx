@@ -11,7 +11,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import React, { ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -22,7 +22,6 @@ import { useClassNames, useDispatch, useDynamicProperty } from "../../utils/hook
 import { TaipyActiveProps, TaipyChangeProps, getUpdateVar } from "./utils";
 import TaipyRendered from "../pages/TaipyRendered";
 import { createSendUpdateAction } from "../../context/taipyReducers";
-import { TaipyContext } from "../../context/taipyContext";
 
 interface ExpandableProps extends TaipyActiveProps, TaipyChangeProps {
     expanded?: boolean;
