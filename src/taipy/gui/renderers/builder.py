@@ -823,7 +823,10 @@ class _Builder:
                     self.set_boolean_attribute(attr[0], val)
             elif var_type == PropertyType.dynamic_boolean:
                 self.__set_dynamic_bool_attribute(
-                    attr[0], _get_tuple_val(attr, 2, False), _get_tuple_val(attr, 3, False)
+                    attr[0],
+                    _get_tuple_val(attr, 2, False),
+                    _get_tuple_val(attr, 3, False),
+                    _get_tuple_val(attr, 4, True),
                 )
             elif var_type == PropertyType.number:
                 self.set_number_attribute(attr[0], _get_tuple_val(attr, 2, None))

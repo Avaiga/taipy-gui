@@ -107,8 +107,9 @@ class _Factory:
         "expandable": [
             ("id",),
             ("page",),
-            ("expanded", PropertyType.dynamic_boolean, True),
+            ("expanded", PropertyType.dynamic_boolean, True, True, False),
             ("hover_text", PropertyType.dynamic_string),
+            ("on_change", PropertyType.function),
         ],
         "file_download": [
             ("id",),
