@@ -271,15 +271,13 @@ export const initializeWebSocket = (socket: Socket | undefined, dispatch: Dispat
         socket.on("connect_error", () => {
             setTimeout(() => {
                 socket.connect();
-            }, 1000);
+            }, 500);
         });
         // try to reconnect on server disconnection
         socket.on("disconnect", (reason) => {
             if (reason === "io server disconnect") {
-                // the disconnection was initiated by the server, you need to reconnect manually
                 socket.connect();
             }
-            // else the socket will automatically try to reconnect
         });
         // handle message data from backend
         socket.on("message", getWsMessageListener(dispatch));
