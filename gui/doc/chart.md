@@ -104,6 +104,30 @@ or slightly shorter (and if there are no more than three traces):
 page = "<|...|chart|...|i_property={value1}|i_property[2]={value2}|i_property[3]={value3}|...|>"
 ```
 
+## Styling
+
+All the chart controls are generated with the "taipy-chart" CSS class. You can use this class
+name to select the charts on your page and apply style.
+
+### [Stylekit](../styling/stylekit.md) support
+
+The [Stylekit](../styling/stylekit.md) provides a specific class that you can use to style charts:
+
+* *opaque-bg*<br/>
+    TODO.
+
+    The Markdown content: 
+    ```
+    TODO
+    ```
+
+    Renders like this:
+    <figure>
+      <img src="../chart-stylekit_opaque-bg-d.png" class="visible-dark" />
+      <img src="../chart-stylekit_opaque-bg-l.png" class="visible-light"/>
+      <figcaption>With and without the *opaque-bg* class*</figcaption>
+    </figure>
+
 ## Usage
 
 Here is a list of several sub-sections that you can check to get more details on a specific

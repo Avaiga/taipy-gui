@@ -1,12 +1,40 @@
 Displays its children in a block.
 
-The `part` control is used to group controls in a single element.
+The `part` block is used to group visual elements in a single element.
 This allows to show or hide them in one action and be placed as a unique element in a [`Layout`](layout.md) cell.
 
 There is a simplified Markdown syntax to create a `part`, where the element name is optional:
 
 `<|` just before the end of the line indicates the beginning of a `part` element;
 `|>` at the beginning of a line indicated the end of the `part` definition.
+
+
+## Styling
+
+All the part blocks are generated with the "taipy-part" CSS class. You can use this class
+name to select the part blocks on your page and apply style.
+
+### [Stylekit](../styling/stylekit.md) support
+
+The [Stylekit](../styling/stylekit.md) provides specific classes that you can use to style part
+blocks:
+
+- *align-item-top*<br/>
+  If this part block is inside a [`layout`](layout.md) block, this CSS class aligns the part
+  content to the top the layout column it belongs to.
+- *align-item-center*<br/>
+  If this part block is inside a [`layout`](layout.md) block, this CSS class vertically aligns
+  the part content to the center of the layout column it belongs to.
+- *align-item-bottom*<br/>
+  If this part block is inside a [`layout`](layout.md) block, this CSS class vertically aligns
+  the part content to the bottom of the layout column it belongs to.
+- *align-item-stretch*<br/>
+  Give that column the same height as the highest one if different from it.<br/>
+  TODO - unclear
+
+
+TODO: predefine Stylekit classes for pane (container, header...)
+
 
 ## Usage
 
