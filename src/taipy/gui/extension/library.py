@@ -312,8 +312,9 @@ class ElementLibrary(ABC):
         Arguments:
             name (str): The name of the resource for which a local Path should be returned.
         """
-        module = self.__class__.__module__
-        base = (Path(module.__file__) if hasattr(module, "__file__") else Path(".")).resolve()  # type: ignore
+        base = (Path(f"./{self.__module__.replace('.', '/')}").parent if isinstance(self.__module__, str) else Path(".")).resolve()  # type: ignore
+        base = base if base.is_dir() else base.parent
+        base = base if base.exists() else Path(".").resolve()
         file = (base / name).resolve()
         if str(file).startswith(str(base)) and file.exists():
             return file
