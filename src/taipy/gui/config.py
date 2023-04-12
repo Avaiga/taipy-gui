@@ -54,7 +54,6 @@ ConfigParameter = t.Literal[
     "time_zone",
     "title",
     "stylekit",
-    "stylekit_variables",
     "upload_folder",
     "use_arrow",
     "use_reloader",
@@ -63,8 +62,8 @@ ConfigParameter = t.Literal[
     "port",
 ]
 
-StylekitVariables = t.TypedDict(
-    "StylekitVariables",
+Stylekit = t.TypedDict(
+    "Stylekit",
     {
         "color_primary": str,
         "color_secondary": str,
@@ -76,10 +75,11 @@ StylekitVariables = t.TypedDict(
         "color_background_dark": str,
         "color_paper_dark": str,
         "font_family": str,
+        "root_margin": str,
         "border_radius": int,
-        "input_button_height": str
+        "input_button_height": str,
     },
-    total=False
+    total=False,
 )
 
 Config = t.TypedDict(
@@ -110,8 +110,7 @@ Config = t.TypedDict(
         "theme": t.Optional[t.Dict[str, t.Any]],
         "time_zone": t.Optional[str],
         "title": t.Optional[str],
-        "stylekit": bool,
-        "stylekit_variables": StylekitVariables,
+        "stylekit": t.Union[bool, Stylekit],
         "upload_folder": t.Optional[str],
         "use_arrow": bool,
         "use_reloader": bool,
@@ -124,7 +123,6 @@ Config = t.TypedDict(
 
 
 class _Config(object):
-
     __RE_PORT_NUMBER = re.compile(
         r"^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"
     )
@@ -204,6 +202,12 @@ class _Config(object):
         for key, value in kwargs.items():
             key = key.lower()
             if value is not None and key in config:
+                # Special case for "stylekit" that can be a Boolean or a dict
+                if key == "stylekit" and isinstance(value, bool):
+                    from ._default_config import _default_stylekit
+
+                    config[key] = _default_stylekit if value else {}
+                    continue
                 try:
                     if isinstance(value, dict) and isinstance(config[key], dict):
                         config[key].update(value)
@@ -270,3 +274,21 @@ class _Config(object):
                 logger,
                 "'async_mode' parameter has been overridden to 'threading'. Using Flask built-in development server with debug mode",
             )
+
+        self._resolve_stylekit()
+
+    def _resolve_stylekit(self):
+        app_config = self.config
+        # support legacy margin variable
+        stylekit_config = app_config["stylekit"]
+
+        if isinstance(app_config["stylekit"], dict) and "root_margin" in app_config["stylekit"]:
+            from ._default_config import _default_stylekit, default_config
+
+            stylekit_config = app_config["stylekit"]
+            if (
+                stylekit_config["root_margin"] == _default_stylekit["root_margin"]
+                and app_config["margin"] != default_config["margin"]
+            ):
+                app_config["stylekit"]["root_margin"] = str(app_config["margin"])
+            app_config["margin"] = None
