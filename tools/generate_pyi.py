@@ -1,7 +1,5 @@
 import os
 
-os.system("pipenv install --dev --skip-lock")
-
 os.system('pipenv run stubgen ./src/taipy/gui/gui.py --no-import --parse-only --include-private --export-less -o ./')
 
 from src.taipy.gui.config import Config
