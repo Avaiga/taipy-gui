@@ -39,9 +39,9 @@ from taipy.logger._taipy_logger import _TaipyLogger
 if util.find_spec("pyngrok"):
     from pyngrok import ngrok
 
-from ._default_config import default_config, _default_stylekit
+from ._default_config import _default_stylekit, default_config
 from ._page import _Page
-from .config import Config, ConfigParameter, StylekitVariables, _Config
+from .config import Config, ConfigParameter, Stylekit, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
