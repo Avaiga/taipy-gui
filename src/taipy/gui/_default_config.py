@@ -33,6 +33,10 @@ _default_stylekit: Stylekit = {
     # Set main font family
     "font_family": "Lato, Arial, sans-serif",
 
+    # DEFINING ROOT STYLES
+    # Set root margin
+    "root_margin": "1rem",
+
     # DEFINING SHAPES
     # Base border radius in px
     "border_radius": 8,

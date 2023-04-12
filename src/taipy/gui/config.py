@@ -75,6 +75,7 @@ Stylekit = t.TypedDict(
         "color_background_dark": str,
         "color_paper_dark": str,
         "font_family": str,
+        "root_margin": str,
         "border_radius": int,
         "input_button_height": str
     },
