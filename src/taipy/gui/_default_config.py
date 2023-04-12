@@ -34,7 +34,8 @@ _default_stylekit: Stylekit = {
     "font_family": "Lato, Arial, sans-serif",
 
     # DEFINING ROOT STYLES
-    # Set root margin
+    # Set root margin 
+    # TODO : asign the value defined in run() parameter "margin" as default value here
     "root_margin": "1rem",
 
     # DEFINING SHAPES
