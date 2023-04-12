@@ -12,7 +12,7 @@
  */
 
 :root {
-    --component-padding: var(--spacing2);
+    --element-padding: var(--spacing2);
 
     --container-max-width: 75rem;
 

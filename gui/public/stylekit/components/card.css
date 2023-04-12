@@ -18,7 +18,7 @@
 ***************************************************************/
 
 .card {
-    padding: var(--component-padding);
+    padding: var(--element-padding);
     border-radius: var(--border-radius);
     background-color: var(--color-paper);
     box-shadow: var(--box-shadow);
