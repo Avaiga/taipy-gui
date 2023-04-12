@@ -23,4 +23,5 @@ jobs:
       - name: Generate pyi
         run: cp tools/generate_pyi.py temp.py && python temp.py && rm temp.py
       - uses: stefanzweifel/git-auto-commit-action@v4
-        commit_message: Update gui.pyi file
+        with:
+          commit_message: Update gui.pyi file
