@@ -29,12 +29,26 @@ blocks:
   If this part block is inside a [`layout`](layout.md) block, this CSS class vertically aligns
   the part content to the bottom of the layout column it belongs to.
 - *align-item-stretch*<br/>
-  Give that column the same height as the highest one if different from it.<br/>
-  TODO - unclear
+  If this part block is inside a [`layout`](layout.md) block, this CSS class 
+  gives the part the same height as the highest item in the row where this part
+  appears in the layout.
 
+The Stylekit also has several classes that can be used to style part blocks,
+as described in the [Styled Sections](../styling/stylekit.md#styled-sections)
+documentation.<br/>
+Because the default property of the *part* block is *class_name*, you can use the
+Markdown short syntax for parts:
 
-TODO: predefine Stylekit classes for pane (container, header...)
+```
+<|card|
+...
+  (card content)
+...
+|>
+```
 
+Creates a `part` that has the [*card*](../styling/stylekit.md#card) class defined
+in the Stylekit.
 
 ## Usage
 
@@ -46,9 +60,9 @@ TODO: predefine Stylekit classes for pane (container, header...)
 
         ```
         <|
-            ...
-            <|{Some Content}|>
-            ...
+        ...
+        <|{Some Content}|>
+        ...
         |>
         ```
 
@@ -56,9 +70,9 @@ TODO: predefine Stylekit classes for pane (container, header...)
 
         ```html
         <taipy:part>
-            ...
-            <taipy:text>{Some Content}</taipy:text>
-            ...
+        ...
+        <taipy:text>{Some Content}</taipy:text>
+        ...
         </taipy:part>
         ```
 
@@ -70,9 +84,9 @@ TODO: predefine Stylekit classes for pane (container, header...)
 
         ```
         <|part|don't render|
-            ...
-            <|{Some Content}|>
-            ...
+        ...
+        <|{Some Content}|>
+        ...
         |>
         ```
 
@@ -86,11 +100,29 @@ TODO: predefine Stylekit classes for pane (container, header...)
         </taipy:part>
         ```
 
-If the _render_ property is bound to a Boolean value, the `part` will show or hide its elements according to the value of the bound variable.
+If the *render* property is bound to a Boolean value, the `part` will show or hide its elements according to the value of the bound variable.
+
+### Styling parts
+
+The default property name of the `part` block is *class_name*. This allows for setting
+a CSS class to a `part` with a very simple Markdown syntax:
+
+!!! example "Markdown content"
+
+    ```
+    <|css-class|
+    ...
+    (part content)
+    ...
+    |>
+    ```
+
+This creates a `part` block that is applied the *css-class* CSS class defined in the
+application stylesheets.
 
 ### Part with page
 
-The content of the part can be specified as an existing page name or an URL using the _page_ property.
+The content of the part can be specified as an existing page name or an URL using the *page* property.
 
 !!! example "Page content"
 
@@ -108,7 +140,7 @@ The content of the part can be specified as an existing page name or an URL usin
 
 ### Part with partial
 
-The content of the part can be specified as a `Partial^` instance using the _partial_ property.
+The content of the part can be specified as a `Partial^` instance using the *partial* property.
 
 !!! example "Page content"
 

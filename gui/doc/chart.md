@@ -113,20 +113,10 @@ name to select the charts on your page and apply style.
 
 The [Stylekit](../styling/stylekit.md) provides a specific class that you can use to style charts:
 
-* *opaque-bg*<br/>
-    TODO.
-
-    The Markdown content: 
-    ```
-    TODO
-    ```
-
-    Renders like this:
-    <figure>
-      <img src="../chart-stylekit_opaque-bg-d.png" class="visible-dark" />
-      <img src="../chart-stylekit_opaque-bg-l.png" class="visible-light"/>
-      <figcaption>With and without the *opaque-bg* class*</figcaption>
-    </figure>
+* *has-background*<br/>
+    When the chart control uses the *has-background* class, the rendering of the chart
+    background is left to the charting library.<br/>
+    The default behavior is to render the chart transparently.
 
 ## Usage
 

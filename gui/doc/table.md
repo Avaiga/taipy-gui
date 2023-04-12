@@ -34,9 +34,9 @@ tables:
 - *header-plain*<br/>
   Adds a plain and contrasting background color to the table header.
 - *rows-bordered*<br/>
-  Add a bottom border to each row.
+  Adds a bottom border to each row.
 - *rows-similar*<br/>
-  TODO
+  Removes the even-odd striped background so all rows have the same background.
 
 ## Usage
 
