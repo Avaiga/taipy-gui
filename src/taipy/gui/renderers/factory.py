@@ -56,237 +56,12 @@ class _Factory:
         "tree": "value",
     }
 
+    _TEXT_ATTRIBUTES = ["format", "id", "hover_text", "raw"]
+
     __TEXT_ANCHORS = ["bottom", "top", "left", "right"]
     __TEXT_ANCHOR_NONE = "none"
 
     __LIBRARIES: t.Dict[str, t.List["ElementLibrary"]] = {}
-
-    __CONTROL_ATTRIBUTES: t.Callable[["Gui"], t.Dict[str, t.List[t.Any]]] = lambda gui: {
-        "button": [
-            ("id",),
-            ("on_action", PropertyType.function),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "chart": [
-            ("id",),
-            ("title",),
-            ("width", PropertyType.string_or_number),
-            ("height", PropertyType.string_or_number),
-            ("layout", PropertyType.dict),
-            ("plot_config", PropertyType.dict),
-            ("on_range_change", PropertyType.function),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("render", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-            ("on_change", PropertyType.function),
-            ("template", PropertyType.dict),
-            ("template[dark]", PropertyType.dict, gui._get_config("chart_dark_template", None)),
-            ("template[light]", PropertyType.dict),
-        ],
-        "date": [
-            ("with_time", PropertyType.boolean),
-            ("id",),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("editable", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-            ("on_change", PropertyType.function),
-        ],
-        "dialog": [
-            ("id",),
-            ("page",),
-            ("title",),
-            ("on_action", PropertyType.function),
-            ("close_label", PropertyType.string),
-            ("labels", PropertyType.string_list),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("width", PropertyType.string_or_number),
-            ("height", PropertyType.string_or_number),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "expandable": [
-            ("id",),
-            ("page",),
-            ("expanded", PropertyType.dynamic_boolean, True, True, False),
-            ("hover_text", PropertyType.dynamic_string),
-            ("on_change", PropertyType.function),
-        ],
-        "file_download": [
-            ("id",),
-            ("on_action", PropertyType.function),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("render", PropertyType.dynamic_boolean, True),
-            ("auto", PropertyType.boolean, False),
-            ("bypass_preview", PropertyType.boolean, True),
-            ("name",),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "file_selector": [
-            ("id",),
-            ("on_action", PropertyType.function),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("multiple", PropertyType.boolean, False),
-            ("extensions",),
-            ("drop_message",),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "image": [
-            ("id",),
-            ("on_action", PropertyType.function),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("width",),
-            ("height",),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "indicator": [
-            ("id",),
-            ("min", PropertyType.number),
-            ("max", PropertyType.number),
-            ("value", PropertyType.dynamic_number),
-            ("format",),
-            ("orientation"),
-            ("hover_text", PropertyType.dynamic_string),
-            ("width",),
-            ("height",),
-        ],
-        "input": [
-            ("id",),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-            ("on_change", PropertyType.function),
-            ("on_action", PropertyType.function),
-            ("action_keys",),
-            ("label",),
-            ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
-            ("multiline", PropertyType.boolean, False),
-            ("lines_shown", PropertyType.number, 5),
-        ],
-        "layout": [
-            ("id",),
-            ("columns[mobile]",),
-            ("gap",),
-        ],
-        "menu": [
-            ("id",),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("label"),
-            ("width"),
-            ("width[mobile]",),
-            ("on_action", PropertyType.function),
-            ("inactive_ids", PropertyType.dynamic_list),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "navbar": [
-            ("id",),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "number": [
-            ("id",),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-            ("on_change", PropertyType.function),
-            ("on_action", PropertyType.function),
-            ("label",),
-            ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
-        ],
-        "pane": [
-            ("id",),
-            ("page",),
-            ("anchor", PropertyType.string, "left"),
-            ("on_close", PropertyType.function),
-            ("persistent", PropertyType.boolean, False),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("width", PropertyType.string_or_number, "30vw"),
-            ("height", PropertyType.string_or_number, "30vh"),
-            ("hover_text", PropertyType.dynamic_string),
-            ("on_change", PropertyType.function),
-        ],
-        "part": [("id",), ("page", PropertyType.dynamic_string), ("render", PropertyType.dynamic_boolean, True)],
-        "selector": [
-            ("active", PropertyType.dynamic_boolean, True),
-            ("dropdown", PropertyType.boolean, False),
-            ("filter", PropertyType.boolean),
-            ("height", PropertyType.string_or_number),
-            ("hover_text", PropertyType.dynamic_string),
-            ("id",),
-            ("value_by_id", PropertyType.boolean),
-            ("multiple", PropertyType.boolean),
-            ("width", PropertyType.string_or_number),
-            ("on_change", PropertyType.function),
-            ("label",),
-        ],
-        "slider": [
-            ("active", PropertyType.dynamic_boolean, True),
-            ("height"),
-            ("hover_text", PropertyType.dynamic_string),
-            ("id",),
-            ("value_by_id", PropertyType.boolean),
-            ("max", PropertyType.number, 100),
-            ("min", PropertyType.number, 0),
-            ("orientation"),
-            ("width", PropertyType.string, "300px"),
-            ("on_change", PropertyType.function),
-            ("continuous", PropertyType.boolean, True),
-            ("lov", PropertyType.lov),
-            ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
-        ],
-        "status": [
-            ("id",),
-            ("without_close", PropertyType.boolean, False),
-            ("hover_text", PropertyType.dynamic_string),
-        ],
-        "table": [
-            ("page_size", PropertyType.number, "100"),
-            ("allow_all_rows", PropertyType.boolean),
-            ("show_all", PropertyType.boolean),
-            ("auto_loading", PropertyType.boolean),
-            ("width", PropertyType.string_or_number, "100vw"),
-            ("height", PropertyType.string_or_number, "80vh"),
-            ("id",),
-            ("active", PropertyType.dynamic_boolean, True),
-            ("editable", PropertyType.dynamic_boolean, True),
-            ("on_edit", PropertyType.function),
-            ("on_delete", PropertyType.function),
-            ("on_add", PropertyType.function),
-            ("on_action", PropertyType.function),
-            ("nan_value",),
-            ("filter", PropertyType.boolean),
-            ("hover_text", PropertyType.dynamic_string),
-            ("size",),
-        ],
-        "text": [
-            ("format",),
-            ("id",),
-            ("hover_text", PropertyType.dynamic_string),
-            ("raw", PropertyType.boolean, False),
-        ],
-        "toggle": [
-            ("active", PropertyType.dynamic_boolean, True),
-            ("hover_text", PropertyType.dynamic_string),
-            ("id",),
-            ("label",),
-            ("value_by_id", PropertyType.boolean),
-            ("unselected_value", PropertyType.string, ""),
-            ("allow_unselect", PropertyType.boolean),
-            ("on_change", PropertyType.function),
-        ],
-        "tree": [
-            ("active", PropertyType.dynamic_boolean, True),
-            ("expanded", PropertyType.boolean_or_list, True),
-            ("filter", PropertyType.boolean),
-            ("hover_text", PropertyType.dynamic_string),
-            ("height", PropertyType.string_or_number),
-            ("id",),
-            ("value_by_id", PropertyType.boolean),
-            ("multiple", PropertyType.boolean),
-            ("width", PropertyType.string_or_number),
-            ("on_change", PropertyType.function),
-            ("select_leafs_only", PropertyType.boolean),
-            ("row_height", PropertyType.string),
-            ("lov", PropertyType.lov),
-        ],
-    }
 
     __CONTROL_BUILDERS = {
         "button": lambda gui, control_type, attrs: _Builder(
@@ -296,7 +71,14 @@ class _Factory:
             attributes=attrs,
         )
         .set_value_and_default(with_update=False)
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("on_action", PropertyType.function),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        ),
         "chart": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -304,7 +86,24 @@ class _Factory:
             attributes=attrs,
         )
         .set_value_and_default(with_default=False, var_type=PropertyType.data)
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("id",),
+                ("title",),
+                ("width", PropertyType.string_or_number),
+                ("height", PropertyType.string_or_number),
+                ("layout", PropertyType.dict),
+                ("plot_config", PropertyType.dict),
+                ("on_range_change", PropertyType.function),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("render", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+                ("on_change", PropertyType.function),
+                ("template", PropertyType.dict),
+                ("template[dark]", PropertyType.dict, gui._get_config("chart_dark_template", None)),
+                ("template[light]", PropertyType.dict),
+            ]
+        )
         ._get_chart_config("scatter", "lines+markers")
         ._set_propagate(),
         "content": lambda gui, control_type, attrs: _Builder(
@@ -318,7 +117,16 @@ class _Factory:
             default_value=datetime.fromtimestamp(0),
         )
         .set_value_and_default(var_type=PropertyType.date)
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("with_time", PropertyType.boolean),
+                ("id",),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("editable", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+                ("on_change", PropertyType.function),
+            ]
+        )
         ._set_propagate(),
         "dialog": lambda gui, control_type, attrs: _Builder(
             gui=gui,
@@ -328,14 +136,35 @@ class _Factory:
         )
         .set_value_and_default(var_type=PropertyType.dynamic_boolean)
         ._set_partial()  # partial should be set before page
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("id",),
+                ("page",),
+                ("title",),
+                ("on_action", PropertyType.function),
+                ("close_label", PropertyType.string),
+                ("labels", PropertyType.string_list),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("width", PropertyType.string_or_number),
+                ("height", PropertyType.string_or_number),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        )
         ._set_propagate(),
         "expandable": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="Expandable", attributes=attrs, default_value=None
         )
         .set_value_and_default()
         ._set_partial()  # partial should be set before page
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("page",),
+                ("expanded", PropertyType.dynamic_boolean, True, True, False),
+                ("hover_text", PropertyType.dynamic_string),
+                ("on_change", PropertyType.function),
+            ]
+        ),
         "file_download": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -344,7 +173,18 @@ class _Factory:
         )
         .set_value_and_default(var_name="label", with_update=False)
         ._set_content("content", image=False)
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("on_action", PropertyType.function),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("render", PropertyType.dynamic_boolean, True),
+                ("auto", PropertyType.boolean, False),
+                ("bypass_preview", PropertyType.boolean, True),
+                ("name",),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        ),
         "file_selector": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -353,7 +193,17 @@ class _Factory:
         )
         .set_value_and_default(var_name="label", with_update=False)
         ._set_file_content()
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("on_action", PropertyType.function),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("multiple", PropertyType.boolean, False),
+                ("extensions",),
+                ("drop_message",),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        ),
         "image": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -362,7 +212,16 @@ class _Factory:
         )
         .set_value_and_default(var_name="label", with_update=False)
         ._set_content("content")
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("on_action", PropertyType.function),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("width",),
+                ("height",),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        ),
         "indicator": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -370,7 +229,19 @@ class _Factory:
             attributes=attrs,
         )
         .set_value_and_default(with_update=False, native_type=True)
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("min", PropertyType.number),
+                ("max", PropertyType.number),
+                ("value", PropertyType.dynamic_number),
+                ("format",),
+                ("orientation"),
+                ("hover_text", PropertyType.dynamic_string),
+                ("width",),
+                ("height",),
+            ]
+        ),
         "input": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -380,12 +251,31 @@ class _Factory:
         ._set_input_type("text", True)
         .set_value_and_default()
         ._set_propagate()
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+                ("on_change", PropertyType.function),
+                ("on_action", PropertyType.function),
+                ("action_keys",),
+                ("label",),
+                ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
+                ("multiline", PropertyType.boolean, False),
+                ("lines_shown", PropertyType.number, 5),
+            ]
+        ),
         "layout": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="Layout", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_default=False)
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("columns[mobile]",),
+                ("gap",),
+            ]
+        ),
         "menu": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -394,14 +284,31 @@ class _Factory:
         )
         ._get_adapter("lov")  # need to be called before set_lov
         ._set_lov()
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("id",),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("label"),
+                ("width"),
+                ("width[mobile]",),
+                ("on_action", PropertyType.function),
+                ("inactive_ids", PropertyType.dynamic_list),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        )
         ._set_propagate(),
         "navbar": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="NavBar", attributes=attrs, default_value=None
         )
         ._get_adapter("lov", multi_selection=False)  # need to be called before set_lov
         ._set_lov()
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        ),
         "number": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -412,26 +319,65 @@ class _Factory:
         ._set_input_type("number")
         .set_value_and_default(var_type=PropertyType.dynamic_number)
         ._set_propagate()
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+                ("on_change", PropertyType.function),
+                ("on_action", PropertyType.function),
+                ("label",),
+                ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
+            ]
+        ),
         "pane": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="Pane", attributes=attrs, default_value=None
         )
         .set_value_and_default(var_type=PropertyType.dynamic_boolean)
         ._set_partial()  # partial should be set before page
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("id",),
+                ("page",),
+                ("anchor", PropertyType.string, "left"),
+                ("on_close", PropertyType.function),
+                ("persistent", PropertyType.boolean, False),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("width", PropertyType.string_or_number, "30vw"),
+                ("height", PropertyType.string_or_number, "30vh"),
+                ("hover_text", PropertyType.dynamic_string),
+                ("on_change", PropertyType.function),
+            ]
+        )
         ._set_propagate(),
         "part": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="Part", attributes=attrs, default_value=None
         )
         ._set_partial()  # partial should be set before page
-        .set_control_attributes(),
+        .set_attributes(
+            [("id",), ("page", PropertyType.dynamic_string), ("render", PropertyType.dynamic_boolean, True)]
+        ),
         "selector": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="Selector", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_default=False, var_type=PropertyType.lov_value)
         ._get_adapter("lov")  # need to be called before set_lov
         ._set_lov()
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("active", PropertyType.dynamic_boolean, True),
+                ("dropdown", PropertyType.boolean, False),
+                ("filter", PropertyType.boolean),
+                ("height", PropertyType.string_or_number),
+                ("hover_text", PropertyType.dynamic_string),
+                ("id",),
+                ("value_by_id", PropertyType.boolean),
+                ("multiple", PropertyType.boolean),
+                ("width", PropertyType.string_or_number),
+                ("on_change", PropertyType.function),
+                ("label",),
+            ]
+        )
         ._set_propagate(),
         "slider": lambda gui, control_type, attrs: _Builder(
             gui=gui,
@@ -441,7 +387,23 @@ class _Factory:
             default_value=0,
         )
         .set_value_and_default(native_type=True, var_type=PropertyType.number_or_lov_value)
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("active", PropertyType.dynamic_boolean, True),
+                ("height"),
+                ("hover_text", PropertyType.dynamic_string),
+                ("id",),
+                ("value_by_id", PropertyType.boolean),
+                ("max", PropertyType.number, 100),
+                ("min", PropertyType.number, 0),
+                ("orientation"),
+                ("width", PropertyType.string, "300px"),
+                ("on_change", PropertyType.function),
+                ("continuous", PropertyType.boolean, True),
+                ("lov", PropertyType.lov),
+                ("change_delay", PropertyType.number, gui._get_config("change_delay", None)),
+            ]
+        )
         ._set_labels()
         ._set_string_with_check("text_anchor", _Factory.__TEXT_ANCHORS + [_Factory.__TEXT_ANCHOR_NONE], "bottom")
         ._set_propagate(),
@@ -452,7 +414,13 @@ class _Factory:
             attributes=attrs,
         )
         .set_value_and_default(with_update=False)
-        .set_control_attributes(),
+        .set_attributes(
+            [
+                ("id",),
+                ("without_close", PropertyType.boolean, False),
+                ("hover_text", PropertyType.dynamic_string),
+            ]
+        ),
         "table": lambda gui, control_type, attrs: _Builder(
             gui=gui,
             control_type=control_type,
@@ -461,7 +429,27 @@ class _Factory:
         )
         .set_value_and_default(with_default=False, var_type=PropertyType.data)
         ._get_dataframe_attributes()
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("page_size", PropertyType.number, "100"),
+                ("allow_all_rows", PropertyType.boolean),
+                ("show_all", PropertyType.boolean),
+                ("auto_loading", PropertyType.boolean),
+                ("width", PropertyType.string_or_number, "100vw"),
+                ("height", PropertyType.string_or_number, "80vh"),
+                ("id",),
+                ("active", PropertyType.dynamic_boolean, True),
+                ("editable", PropertyType.dynamic_boolean, True),
+                ("on_edit", PropertyType.function),
+                ("on_delete", PropertyType.function),
+                ("on_add", PropertyType.function),
+                ("on_action", PropertyType.function),
+                ("nan_value",),
+                ("filter", PropertyType.boolean),
+                ("hover_text", PropertyType.dynamic_string),
+                ("size",),
+            ]
+        )
         ._set_propagate()
         ._get_list_attribute("selected", PropertyType.number)
         ._set_table_pagesize_options(),
@@ -473,14 +461,27 @@ class _Factory:
         )
         .set_value_and_default(with_update=False)
         ._set_dataType()
-        .set_control_attributes(),
+        .set_attributes(
+            [("format",), ("id",), ("hover_text", PropertyType.dynamic_string), ("raw", PropertyType.boolean, False)]
+        ),
         "toggle": lambda gui, control_type, attrs: _Builder(
             gui=gui, control_type=control_type, element_name="Toggle", attributes=attrs, default_value=None
         )
         .set_value_and_default(with_default=False, var_type=PropertyType.lov_value)
         ._get_adapter("lov", multi_selection=False)  # need to be called before set_lov
         ._set_lov()
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("active", PropertyType.dynamic_boolean, True),
+                ("hover_text", PropertyType.dynamic_string),
+                ("id",),
+                ("label",),
+                ("value_by_id", PropertyType.boolean),
+                ("unselected_value", PropertyType.string, ""),
+                ("allow_unselect", PropertyType.boolean),
+                ("on_change", PropertyType.function),
+            ]
+        )
         ._set_kind()
         ._set_propagate(),
         "tree": lambda gui, control_type, attrs: _Builder(
@@ -490,7 +491,23 @@ class _Factory:
             attributes=attrs,
         )
         .set_value_and_default(with_default=False, var_type=PropertyType.lov_value)
-        .set_control_attributes()
+        .set_attributes(
+            [
+                ("active", PropertyType.dynamic_boolean, True),
+                ("expanded", PropertyType.boolean_or_list, True),
+                ("filter", PropertyType.boolean),
+                ("hover_text", PropertyType.dynamic_string),
+                ("height", PropertyType.string_or_number),
+                ("id",),
+                ("value_by_id", PropertyType.boolean),
+                ("multiple", PropertyType.boolean),
+                ("width", PropertyType.string_or_number),
+                ("on_change", PropertyType.function),
+                ("select_leafs_only", PropertyType.boolean),
+                ("row_height", PropertyType.string),
+                ("lov", PropertyType.lov),
+            ]
+        )
         ._set_propagate(),
     }
 
@@ -511,10 +528,6 @@ class _Factory:
                 _Factory.__LIBRARIES.update({library.get_name(): [library]})
             else:
                 fact_lib.append(library)
-
-    @staticmethod
-    def get_control_attributes(gui: "Gui", control_type: str):
-        return _Factory.__CONTROL_ATTRIBUTES(gui).get(control_type, None)
 
     @staticmethod
     def get_default_property_name(control_name: str) -> t.Optional[str]:

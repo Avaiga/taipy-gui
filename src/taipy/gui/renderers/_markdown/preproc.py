@@ -200,8 +200,7 @@ class _Preprocessor(MdPreprocessor):
             else:
                 warnings.warn(f"Bad Taipy property format at line {line_count}: '{fragment}'")
         if control_name is None:
-            attributes = _MarkdownFactory.get_control_attributes(self._gui, "text")
-            if attributes and properties and all(attribute[0] != properties[0][0] for attribute in attributes):
+            if properties and all(attribute != properties[0][0] for attribute in _MarkdownFactory._TEXT_ATTRIBUTES):
                 control_name = properties[0][0]
                 properties = properties[1:]
                 warnings.warn(f"Unrecognized control {control_name} at line {line_count}: <|{prop_string}|>")

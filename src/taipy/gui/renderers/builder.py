@@ -88,7 +88,6 @@ class _Builder:
         self.__element_name = element_name
         self.__lib_name = lib_name
         self.__attributes = attributes or {}
-        self.__factory_control_attributes = _Factory.get_control_attributes(gui, control_type)
         self.__hashes = hash_names.copy()
         self.__update_vars: t.List[str] = []
         self.__gui: Gui = gui
@@ -797,11 +796,6 @@ class _Builder:
             self.__update_vars.append(f"{_to_camel_case(name)}={hash_name}")
             self.__set_react_attribute(_to_camel_case(name), _get_client_var_name(hash_name))
         return self
-
-    def set_control_attributes(self):
-        if self.__factory_control_attributes is None:
-            return self
-        return self.set_attributes(self.__factory_control_attributes)
 
     def set_attributes(self, attributes: t.List[tuple]):  # noqa: C901
         """
