@@ -12,7 +12,6 @@
  */
 
 import { ComponentType } from "react";
-import { Route, Routes } from "react-router-dom";
 import Button from "./Button";
 import Chart from "./Chart";
 import DateSelector from "./DateSelector";
@@ -26,10 +25,8 @@ import Indicator from "./Indicator";
 import Input from "./Input";
 import Layout from "./Layout";
 import Link from "./Link";
-import MainPage from "../pages/MainPage";
 import MenuCtl from "./MenuCtl";
 import NavBar from "./NavBar";
-import NotFound404 from "../pages/NotFound404";
 import PageContent from "../pages/PageContent";
 import Pane from "./Pane";
 import Part from "./Part";
@@ -37,7 +34,6 @@ import Selector from "./Selector";
 import Slider from "./Slider";
 import StatusList from "./StatusList";
 import Table from "./Table";
-import TaipyRendered from "../pages/TaipyRendered";
 import Toggle from "./Toggle";
 import TreeView from "./TreeView";
 
@@ -98,13 +94,4 @@ export const getRegisteredComponents = () => {
         }
     }
     return registeredComponents;
-};
-
-// for JSXParser in app.tsx (cant get redirect as componentType, will need more digging)
-export const JSXReactRouterComponents: Record<string, unknown> = {
-    Routes: Routes,
-    Route: Route,
-    NotFound404: NotFound404,
-    TaipyRendered: TaipyRendered,
-    MainPage: MainPage,
 };
