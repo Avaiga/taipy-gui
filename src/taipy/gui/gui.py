@@ -1623,7 +1623,9 @@ class Gui:
     def _render_route(self) -> t.Any:
         return self._server._direct_render_json(
             {
-                "locations": {"/" if route == Gui.__root_page_name else f"/{route}": f"/{route}" for route in self._config.routes},
+                "locations": {
+                    "/" if route == Gui.__root_page_name else f"/{route}": f"/{route}" for route in self._config.routes
+                },
                 "blockUI": self._is_ui_blocked(),
             }
         )

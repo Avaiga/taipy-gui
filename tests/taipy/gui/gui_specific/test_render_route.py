@@ -31,7 +31,4 @@ def test_render_route(gui: Gui):
         assert "/page1" in response_data["locations"]
         assert "/page2" in response_data["locations"]
         assert "/" in response_data["locations"]
-        assert (
-            response_data["locations"]
-            == {"/": "/TaiPy_root_page", "/page1": "/page1", "/page2": "/page2"}
-        )
+        assert response_data["locations"] == {"/": "/TaiPy_root_page", "/page1": "/page1", "/page2": "/page2"}
