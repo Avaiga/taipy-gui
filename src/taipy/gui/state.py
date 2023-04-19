@@ -68,7 +68,14 @@ class State:
 
     __gui_attr = "_gui"
     __attrs = (__gui_attr, "_user_var_list")
-    __methods = ("assign", "_get_placeholder", "_set_placeholder", "_get_gui_attr", "_get_placeholder_attrs", "_add_attribute")
+    __methods = (
+        "assign",
+        "_get_placeholder",
+        "_set_placeholder",
+        "_get_gui_attr",
+        "_get_placeholder_attrs",
+        "_add_attribute",
+    )
     __placeholder_attrs = ("_taipy_p1",)
     __excluded_attrs = __attrs + __methods + __placeholder_attrs
 
