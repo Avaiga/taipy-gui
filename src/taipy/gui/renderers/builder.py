@@ -32,6 +32,7 @@ from ..utils import (
     _is_boolean_true,
     _MapDict,
     _to_camel_case,
+    _get_broadcast_var_name,
 )
 from ..utils.chart_config_builder import _CHART_NAMES, _build_chart_config
 from ..utils.table_col_builder import _enhance_columns, _get_name_indexed_property
@@ -847,7 +848,7 @@ class _Builder:
                 else:
                     self.__set_react_attribute(prop_name, self.__attributes.get(attr[0], _get_tuple_val(attr, 2, None)))
             elif var_type == PropertyType.broadcast:
-                self.__set_react_attribute(_to_camel_case(attr[0]), _get_tuple_val(attr, 2, None))
+                self.__set_react_attribute(_to_camel_case(attr[0]), _get_broadcast_var_name(_get_tuple_val(attr, 2, None)))
             elif var_type == PropertyType.string_or_number:
                 self.__set_string_or_number_attribute(attr[0], _get_tuple_val(attr, 2, None))
             elif var_type == PropertyType.dict:
