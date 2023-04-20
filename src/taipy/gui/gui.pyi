@@ -256,6 +256,7 @@ class Gui:
         run_browser: bool = ...,
         run_in_thread: bool = ...,
         run_server: bool = ...,
+        server_config: t.Optional[ServerConfig] = ...,
         single_client: bool = ...,
         system_notification: bool = ...,
         theme: t.Optional[t.Dict[str, t.Any]] = ...,
