@@ -1682,15 +1682,13 @@ class Gui:
                         for n, e in lib.get_elements().items()
                         if isinstance(e, Element) and not e._is_server_only()
                     ]
-        stylekit = self._get_config("stylekit", _default_stylekit)
-        if stylekit:
+        if stylekit := self._get_config("stylekit", _default_stylekit):
             config["stylekit"] = {_to_camel_case(k): v for k, v in stylekit.items()}
         return config
 
     def __get_css_vars(self) -> str:
         css_vars = []
-        stylekit = self._get_config("stylekit", _default_stylekit)
-        if stylekit:
+        if stylekit := self._get_config("stylekit", _default_stylekit):
             for k, v in stylekit.items():
                 css_vars.append(f'--{k.replace("_", "-")}:{_get_css_var_value(v)};')
         return " ".join(css_vars)
@@ -1704,6 +1702,7 @@ class Gui:
                 path_mapping=self._path_mapping,
                 flask=self._flask,
                 async_mode=app_config["async_mode"],
+                server_config=app_config["server_config"],
             )
 
         # Stop and reinitialize the server if it is still running as a thread
@@ -1715,6 +1714,7 @@ class Gui:
                 path_mapping=self._path_mapping,
                 flask=self._flask,
                 async_mode=app_config["async_mode"],
+                server_config=app_config["server_config"],
             )
             self._bindings()._new_scopes()
 
