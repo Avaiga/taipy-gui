@@ -48,6 +48,7 @@ ConfigParameter = t.Literal[
     "run_browser",
     "run_in_thread",
     "run_server",
+    "server_config",
     "single_client",
     "system_notification",
     "theme",
