@@ -91,6 +91,10 @@ from .renderers import Html, Markdown
 from .state import State
 from .utils import is_debugging
 
+from ._gui_cli import _GuiCLI
+
+_GuiCLI.create_parser()
+
 if find_spec("taipy") and find_spec("taipy.config"):
     from taipy.config import _inject_section
 
@@ -102,4 +106,5 @@ if find_spec("taipy") and find_spec("taipy.config"):
         "gui_config",
         _GuiSection(property_list=list(default_config)),
         [("configure_gui", _GuiSection._configure)],
+        add_to_unconflicted_sections=True,
     )
