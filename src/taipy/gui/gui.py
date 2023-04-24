@@ -849,7 +849,10 @@ class Gui:
                 # refresh vars
                 for _var in t.cast(list, payload.get("names")):
                     val = _getscopeattr_drill(self, _var)
-                    self._refresh_expr(val.get_name() if isinstance(val, _TaipyBase) else _var, val if isinstance(val, _TaipyBase) else None)
+                    self._refresh_expr(
+                        val.get_name() if isinstance(val, _TaipyBase) else _var,
+                        val if isinstance(val, _TaipyBase) else None,
+                    )
             self.__send_var_list_update(payload["names"])
 
     def __send_ws(self, payload: dict) -> None:

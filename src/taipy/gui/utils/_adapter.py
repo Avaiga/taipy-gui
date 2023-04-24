@@ -87,7 +87,11 @@ class _Adapter:
             else:
                 if not id_only and len(tpl_res) > 2 and isinstance(tpl_res[2], list) and len(tpl_res[2]) > 0:
                     tpl_res = (tpl_res[0], tpl_res[1], self.__on_tree(adapter, tpl_res[2]))
-                return (tpl_res + result[len(tpl_res):]) if isinstance(result, tuple) and isinstance(tpl_res, tuple) else tpl_res
+                return (
+                    (tpl_res + result[len(tpl_res) :])
+                    if isinstance(result, tuple) and isinstance(tpl_res, tuple)
+                    else tpl_res
+                )
         except Exception as e:
             warnings.warn(f"Can't run adapter for {var_name}: {e}")
         return None
