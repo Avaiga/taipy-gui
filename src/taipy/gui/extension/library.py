@@ -89,6 +89,7 @@ class Element:
         self,
         default_property: str,
         properties: t.Dict[str, ElementProperty],
+        inner_properties: t.Optional[t.Dict[str, ElementProperty]] = None,
         react_component: t.Optional[str] = None,
         render_xhtml: t.Optional[t.Callable[[t.Dict[str, t.Any]], str]] = None,
     ) -> None:
@@ -100,6 +101,8 @@ class Element:
         Arguments:
             default_property (str): the name of the default property for this element.
             properties (List[ElementProperty]): The list of properties for this element.
+            inner_properties (Optional[List[ElementProperty]]): The optional list of inner properties for this element.<br/>
+                Default values are set/binded automatically.
             react_component (Optional[str]): The name of the component to be created on the front-end.<br/>
                 If not specified, it is set to a camel case version of the element's name
                 ("one_name" is transformed to "OneName").
@@ -109,6 +112,7 @@ class Element:
         """
         self.default_attribute = default_property
         self.attributes = properties
+        self.inner_properties = inner_properties
         self.js_name = react_component
         if callable(render_xhtml):
             self._render_xhtml = render_xhtml
@@ -144,15 +148,9 @@ class Element:
         is_html: t.Optional[bool] = False,
     ) -> t.Union[t.Any, t.Tuple[str, str]]:
         attributes = properties if isinstance(properties, dict) else {}
-        for prop, attr in self.attributes.items():
-            if (
-                prop not in attributes
-                and (attr.property_type == PropertyType.react or attr.property_type == PropertyType.function)
-                and isinstance(attr.default_value, str)
-                and len(attr.default_value) > 2
-                and attr.default_value[0] == "{"
-                and attr.default_value[-1] == "}"
-            ):
+        if self.inner_properties:
+            self.attributes.update(self.inner_properties)
+            for prop, attr in self.inner_properties.items():
                 attributes[prop] = attr.default_value
         # this modifies attributes
         hash_names = _Builder._get_variable_hash_names(gui, attributes)  # variable replacement

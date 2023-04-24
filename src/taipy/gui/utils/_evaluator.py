@@ -217,7 +217,7 @@ class _Evaluator:
         # save the expression if it needs to be re-evaluated
         return self.__save_expression(gui, expr, expr_hash, expr_evaluated, var_map)
 
-    def refresh_expr(self, gui: Gui, var_name: str):
+    def refresh_expr(self, gui: Gui, var_name: str, holder: t.Optional[_TaipyBase]):
         """
         This function will execute when the __request_var_update function receive a refresh order
         """
@@ -236,6 +236,8 @@ class _Evaluator:
                 ctx.update(eval_dict)
                 expr_evaluated = eval(expr_string, ctx)
                 _setscopeattr(gui, var_name, expr_evaluated)
+                if holder is not None:
+                    holder.set(expr_evaluated)
             except Exception as e:
                 warnings.warn(f"Problem evaluating {expr_string}: {e}")
 
