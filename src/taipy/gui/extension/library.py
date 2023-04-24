@@ -89,9 +89,9 @@ class Element:
         self,
         default_property: str,
         properties: t.Dict[str, ElementProperty],
-        inner_properties: t.Optional[t.Dict[str, ElementProperty]] = None,
         react_component: t.Optional[str] = None,
         render_xhtml: t.Optional[t.Callable[[t.Dict[str, t.Any]], str]] = None,
+        inner_properties: t.Optional[t.Dict[str, ElementProperty]] = None,
     ) -> None:
         """Initializes a new custom element declaration.
 
