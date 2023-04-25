@@ -1636,10 +1636,12 @@ class Gui:
             return ("No page template", 404)
 
     def _render_route(self) -> t.Any:
+        client_url_prefix = self._config._get_config("client_url_prefix", "/")
         return self._server._direct_render_json(
             {
                 "locations": {
-                    "/" if route == Gui.__root_page_name else f"/{route}": f"/{route}" for route in self._config.routes
+                    client_url_prefix if route == Gui.__root_page_name else f"{client_url_prefix}{route}": f"/{route}"
+                    for route in self._config.routes
                 },
                 "blockUI": self._is_ui_blocked(),
             }
@@ -1782,7 +1784,7 @@ class Gui:
             for s in (lib.get_styles() or [])
         ]
         if self._get_config("stylekit", True):
-            styles.append("/stylekit/stylekit.css")
+            styles.append("stylekit/stylekit.css")
         else:
             styles.append("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap")
         if self.__css_file:
@@ -1808,7 +1810,7 @@ class Gui:
                 static_folder=_webapp_path,
                 template_folder=_webapp_path,
                 title=self._get_config("title", "Taipy App"),
-                favicon=self._get_config("favicon", "/favicon.png"),
+                favicon=self._get_config("favicon", "favicon.png"),
                 root_margin=self._get_config("margin", None),
                 scripts=scripts,
                 styles=styles,
@@ -1816,6 +1818,7 @@ class Gui:
                 client_config=self.__get_client_config(),
                 watermark=self._get_config("watermark", None),
                 css_vars=self.__get_css_vars(),
+                client_url_prefix=self._get_config("client_url_prefix", "/"),
             )
         )
 

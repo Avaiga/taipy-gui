@@ -18,6 +18,7 @@ import { useClassNames, useDynamicProperty } from "../../utils/hooks";
 import TaipyRendered from "../pages/TaipyRendered";
 import { TaipyBaseProps } from "./utils";
 import { TaipyContext } from "../../context/taipyContext";
+import { getBaseURL } from "../../utils";
 
 interface PartProps extends TaipyBaseProps {
     render?: boolean;
@@ -41,7 +42,7 @@ const Part = (props: PartProps) => {
             if (/^https?\:\/\//.test(page)) {
                 return true;
             }
-            const sPage = "/" + page;
+            const sPage = getBaseURL() + page;
             return !Object.keys(state.locations || {}).some((route) => sPage === route);
         }
         return false;

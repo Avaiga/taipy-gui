@@ -23,6 +23,7 @@ import { getRegisteredComponents } from "../Taipy";
 import { unregisteredRender, renderError } from "../Taipy/Unregistered";
 import { createPartialAction } from "../../context/taipyReducers";
 import ErrorFallback from "../../utils/ErrorBoundary";
+import { getBaseURL } from "../../utils";
 
 interface TaipyRenderedProps {
     path?: string;
@@ -82,7 +83,7 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
             dispatch(createPartialAction(path.slice(1), false));
         } else {
             axios
-                .get<AxiosRenderer>(`/taipy-jsx${path}`, {
+                .get<AxiosRenderer>(`taipy-jsx${path}`, {
                     params: { client_id: state.id || "", v: window.taipyVersion },
                 })
                 .then((result) => {
@@ -99,7 +100,7 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
                     setPageState({
                         jsx: `<h1>${
                             error.response?.data ||
-                            `No data fetched from backend from ${path === "/TaiPy_root_page" ? "/" : path}`
+                            `No data fetched from backend from ${path === "/TaiPy_root_page" ? getBaseURL() : path}`
                         }</h1><br></br>${error}`,
                     })
                 );

@@ -15,6 +15,7 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TaipyContext } from "../../context/taipyContext";
 import { createNavigateAction } from "../../context/taipyReducers";
+import { getBaseURL } from "../../utils";
 
 interface NavigateProps {
     to?: string;
@@ -27,7 +28,7 @@ const Navigate = ({ to, tab }: NavigateProps) => {
 
     useEffect(() => {
         if (to) {
-            const tos = "/" + to;
+            const tos = getBaseURL() + to;
             if (Object.keys(state.locations || {}).some((route) => tos === route)) {
                 navigate(tos);
             } else {

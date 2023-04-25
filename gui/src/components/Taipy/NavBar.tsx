@@ -29,6 +29,7 @@ import { LovProps, useLovListMemo, LovImage } from "./lovUtils";
 import { useClassNames, useDynamicProperty, useIsMobile } from "../../utils/hooks";
 import { TaipyContext } from "../../context/taipyContext";
 import { LovItem } from "../../utils/lov";
+import { getBaseURL } from "../../utils";
 
 const boxSx = { borderBottom: 1, borderColor: "divider", width: "fit-content" };
 
@@ -47,7 +48,7 @@ const NavBar = (props: LovProps) => {
     const lov = useMemo(() => {
         if (!lovList.length) {
             return Object.keys(state.locations || {})
-                .filter((key) => key !== "/")
+                .filter((key) => key !== getBaseURL())
                 .map((key) => ({ id: key, item: state.locations[key].substring(1) } as LovItem));
         }
         return lovList;

@@ -32,6 +32,7 @@ ConfigParameter = t.Literal[
     "async_mode",
     "change_delay",
     "chart_dark_template",
+    "client_url_prefix",
     "dark_mode",
     "dark_theme",
     "data_url_max_size",
@@ -89,6 +90,7 @@ Config = t.TypedDict(
         "async_mode": str,
         "change_delay": t.Optional[int],
         "chart_dark_template": t.Optional[t.Dict[str, t.Any]],
+        "client_url_prefix": t.Optional[str],
         "dark_mode": bool,
         "dark_theme": t.Optional[t.Dict[str, t.Any]],
         "data_url_max_size": t.Optional[int],
@@ -276,6 +278,7 @@ class _Config(object):
             )
 
         self._resolve_stylekit()
+        self._resolve_url_prefix()
 
     def _resolve_stylekit(self):
         app_config = self.config
@@ -292,3 +295,13 @@ class _Config(object):
             ):
                 app_config["stylekit"]["root_margin"] = str(app_config["margin"])
             app_config["margin"] = None
+
+    def _resolve_url_prefix(self):
+        app_config = self.config
+        client_url_prefix = app_config.get("client_url_prefix")
+        if client_url_prefix is not None:
+            app_config[
+                "client_url_prefix"
+            ] = f"{'' if client_url_prefix.startswith('/') else '/'}{client_url_prefix}{'' if client_url_prefix.endswith('/') else '/'}"
+
+        print(app_config["client_url_prefix"])
