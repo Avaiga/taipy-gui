@@ -149,7 +149,8 @@ class _Evaluator:
         expr = expr.split(".")[0]
         self.__expr_to_var_map[holder_expr] = {expr: expr}
         if a_list := self.__var_to_expr_list.get(expr):
-            a_list.append(holder_expr)
+            if holder_expr not in a_list:
+                a_list.append(holder_expr)
         else:
             self.__var_to_expr_list[expr] = [holder_expr]
         return hash_name
