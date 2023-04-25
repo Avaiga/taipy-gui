@@ -59,7 +59,7 @@ class _Server:
         server_config = server_config or {}
         self._flask = flask
         if self._flask is None:
-            flask_config = {"import_name": "Taipy"}
+            flask_config: t.Dict[str, t.Any] = {"import_name": "Taipy"}
             if "flask" in server_config and isinstance(server_config["flask"], dict):
                 flask_config.update(server_config["flask"])
             self._flask = Flask(**flask_config)
@@ -76,7 +76,7 @@ class _Server:
             CORS(self._flask, **cors_config)
 
         # setup socketio
-        socketio_config = {
+        socketio_config: t.Dict[str, t.Any] = {
             "cors_allowed_origins": "*",
             "ping_timeout": 10,
             "ping_interval": 5,
