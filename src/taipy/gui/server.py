@@ -57,7 +57,12 @@ class _Server:
     ):
         self._gui = gui
         server_config = server_config or {}
-        self._flask = Flask("Taipy") if flask is None else flask
+        self._flask = flask
+        if self._flask is None:
+            flask_config = {"import_name": "Taipy"}
+            if "flask" in server_config and isinstance(server_config["flask"], dict):
+                flask_config.update(server_config["flask"])
+            self._flask = Flask(**flask_config)
         if "SECRET_KEY" not in self._flask.config or not self._flask.config["SECRET_KEY"]:
             self._flask.config["SECRET_KEY"] = "TaIpY"
 

@@ -89,6 +89,7 @@ ServerConfig = t.TypedDict(
         "cors": t.Optional[t.Union[bool, t.Dict[str, t.Any]]],
         "socketio": t.Optional[t.Dict[str, t.Any]],
         "ssl_context": t.Optional[t.Union[str, t.Tuple[str, str]]],
+        "flask": t.Optional[t.Dict[str, t.Any]],
     },
     total=False,
 )
