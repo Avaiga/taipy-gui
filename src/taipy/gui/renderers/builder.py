@@ -869,6 +869,14 @@ class _Builder:
                 self._set_lov(attr[0])
             elif var_type == PropertyType.lov_value:
                 self.__set_dynamic_property_without_default(attr[0], var_type)
+            elif isclass(var_type) and issubclass(var_type, _TaipyBase):
+                if hash_name := self.__hashes.get(attr[0]):
+                    prop_name = _to_camel_case(attr[0])
+                    expr = self.__gui._get_expr_from_hash(hash_name)
+                    hash_name = self.__gui._evaluate_bind_holder(var_type, expr)
+                    self.__update_vars.append(f"{prop_name}={hash_name}")
+                    self.__set_react_attribute(prop_name, hash_name)
+
             self.__set_refresh_on_update()
         return self
 

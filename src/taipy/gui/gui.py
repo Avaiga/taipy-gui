@@ -41,7 +41,7 @@ if util.find_spec("pyngrok"):
 
 from ._default_config import _default_stylekit, default_config
 from ._page import _Page
-from .config import Config, ConfigParameter, Stylekit, _Config
+from .config import Config, ConfigParameter, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
@@ -88,7 +88,6 @@ from .utils._evaluator import _Evaluator
 from .utils._variable_directory import _MODULE_ID, _VariableDirectory
 from .utils.chart_config_builder import _build_chart_config
 from .utils.table_col_builder import _enhance_columns
-from .utils.types import _HOLDER_PREFIX, _HOLDER_PREFIXES
 
 
 class _DoNotUpdate:
@@ -547,8 +546,8 @@ class Gui:
         if not var_name:
             return (var_name, var_name)
         # Handle holder prefix if needed
-        if var_name.startswith(_HOLDER_PREFIX):
-            for hp in _HOLDER_PREFIXES:
+        if var_name.startswith(_TaipyBase._HOLDER_PREFIX):
+            for hp in _TaipyBase._get_holder_prefixes():
                 if var_name.startswith(hp):
                     var_name = var_name[len(hp) :]
                     break
