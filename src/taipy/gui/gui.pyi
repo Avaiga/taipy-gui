@@ -240,6 +240,7 @@ class Gui:
         async_mode: str = ...,
         change_delay: t.Optional[int] = ...,
         chart_dark_template: t.Optional[t.Dict[str, t.Any]] = ...,
+        client_url_prefix: t.Optional[str] = ...,
         dark_mode: bool = ...,
         dark_theme: t.Optional[t.Dict[str, t.Any]] = ...,
         data_url_max_size: t.Optional[int] = ...,
