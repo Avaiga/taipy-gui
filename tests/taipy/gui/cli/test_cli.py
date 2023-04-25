@@ -13,8 +13,15 @@ import os
 import tempfile
 from unittest.mock import patch
 
+import pytest
+
 from src.taipy.gui import Gui
 from taipy.config import Config
+from taipy.config._config import _Config
+from taipy.config._serializer._toml_serializer import _TomlSerializer
+from taipy.config.checker._checker import _Checker
+from taipy.config.checker._checkers._gLobal_config_checker import _GlobalConfigChecker
+from taipy.config.checker.issue_collector import IssueCollector
 
 
 class NamedTemporaryFile:
@@ -30,6 +37,31 @@ class NamedTemporaryFile:
 
     def __del__(self):
         os.unlink(self.filename)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def init_config():
+    Config.unblock_update()
+    Config._default_config = _Config()._default_config()
+    Config._python_config = _Config()
+    Config._file_config = None
+    Config._env_file_config = None
+    Config._applied_config = _Config._default_config()
+    Config._collector = IssueCollector()
+    Config._serializer = _TomlSerializer()
+    _Checker._checkers = [_GlobalConfigChecker]
+
+    from src.taipy.gui._default_config import default_config
+    from src.taipy.gui._gui_section import _GuiSection
+    from taipy.config import _inject_section
+
+    _inject_section(
+        _GuiSection,
+        "gui_config",
+        _GuiSection(property_list=list(default_config)),
+        [("configure_gui", _GuiSection._configure)],
+        add_to_unconflicted_sections=True,
+    )
 
 
 def test_gui_service_arguments_hierarchy():
