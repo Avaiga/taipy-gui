@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from argparse import Namespace, ArgumentError
-from taipy.config._cli._argparser import _Argparser
+from taipy.config._cli._cli import _CLI
 
 
 class _GuiCLI:
@@ -28,7 +28,7 @@ class _GuiCLI:
 
     @classmethod
     def create_parser(cls):
-        gui_parser = _Argparser._add_subparser("taipy", help="Run application with Taipy arguments.")
+        gui_parser = _CLI._add_subparser("taipy", help="Run application with Taipy arguments.")
 
         gui_parser.add_argument("-P", "--port", nargs="?", default="", const="", help="Specify server port")
         gui_parser.add_argument("-H", "--host", nargs="?", default="", const="", help="Specify server host")
@@ -53,7 +53,7 @@ class _GuiCLI:
     @classmethod
     def parse_arguments(cls):
         try:
-            args = _Argparser._parse()
+            args = _CLI._parse()
         except ArgumentError:
             return cls.default()
 
