@@ -81,6 +81,7 @@ from .utils import (
     _TaipyLovValue,
     _to_camel_case,
     _variable_decode,
+    is_debugging,
 )
 from .utils._adapter import _Adapter
 from .utils._bindings import _Bindings
@@ -806,12 +807,20 @@ class Gui:
                         newvalue = self.__adapter._run_for_var(newvalue.get_name(), newvalue.get(), id_only=True)
                 if isinstance(newvalue, (dict, _MapDict)):
                     continue  # this var has no transformer
-                with warnings.catch_warnings(record=True) as w:
+                with warnings.catch_warnings(record=True) as warns:
                     warnings.resetwarnings()
                     json.dumps(newvalue, cls=_TaipyJsonEncoder)
-                    if len(w):
-                        # do not send data that is not serializable
-                        continue
+                    if len(warns):
+                        keep_value = True
+                        for w in list(warns):
+                            if is_debugging():
+                                warnings.warn(w.message, w.category)
+                            if w.category is not DeprecationWarning and w.category is not PendingDeprecationWarning:
+                                keep_value = False
+                                break
+                        if not keep_value:
+                            # do not send data that is not serializable
+                            continue
             ws_dict[_var] = newvalue
         # TODO: What if value == newvalue?
         self.__send_ws_update_with_dict(ws_dict)
