@@ -159,7 +159,7 @@ class _Config(object):
                 try:
                     return type(default_value)(self.config[name])
                 except Exception as e:
-                    _warn(f'app_config "{name}" value "{self.config[name]}" is not of type {type(default_value)}\n{e}')
+                    _warn(f'app_config "{name}" value "{self.config[name]}" is not of type {type(default_value)}:\n{e}')
                     return default_value
             return self.config[name]
         return default_value
@@ -226,7 +226,7 @@ class _Config(object):
                         config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                 except Exception as e:
                     _warn(
-                        f"Invalid keyword arguments value in Gui.run {key} - {value}. Unable to parse value to the correct type.\n{e}"
+                        f"Invalid keyword arguments value in Gui.run {key} - {value}. Unable to parse value to the correct type:\n{e}"
                     )
         # Load config from env file
         if os.path.isfile(env_file_abs_path):
@@ -237,7 +237,7 @@ class _Config(object):
                         config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                     except Exception as e:
                         _warn(
-                            f"Invalid env value in Gui.run(): {key} - {value}. Unable to parse value to the correct type.\n{e}"
+                            f"Invalid env value in Gui.run(): {key} - {value}. Unable to parse value to the correct type:\n{e}"
                         )
 
         # Load from system arguments
