@@ -316,5 +316,3 @@ class _Config(object):
             app_config[
                 "base_url"
             ] = f"{'' if base_url.startswith('/') else '/'}{base_url}{'' if base_url.endswith('/') else '/'}"
-
-        print(app_config["base_url"])
