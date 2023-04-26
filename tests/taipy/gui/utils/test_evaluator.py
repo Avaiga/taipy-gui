@@ -27,7 +27,8 @@ def test_unbind_variable_in_expression(gui: Gui, helpers):
             assert len(warns) == 3
             assert "Variable 'x' is not available in" in str(warns[0].message)
             assert "Variable 'x' is not defined" in str(warns[1].message)
-            assert "Cannot evaluate expression 'x': name 'x' is not defined" in str(warns[2].message)
+            assert "Cannot evaluate expression 'x'" in str(warns[2].message)
+            assert "name 'x' is not defined" in str(warns[2].message)
 
 
 def test_evaluate_same_expression_multiple_times(gui: Gui):
