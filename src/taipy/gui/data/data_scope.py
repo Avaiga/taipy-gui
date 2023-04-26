@@ -12,8 +12,9 @@
 from __future__ import annotations
 
 import typing as t
-import warnings
 from types import SimpleNamespace
+
+from .._warnings import warnings_warn
 
 
 class _DataScopes:
@@ -34,10 +35,10 @@ class _DataScopes:
             return self.__scopes[_DataScopes._GLOBAL_ID]
         # global context in case request is not registered or client_id is not available (such as in the context of running tests)
         if not client_id:
-            warnings.warn("Empty session id, using global scope instead")
+            warnings_warn("Empty session id, using global scope instead")
             return self.__scopes[_DataScopes._GLOBAL_ID]
         if client_id not in self.__scopes:
-            warnings.warn(
+            warnings_warn(
                 f"session id {client_id} not found in data scope. Taipy will automatically create a scope for this session id but you might have to reload your webpage"
             )
             self.create_scope(client_id)
@@ -58,7 +59,7 @@ class _DataScopes:
         if self.__single_client:
             return
         if id is None:
-            warnings.warn("Empty session id, might be due to unestablished WebSocket connection")
+            warnings_warn("Empty session id, might be due to unestablished WebSocket connection")
             return
         if id not in self.__scopes:
             self.__scopes[id] = SimpleNamespace()
@@ -67,7 +68,7 @@ class _DataScopes:
         if self.__single_client:
             return
         if id is None:
-            warnings.warn("Empty session id, might be due to unestablished WebSocket connection")
+            warnings_warn("Empty session id, might be due to unestablished WebSocket connection")
             return
         if id in self.__scopes:
             del self.__scopes[id]

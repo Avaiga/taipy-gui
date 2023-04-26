@@ -11,9 +11,9 @@
 
 import re
 import typing as t
-import warnings
 from html.parser import HTMLParser
 
+from ..._warnings import warnings_warn
 from .factory import _HtmlFactory
 
 
@@ -67,11 +67,11 @@ class _TaipyHTMLParser(HTMLParser):
     # @override
     def handle_endtag(self, tag) -> None:
         if not self._tag_queue:
-            warnings.warn(f"Closing '{tag}' at line {self._line_count} is missing an opening tag")
+            warnings_warn(f"Closing '{tag}' at line {self._line_count} is missing an opening tag")
         else:
             opening_tag, opening_tag_line = self._tag_queue.pop()
             if opening_tag != tag:
-                warnings.warn(
+                warnings_warn(
                     f"Opening tag '{opening_tag}' at line {opening_tag_line} has no matching closing tag '{tag}' at line {self._line_count}"
                 )
         if tag in ["head", "body", "html"]:
@@ -106,7 +106,7 @@ class _TaipyHTMLParser(HTMLParser):
             self.feed(data_line)
         while self._tag_queue:
             opening_tag, opening_tag_line = self._tag_queue.pop()
-            warnings.warn(f"Opening tag '{opening_tag}' at line {opening_tag_line} has no matching closing tag")
+            warnings_warn(f"Opening tag '{opening_tag}' at line {opening_tag_line} has no matching closing tag")
 
 
 class _TaipyTag(object):

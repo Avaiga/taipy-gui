@@ -10,10 +10,10 @@
 # specific language governing permissions and limitations under the License.
 
 import typing as t
-import warnings
 from abc import ABC
 from datetime import datetime
 
+from .._warnings import warnings_warn
 from . import _date_to_ISO, _ISO_to_date, _variable_decode
 
 
@@ -87,7 +87,7 @@ class _TaipyNumber(_TaipyBase):
             try:
                 return float(value) if value else 0.0
             except Exception as e:
-                warnings.warn(f"{self._get_readable_name()}: Parsing {value} as float: {e}")
+                warnings_warn(f"{self._get_readable_name()}: Parsing {value} as float: {e}")
                 return 0.0
         return super().cast_value(value)
 
