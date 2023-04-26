@@ -16,7 +16,7 @@ from pathlib import Path
 
 from flask.json.provider import DefaultJSONProvider
 
-from .._warnings import warnings_warn
+from .._warnings import _warn
 from ..icon import Icon
 from ..utils import _date_to_ISO, _MapDict, _TaipyBase
 
@@ -35,7 +35,7 @@ def _default(o):
     try:
         raise TypeError(f"Object of type {o.__class__.__name__} is not JSON serializable")
     except Exception as e:
-        warnings_warn(f"JSONEncoder has thrown {e}")
+        _warn(f"Exception in JSONEncoder:\n{e}")
         return None
 
 

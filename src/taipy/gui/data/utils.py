@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from .._warnings import warnings_warn
+from .._warnings import _warn
 
 if t.TYPE_CHECKING:
     import pandas as pd
@@ -50,7 +50,7 @@ class Decimator(ABC):
 
     def _is_applicable(self, data: t.Any, nb_rows_max: int, chart_mode: str):
         if chart_mode not in self._CHART_MODES:
-            warnings_warn(f"{type(self).__name__} is only applicable for {' '.join(self._CHART_MODES)}")
+            _warn(f"{type(self).__name__} is only applicable for {' '.join(self._CHART_MODES)}.")
             return False
         if self.threshold is None:
             if nb_rows_max < len(data):

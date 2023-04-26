@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import typing as t
 
-from .._warnings import warnings_warn
+from .._warnings import _warn
 from ..icon import Icon
 from . import _MapDict
 
@@ -65,7 +65,7 @@ class _Adapter:
                 if children is not None:
                     dict_res.update(self._get_elt_per_ids(var_name, children))
             except Exception as e:
-                warnings_warn(f"Can't run adapter for {var_name}: {e}")
+                _warn(f"Cannot run adapter for {var_name}:\n{e}")
         return dict_res
 
     def _run(
@@ -81,7 +81,7 @@ class _Adapter:
                 return result
             tpl_res = self._get_valid_result(result, id_only)
             if tpl_res is None:
-                warnings_warn(
+                _warn(
                     f"Adapter for {var_name} did not return a valid result. Please check the documentation on List of Values Adapters."
                 )
             else:
@@ -93,7 +93,7 @@ class _Adapter:
                     else tpl_res
                 )
         except Exception as e:
-            warnings_warn(f"Can't run adapter for {var_name}: {e}")
+            _warn(f"Cannot run adapter for {var_name}:\n{e}")
         return None
 
     def __on_tree(self, adapter: t.Optional[t.Callable], tree: t.List[t.Any]):
@@ -125,7 +125,7 @@ class _Adapter:
             elif hasattr(value, "__getitem__") and "id" in value:
                 return self.__get_id(value.get("id"), False)
         if value is not None and type(value).__name__ not in self.__warning_by_type:
-            warnings_warn(f"LoV id must be a string, using a string representation of {type(value)}")
+            _warn(f"LoV id must be a string, using a string representation of {type(value)}.")
             self.__warning_by_type.add(type(value).__name__)
         return "" if value is None else str(value)
 

@@ -13,7 +13,7 @@ import typing as t
 from abc import ABC
 from datetime import datetime
 
-from .._warnings import warnings_warn
+from .._warnings import _warn
 from . import _date_to_ISO, _ISO_to_date, _variable_decode
 
 
@@ -87,7 +87,7 @@ class _TaipyNumber(_TaipyBase):
             try:
                 return float(value) if value else 0.0
             except Exception as e:
-                warnings_warn(f"{self._get_readable_name()}: Parsing {value} as float: {e}")
+                _warn(f"{self._get_readable_name()}: Parsing {value} as float:\n{e}")
                 return 0.0
         return super().cast_value(value)
 

@@ -15,7 +15,7 @@ import xml.etree.ElementTree as etree
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from .._warnings import warnings_warn
+from .._warnings import _warn
 from ..renderers.builder import _Builder
 from ..types import PropertyType
 from ..utils import _get_broadcast_var_name, _to_camel_case
@@ -55,7 +55,7 @@ class ElementProperty:
             if isinstance(default_value, str):
                 self.default_value = _get_broadcast_var_name(default_value)
             else:
-                warnings_warn("Element property with type 'broadcast' must define a string default value")
+                _warn("Element property with type 'broadcast' must define a string default value.")
             self.property_type = PropertyType.react
         else:
             self.property_type = property_type
@@ -64,11 +64,9 @@ class ElementProperty:
 
     def check(self, element_name: str, prop_name: str):
         if not isinstance(prop_name, str) or not prop_name or not prop_name.isidentifier():
-            warnings_warn(f"Property name '{prop_name}' is invalid for element '{element_name}'.")
+            _warn(f"Property name '{prop_name}' is invalid for element '{element_name}'.")
         if not isinstance(self.property_type, PropertyType):
-            warnings_warn(
-                f"Property type '{self.property_type}' is invalid for element property '{element_name}.{prop_name}'."
-            )
+            _warn(f"Property type '{self.property_type}' is invalid for element property '{element_name}.{prop_name}'.")
 
     def _get_tuple(self, name: str) -> tuple:
         return (name, self.property_type, self.default_value)
@@ -123,7 +121,7 @@ class Element:
 
     def check(self, name: str):
         if not isinstance(name, str) or not name or not name.isidentifier():
-            warnings_warn(f"Invalid element name: '{name}'.")
+            _warn(f"Invalid element name: '{name}'.")
         default_found = False
         if self.attributes:
             for prop_name, property in self.attributes.items():
@@ -132,9 +130,9 @@ class Element:
                     if not default_found:
                         default_found = self.default_attribute == prop_name
                 else:
-                    warnings_warn(f"Property must inherit from 'ElementProperty' '{name}.{prop_name}'.")
+                    _warn(f"Property must inherit from 'ElementProperty' '{name}.{prop_name}'.")
         if not default_found:
-            warnings_warn(f"Element {name} has no default property.")
+            _warn(f"Element {name} has no default property.")
 
     def _is_server_only(self):
         return hasattr(self, "_render_xhtml") and callable(self._render_xhtml)
@@ -165,7 +163,7 @@ class Element:
                     return xml_root
 
             except Exception as e:
-                warnings_warn(f"{name}.render_xhtml() did not return a valid XHTML string.\n{e}")
+                _warn(f"{name}.render_xhtml() did not return a valid XHTML string:\n{e}")
                 return f"{name}.render_xhtml() did not return a valid XHTML string. {e}"
         else:
             default_attr: t.Optional[ElementProperty] = None

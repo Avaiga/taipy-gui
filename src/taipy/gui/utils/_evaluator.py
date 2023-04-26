@@ -16,7 +16,7 @@ import builtins
 import re
 import typing as t
 
-from .._warnings import warnings_warn
+from .._warnings import _warn
 
 if t.TYPE_CHECKING:
     from ..gui import Gui
@@ -101,7 +101,7 @@ class _Evaluator:
                             var_val[var_name] = _getscopeattr_drill(gui, encoded_var_name)
                             var_map[var_name] = encoded_var_name
                         except AttributeError as e:
-                            warnings_warn(f"Variable '{var_name}' is not defined (in expression '{expr}'): {e}")
+                            _warn(f"Variable '{var_name}' is not defined (in expression '{expr}'):\n{e}")
         return var_val, var_map
 
     def __save_expression(
@@ -181,7 +181,7 @@ class _Evaluator:
                 holder_value.set(expr_value)
             return holder_value
         except Exception as e:
-            warnings_warn(f"Cannot evaluate expression {holder.__name__}({expr_hash},'{expr_hash}') for {expr}: {e}")
+            _warn(f"Cannot evaluate expression {holder.__name__}({expr_hash},'{expr_hash}') for {expr}:\n{e}")
         return None
 
     def evaluate_expr(self, gui: Gui, expr: str) -> t.Any:
@@ -213,7 +213,7 @@ class _Evaluator:
             ctx.update(var_val)
             expr_evaluated = eval(not_encoded_expr if is_edge_case else expr_string, ctx)
         except Exception as e:
-            warnings_warn(f"Cannot evaluate expression '{not_encoded_expr if is_edge_case else expr_string}': {e}")
+            _warn(f"Cannot evaluate expression '{not_encoded_expr if is_edge_case else expr_string}':\n{e}")
             expr_evaluated = None
         # save the expression if it needs to be re-evaluated
         return self.__save_expression(gui, expr, expr_hash, expr_evaluated, var_map)
@@ -240,7 +240,7 @@ class _Evaluator:
                 if holder is not None:
                     holder.set(expr_evaluated)
             except Exception as e:
-                warnings_warn(f"Problem evaluating {expr_string}: {e}")
+                _warn(f"Exception raised evaluating {expr_string}:\n{e}")
 
     def re_evaluate_expr(self, gui: Gui, var_name: str) -> t.Set[str]:
         """
@@ -284,7 +284,7 @@ class _Evaluator:
             var_name = var_name[: var_name.index(".")]
         # otherwise, thar var_name is correct and doesn't require any resolution
         if var_name not in self.__var_to_expr_list:
-            # warnings_warn("{var_name} not found")
+            # _warn("{var_name} not found.")
             return modified_vars
         # refresh expressions and holders
         for expr in self.__var_to_expr_list[var_name]:
@@ -293,7 +293,7 @@ class _Evaluator:
             if expr != var_name and not expr.startswith(_TaipyBase._HOLDER_PREFIX):
                 expr_var_map = self.__expr_to_var_map.get(expr)  # ["x", "y"]
                 if expr_var_map is None:
-                    warnings_warn(f"Something is amiss with expression list for {expr}")
+                    _warn(f"Something is amiss with expression list for {expr}.")
                 else:
                     eval_dict = {k: _getscopeattr_drill(gui, gui._bind_var(v)) for k, v in expr_var_map.items()}
                     if self._is_expression(expr_decoded):
@@ -307,7 +307,7 @@ class _Evaluator:
                         expr_evaluated = eval(expr_string, ctx)
                         _setscopeattr(gui, hash_expr, expr_evaluated)
                     except Exception as e:
-                        warnings_warn(f"Problem evaluating {expr_string}: {e}")
+                        _warn(f"Exception raised evaluating {expr_string}:\n{e}")
             # refresh holders if any
             for h in self.__expr_to_holders.get(expr, []):
                 holder_hash = self.__get_holder_hash(h, self.get_hash_from_expr(expr))

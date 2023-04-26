@@ -23,7 +23,7 @@ from taipy.logger._taipy_logger import _TaipyLogger
 
 from ._gui_cli import _GuiCLI
 from ._page import _Page
-from ._warnings import warnings_warn
+from ._warnings import _warn
 from .partial import Partial
 from .utils import _is_in_notebook
 
@@ -159,9 +159,7 @@ class _Config(object):
                 try:
                     return type(default_value)(self.config[name])
                 except Exception as e:
-                    warnings_warn(
-                        f'app_config "{name}" value "{self.config[name]}" is not of type {type(default_value)}\n{e}'
-                    )
+                    _warn(f'app_config "{name}" value "{self.config[name]}" is not of type {type(default_value)}\n{e}')
                     return default_value
             return self.config[name]
         return default_value
@@ -188,7 +186,7 @@ class _Config(object):
         config = self.config
         if args.port:
             if not _Config.__RE_PORT_NUMBER.match(args.port):
-                warnings_warn("Port value for --port option is not valid")
+                _warn("Port value for --port option is not valid.")
             else:
                 config["port"] = int(args.port)
         if args.host:
@@ -227,7 +225,7 @@ class _Config(object):
                     else:
                         config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                 except Exception as e:
-                    warnings_warn(
+                    _warn(
                         f"Invalid keyword arguments value in Gui.run {key} - {value}. Unable to parse value to the correct type.\n{e}"
                     )
         # Load config from env file
@@ -238,8 +236,8 @@ class _Config(object):
                     try:
                         config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                     except Exception as e:
-                        warnings_warn(
-                            f"Invalid env value in Gui.run: {key} - {value}. Unable to parse value to the correct type.\n{e}"
+                        _warn(
+                            f"Invalid env value in Gui.run(): {key} - {value}. Unable to parse value to the correct type.\n{e}"
                         )
 
         # Load from system arguments
@@ -253,7 +251,7 @@ class _Config(object):
                 section = TaipyConfig.unique_sections["gui"]
                 self.config.update(section._to_dict())
             except KeyError:
-                warnings_warn("taipy-config section for taipy-gui is not initialized")
+                _warn("taipy-config section for taipy-gui is not initialized.")
 
     def __log_outside_reloader(self, logger, msg):
         if not is_running_from_reloader():

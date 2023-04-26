@@ -5,5 +5,5 @@ class TaipyGuiWarning(UserWarning):
     pass
 
 
-def warnings_warn(message: str):
+def _warn(message: str):
     warnings.warn(message, TaipyGuiWarning, stacklevel=2)

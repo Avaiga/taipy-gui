@@ -14,7 +14,7 @@ from __future__ import annotations
 import typing as t
 
 from ._page import _Page
-from ._warnings import warnings_warn
+from ._warnings import _warn
 from .state import State
 
 
@@ -60,7 +60,7 @@ class Partial(_Page):
         if state and state._gui and callable(state._gui._update_partial):
             state._gui._update_partial(self.__copy(content))
         else:
-            warnings_warn("'Partial.update_content()' must be called in the context of a callback")
+            _warn("'Partial.update_content()' must be called in the context of a callback.")
 
     def __copy(self, content: str) -> Partial:
         new_partial = Partial(self._route)
