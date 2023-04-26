@@ -124,10 +124,10 @@ class _Adapter:
                 return self.__get_id(value.id, False)
             elif hasattr(value, "__getitem__") and "id" in value:
                 return self.__get_id(value.get("id"), False)
-        if type(value).__name__ not in self.__warning_by_type:
+        if value is not None and type(value).__name__ not in self.__warning_by_type:
             warnings.warn(f"LoV id must be a string, using a string representation of {type(value)}")
             self.__warning_by_type.add(type(value).__name__)
-        return str(value)
+        return "" if value is None else str(value)
 
     def __get_label(self, value: t.Any, dig=True) -> t.Union[str, t.Dict, None]:
         if isinstance(value, (str, Icon)):
