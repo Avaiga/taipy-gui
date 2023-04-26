@@ -11,7 +11,7 @@
 
 import inspect
 import json
-from ._warnings import warnings_warn
+import warnings
 
 from taipy.gui import Gui
 

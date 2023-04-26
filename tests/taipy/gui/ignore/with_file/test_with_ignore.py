@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import inspect
-from ._warnings import warnings_warn
+import warnings
 
 import pytest
 
