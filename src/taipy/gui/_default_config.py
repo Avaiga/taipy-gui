@@ -45,7 +45,7 @@ default_config: Config = {
     "async_mode": "gevent",
     "change_delay": None,
     "chart_dark_template": None,
-    "client_url_prefix": "/",
+    "base_url": "/",
     "dark_mode": True,
     "dark_theme": None,
     "debug": False,

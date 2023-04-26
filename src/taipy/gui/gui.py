@@ -1636,11 +1636,11 @@ class Gui:
             return ("No page template", 404)
 
     def _render_route(self) -> t.Any:
-        client_url_prefix = self._config._get_config("client_url_prefix", "/")
+        base_url = self._config._get_config("base_url", "/")
         return self._server._direct_render_json(
             {
                 "locations": {
-                    client_url_prefix if route == Gui.__root_page_name else f"{client_url_prefix}{route}": f"/{route}"
+                    base_url if route == Gui.__root_page_name else f"{base_url}{route}": f"/{route}"
                     for route in self._config.routes
                 },
                 "blockUI": self._is_ui_blocked(),
@@ -1818,7 +1818,7 @@ class Gui:
                 client_config=self.__get_client_config(),
                 watermark=self._get_config("watermark", None),
                 css_vars=self.__get_css_vars(),
-                client_url_prefix=self._get_config("client_url_prefix", "/"),
+                base_url=self._get_config("base_url", "/"),
             )
         )
 
