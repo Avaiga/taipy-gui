@@ -807,6 +807,7 @@ class Gui:
                         newvalue = self.__adapter._run_for_var(newvalue.get_name(), newvalue.get(), id_only=True)
                 if isinstance(newvalue, (dict, _MapDict)):
                     continue  # this var has no transformer
+                debug_warnings: t.List[warnings.WarningMessage] = []
                 with warnings.catch_warnings(record=True) as warns:
                     warnings.resetwarnings()
                     json.dumps(newvalue, cls=_TaipyJsonEncoder)
@@ -814,13 +815,15 @@ class Gui:
                         keep_value = True
                         for w in list(warns):
                             if is_debugging():
-                                warnings.warn(w.message, w.category)
+                                debug_warnings.append(w)
                             if w.category is not DeprecationWarning and w.category is not PendingDeprecationWarning:
                                 keep_value = False
                                 break
                         if not keep_value:
                             # do not send data that is not serializable
                             continue
+                for w in debug_warnings:
+                    warnings.warn(w.message, w.category)
             ws_dict[_var] = newvalue
         # TODO: What if value == newvalue?
         self.__send_ws_update_with_dict(ws_dict)
