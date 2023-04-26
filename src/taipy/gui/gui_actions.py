@@ -11,8 +11,8 @@
 
 import threading
 import typing as t
-from ._warnings import warnings_warn
 
+from ._warnings import warnings_warn
 from .gui import Gui
 from .state import State
 
