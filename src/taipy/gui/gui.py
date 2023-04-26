@@ -1672,6 +1672,7 @@ class Gui:
         config = {
             "timeZone": self._config.get_time_zone(),
             "darkMode": self._get_config("dark_mode", True),
+            "baseURL": self._config._get_config("base_url", "/"),
         }
         if themes := self._get_themes():
             config["themes"] = themes

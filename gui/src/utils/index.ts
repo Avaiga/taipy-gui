@@ -23,6 +23,7 @@ declare global {
             timeZone: string;
             extensions: Record<string, string[]>;
             stylekit?: StyleKit;
+            baseURL: string;
         };
         taipyVersion: string;
         [key: string]: unknown;
@@ -163,5 +164,5 @@ export const getInitials = (value: string, max = 2): string =>
 export const TIMEZONE_CLIENT = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export const getBaseURL = (): string => {
-    return document.querySelector("base")?.getAttribute("href") || "/";
+    return window.taipyConfig?.baseURL || "/";
 };
