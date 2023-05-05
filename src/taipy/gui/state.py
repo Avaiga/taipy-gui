@@ -70,6 +70,7 @@ class State:
     __attrs = (__gui_attr, "_user_var_list")
     __methods = (
         "assign",
+        "refresh",
         "_get_placeholder",
         "_set_placeholder",
         "_get_gui_attr",
@@ -146,6 +147,15 @@ class State:
         val = attrgetter(name)(self)
         _attrsetter(self, name, value)
         return val
+
+    def refresh(self, name: str):
+        """Refresh a state variable.
+
+        Args:
+            name (str): The variable name to refresh.
+        """
+        val = attrgetter(name)(self)
+        _attrsetter(self, name, val)
 
     def __enter__(self):
         super().__getattribute__(State.__attrs[0]).__enter__()
