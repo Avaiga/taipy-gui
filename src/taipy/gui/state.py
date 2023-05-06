@@ -126,10 +126,13 @@ class State:
     def _get_placeholder_attrs(self):
         return State.__placeholder_attrs
 
-    def _add_attribute(self, name: str):
+    def _add_attribute(self, name: str, default_value: t.Optional[t.Any] = None) -> bool:
         attrs: t.List[str] = super().__getattribute__(State.__attrs[1])
         if name not in attrs:
             attrs.append(name)
+            gui = super().__getattribute__(State.__gui_attr)
+            return gui._bind_var_val(name, default_value)
+        return False
 
     def assign(self, name: str, value: t.Any) -> t.Any:
         """Assign a value to a state variable.
