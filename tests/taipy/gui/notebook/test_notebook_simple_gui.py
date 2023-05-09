@@ -37,6 +37,12 @@ def test_notebook_simple_gui(tb, helpers):
             urlopen("http://127.0.0.1:5000/taipy-jsx/page1")
             break
     assert ">Hello</h1>" in urlopen("http://127.0.0.1:5000/taipy-jsx/page1").read().decode("utf-8")
+    tb.execute_cell("gui_reload")
+    while True:
+        with contextlib.suppress(Exception):
+            urlopen("http://127.0.0.1:5000/taipy-jsx/page1")
+            break
+    assert ">Hello</h1>" in urlopen("http://127.0.0.1:5000/taipy-jsx/page1").read().decode("utf-8")
     tb.execute_cell("gui_re_stop")
     with pytest.raises(Exception) as exc_info:
         urlopen("http://127.0.0.1:5000/taipy-jsx/page1")
