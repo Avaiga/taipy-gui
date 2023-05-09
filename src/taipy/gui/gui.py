@@ -660,7 +660,7 @@ class Gui:
 
     def __serve_extension(self, path: str) -> t.Any:
         parts = path.split("/")
-        last_error = None
+        last_error = ""
         resource_name = None
         if len(parts) > 1:
             libs = Gui.__extensions.get(parts[0], [])
@@ -670,8 +670,7 @@ class Gui:
                     if resource_name:
                         return send_file(resource_name)
                 except Exception as e:
-                    last_error = e  # Check if the resource is served by another library with the same name
-        last_error = f"\n{last_error}" if last_error else ""
+                    last_error = f"\n{e}"  # Check if the resource is served by another library with the same name
         _warn(f"Resource '{resource_name or path}' not accessible for library '{parts[0]}'{last_error}")
         return ("", 404)
 
@@ -1718,6 +1717,7 @@ class Gui:
                 path_mapping=self._path_mapping,
                 flask=self._flask,
                 async_mode=app_config["async_mode"],
+                allow_upgrades=not app_config["notebook_proxy"],
                 server_config=app_config.get("server_config"),
             )
 
@@ -1730,6 +1730,7 @@ class Gui:
                 path_mapping=self._path_mapping,
                 flask=self._flask,
                 async_mode=app_config["async_mode"],
+                allow_upgrades=not app_config["notebook_proxy"],
                 server_config=app_config.get("server_config"),
             )
             self._bindings()._new_scopes()
@@ -1786,13 +1787,13 @@ class Gui:
         extension_bp = Blueprint("taipy_extensions", __name__)
         extension_bp.add_url_rule(f"/{Gui._EXTENSION_ROOT}/<path:path>", view_func=self.__serve_extension)
         scripts = [
-            s if bool(urlparse(s).netloc) else f"/{Gui._EXTENSION_ROOT}/{name}/{s}"
+            s if bool(urlparse(s).netloc) else f"/{Gui._EXTENSION_ROOT}/{name}/{s}{lib.get_query(s)}"
             for name, libs in Gui.__extensions.items()
             for lib in libs
             for s in (lib.get_scripts() or [])
         ]
         styles = [
-            s if bool(urlparse(s).netloc) else f"/{Gui._EXTENSION_ROOT}/{name}/{s}"
+            s if bool(urlparse(s).netloc) else f"/{Gui._EXTENSION_ROOT}/{name}/{s}{lib.get_query(s)}"
             for name, libs in Gui.__extensions.items()
             for lib in libs
             for s in (lib.get_styles() or [])
@@ -1914,7 +1915,7 @@ class Gui:
         if not hasattr(self, "_root_dir"):
             self._root_dir = run_root_dir
 
-        kwargs = {
+        self.__run_kwargs = kwargs = {
             **kwargs,
             "run_server": run_server,
             "run_in_thread": run_in_thread,
@@ -1998,7 +1999,22 @@ class Gui:
             flask_log=app_config["flask_log"],
             run_in_thread=app_config["run_in_thread"],
             allow_unsafe_werkzeug=app_config["allow_unsafe_werkzeug"],
+            notebook_proxy=app_config["notebook_proxy"],
         )
+
+    def reload(self):  # pragma: no cover
+        """
+        Reload the Web server.
+
+        This function reloads the underlying Web server only in the situation where
+        it was run in a separated thread: the _run_in_thread_ parameter to the
+        `(Gui.)run^` method was set to True, or you are running in an IPython notebook
+        context.
+        """
+        if hasattr(self, "_server") and hasattr(self._server, "_thread") and self._server._is_running:
+            self._server.stop_thread()
+            self.run(**self.__run_kwargs)
+            _TaipyLogger._get_logger().info("Gui server has been reloaded.")
 
     def stop(self):
         """

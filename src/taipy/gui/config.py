@@ -44,6 +44,7 @@ ConfigParameter = t.Literal[
     "light_theme",
     "margin",
     "ngrok_token",
+    "notebook_proxy",
     "notification_duration",
     "propagate",
     "run_browser",
@@ -114,6 +115,7 @@ Config = t.TypedDict(
         "light_theme": t.Optional[t.Dict[str, t.Any]],
         "margin": t.Optional[str],
         "ngrok_token": str,
+        "notebook_proxy": bool,
         "notification_duration": int,
         "propagate": bool,
         "run_browser": bool,
@@ -273,6 +275,10 @@ class _Config(object):
                 logger, "'use_reloader' parameter will not be used when 'ngrok_token' parameter is available"
             )
 
+        if app_config["use_reloader"] and _is_in_notebook():
+            app_config["use_reloader"] = False
+            self.__log_outside_reloader(logger, "'use_reloader' parameter is not available in notebook environment")
+
         if app_config["use_reloader"] and not app_config["debug"]:
             app_config["debug"] = True
             self.__log_outside_reloader(logger, "application is running in 'debug' mode")
@@ -288,6 +294,7 @@ class _Config(object):
                 "'async_mode' parameter has been overridden to 'threading'. Using Flask built-in development server with debug mode",
             )
 
+        self._resolve_notebook_proxy()
         self._resolve_stylekit()
         self._resolve_url_prefix()
 
@@ -314,3 +321,7 @@ class _Config(object):
             app_config[
                 "base_url"
             ] = f"{'' if base_url.startswith('/') else '/'}{base_url}{'' if base_url.endswith('/') else '/'}"
+
+    def _resolve_notebook_proxy(self):
+        app_config = self.config
+        app_config["notebook_proxy"] = app_config["notebook_proxy"] if _is_in_notebook() else False
