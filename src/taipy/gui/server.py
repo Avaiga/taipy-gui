@@ -250,7 +250,7 @@ class _Server:
             if not patcher.is_monkey_patched("time"):
                 monkey_patch(time=True)
 
-    def _get_random_port(self):
+    def _get_random_port(self):  # pragma: no cover
         while True:
             port = randint(49152, 65535)
             if port not in _RuntimeManager().get_used_port() and not self._is_port_open(self._host, port):
@@ -260,7 +260,7 @@ class _Server:
         host_value = host if host != "0.0.0.0" else "localhost"
         self._host = host
         self._port = port
-        if _is_in_notebook() and notebook_proxy:
+        if _is_in_notebook() and notebook_proxy:  # pragma: no cover
             # Start proxy if not already started
             self._proxy = NotebookProxy(gui=self._gui, listening_port=port)
             self._proxy.run()
