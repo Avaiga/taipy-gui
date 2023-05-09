@@ -1998,7 +1998,7 @@ class Gui:
             notebook_proxy=app_config["notebook_proxy"],
         )
 
-    def reload(self):
+    def reload(self):  # pragma: no cover
         """
         Reload the Web server.
 
