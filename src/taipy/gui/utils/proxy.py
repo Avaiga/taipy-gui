@@ -35,7 +35,7 @@ def modifiedHandleResponseEnd(self):
     self.transport.loseConnection()
 
 
-ProxyClient.handleResponseEnd = modifiedHandleResponseEnd
+setattr(ProxyClient, "handleResponseEnd", modifiedHandleResponseEnd)
 
 
 class TaipyReverseProxyResource(Resource):
