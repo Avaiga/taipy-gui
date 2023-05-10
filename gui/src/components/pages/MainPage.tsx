@@ -27,7 +27,7 @@ const MainPage = (props: MainPageProps) => {
     const location = useLocation();
 
     useEffect(() => {
-        if (props.route && location.pathname == getBaseURL()) {
+        if (props.route && getBaseURL().includes(location.pathname)) {
            navigate(props.route.substring(1));
         }
     }, [location.pathname, navigate, props.route]);

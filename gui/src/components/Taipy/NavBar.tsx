@@ -29,7 +29,6 @@ import { LovProps, useLovListMemo, LovImage } from "./lovUtils";
 import { useClassNames, useDynamicProperty, useIsMobile } from "../../utils/hooks";
 import { TaipyContext } from "../../context/taipyContext";
 import { LovItem } from "../../utils/lov";
-import { getBaseURL } from "../../utils";
 
 const boxSx = { borderBottom: 1, borderColor: "divider", width: "fit-content" };
 
@@ -48,7 +47,7 @@ const NavBar = (props: LovProps) => {
     const lov = useMemo(() => {
         if (!lovList.length) {
             return Object.keys(state.locations || {})
-                .filter((key) => key !== getBaseURL())
+                .filter((key) => key !== "/")
                 .map((key) => ({ id: key, item: state.locations[key].substring(1) } as LovItem));
         }
         return lovList;
@@ -57,7 +56,7 @@ const NavBar = (props: LovProps) => {
     const linkChange = useCallback(
         (evt: React.SyntheticEvent, val: string) => {
             if (Object.keys(state.locations || {}).some((route) => val === route)) {
-                navigate(val);
+                navigate(val.substring(1));
             } else {
                 window.open(val, "_blank")?.focus();
             }

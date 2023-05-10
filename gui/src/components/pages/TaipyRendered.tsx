@@ -75,7 +75,9 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
     const [head, setHead] = useState<HeadProps[]>([]);
     const { state, dispatch } = useContext(TaipyContext);
 
-    const path = props.path || (state.locations && state.locations[location.pathname]) || location.pathname;
+    const baseURL = getBaseURL();
+    const pathname = baseURL == "/" ? location.pathname : location.pathname.replace(baseURL, "/");
+    const path = props.path || (state.locations && pathname in state.locations && state.locations[pathname]) || pathname;
 
     useEffect(() => {
         // Fetch JSX Flask Backend Render
@@ -100,12 +102,12 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
                     setPageState({
                         jsx: `<h1>${
                             error.response?.data ||
-                            `No data fetched from backend from ${path === "/TaiPy_root_page" ? getBaseURL() : path}`
+                            `No data fetched from backend from ${path === "/TaiPy_root_page" ? baseURL : baseURL + path}`
                         }</h1><br></br>${error}`,
                     })
                 );
         }
-    }, [path, state.id, dispatch, partial, fromBlock]);
+    }, [path, state.id, dispatch, partial, fromBlock, baseURL]);
 
     return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>

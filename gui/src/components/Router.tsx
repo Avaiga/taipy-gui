@@ -83,7 +83,7 @@ const Router = () => {
             })
             .catch((error) => {
                 // Fallback router if there is any error
-                setRoutes({ baseURL: "/TaiPy_root_page" });
+                setRoutes({ "/": "/TaiPy_root_page" });
                 console.log(error);
             });
     }, [refresh, state.isSocketConnected, state.id]);
@@ -113,15 +113,15 @@ const Router = () => {
                                                             path={baseURL}
                                                             element={
                                                                 <MainPage
-                                                                    path={routes[baseURL]}
+                                                                    path={routes["/"]}
                                                                     route={Object.keys(routes).find(
-                                                                        (path) => path !== baseURL
+                                                                        (path) => path !== "/"
                                                                     )}
                                                                 />
                                                             }
                                                         >
                                                             {Object.entries(routes)
-                                                                .filter(([path]) => path !== baseURL)
+                                                                .filter(([path]) => path !== "/")
                                                                 .map(([path, name]) => (
                                                                     <Route
                                                                         key={name}

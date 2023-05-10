@@ -1648,12 +1648,10 @@ class Gui:
             return ("No page template", 404)
 
     def _render_route(self) -> t.Any:
-        base_url = self._config._get_config("base_url", "/")
         return self._server._direct_render_json(
             {
                 "locations": {
-                    base_url if route == Gui.__root_page_name else f"{base_url}{route}": f"/{route}"
-                    for route in self._config.routes
+                    "/" if route == Gui.__root_page_name else f"/{route}": f"/{route}" for route in self._config.routes
                 },
                 "blockUI": self._is_ui_blocked(),
             }
