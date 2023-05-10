@@ -26,7 +26,7 @@ def gui(helpers, e2e_base_url):
     from taipy.gui import Gui
 
     gui = Gui()
-    gui.load_config({"base_url": e2e_base_url})
+    gui.load_config({"base_url": e2e_base_url, "host": "0.0.0.0" if e2e_base_url != "/" else "127.0.0.1"})
     yield gui
     # Delete Gui instance and state of some classes after each test
     gui.stop()
