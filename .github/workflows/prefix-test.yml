@@ -1,0 +1,41 @@
+name: Prefix (baseURL) Test
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+
+  prefix-test:
+    timeout-minutes: 40
+    strategy:
+      matrix:
+        node-version: [18.x]
+        python-versions: ['3.8', '3.9', '3.10', '3.11']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-versions }}
+    - name: testing with ${{ matrix.node-version }} on ${{ matrix.os }}
+      uses: actions/setup-node@v3
+      with:
+          node-version: ${{ matrix.node-version }}
+    - name: Build the Docker image
+      run: docker build . --file ./tools/docker/nginx-prefix/Dockerfile --tag taipy-nginx-proxy
+    - name: run nginx reverse proxy docker container
+      run: docker run -d -p 4000:4000 taipy-nginx-proxy
+    - name: install pipenv and install dependencies
+      run: |
+        pip install pipenv
+        pipenv install --dev
+        pipenv run pip install jsonschema==4.17.3
+        pipenv run playwright install chromium --with-deps
+    - name: run pytest
+      run: |
+        pipenv run pytest -m teste2e tests --e2e-base-url="/prefix/" --e2e-port="4000"
