@@ -318,9 +318,9 @@ class _Config(object):
         app_config = self.config
         base_url = app_config.get("base_url")
         if base_url is not None:
-            app_config[
-                "base_url"
-            ] = f"{'' if base_url.startswith('/') else '/'}{base_url}{'' if base_url.endswith('/') else '/'}"
+            base_url = f"{'' if base_url.startswith('/') else '/'}{base_url}"
+            base_url = f"{base_url}{'' if base_url.endswith('/') else '/'}"
+            app_config["base_url"] = base_url
 
     def _resolve_notebook_proxy(self):
         app_config = self.config
