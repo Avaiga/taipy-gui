@@ -317,7 +317,9 @@ class _Config(object):
     def _resolve_url_prefix(self):
         app_config = self.config
         base_url = app_config.get("base_url")
-        if base_url is not None:
+        if base_url is None:
+            app_config["base_url"] = "/"
+        else:
             base_url = f"{'' if base_url.startswith('/') else '/'}{base_url}"
             base_url = f"{base_url}{'' if base_url.endswith('/') else '/'}"
             app_config["base_url"] = base_url
