@@ -184,6 +184,7 @@ class _Config(object):
         return tz
 
     def _handle_argparse(self):
+        _GuiCLI.create_parser()
         args = _GuiCLI.parse_arguments()
 
         config = self.config

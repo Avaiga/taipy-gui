@@ -143,7 +143,7 @@ use_reloader = "true:bool"
     gui.stop()
 
     # Override TOML configuration file with CLI arguments
-    with patch("sys.argv", ["prog", "taipy", "--host", "my_4th_host", "--port", "5004", "--no-reloader", "--debug"]):
+    with patch("sys.argv", ["prog", "--host", "my_4th_host", "--port", "5004", "--no-reloader", "--debug"]):
         gui = Gui()
         gui.run(run_server=False, host="my_host", port=5001)
         service_config = gui._config.config
