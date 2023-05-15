@@ -95,19 +95,23 @@ class State:
         if name in State.__methods:
             return super().__getattribute__(name)
         gui: "Gui" = super().__getattribute__(State.__gui_attr)
-        current_context = _get_module_name_from_frame(t.cast(FrameType, t.cast(FrameType, inspect.stack()[1].frame)))
-        if current_context != gui._get_locals_context():
-            gui._set_locals_context(current_context)
-            current_context = None
         if name == State.__gui_attr:
             return gui
         if name in State.__excluded_attrs:
             raise AttributeError(f"Variable '{name}' is protected and is not accessible.")
         if name not in super().__getattribute__(State.__attrs[1]):
             raise AttributeError(f"Variable '{name}' is not defined.")
+        set_context = False
+        if len(inspect.stack()) > 1:
+            current_context = _get_module_name_from_frame(
+                t.cast(FrameType, t.cast(FrameType, inspect.stack()[1].frame))
+            )
+            if current_context != gui._get_locals_context():
+                gui._set_locals_context(current_context)
+                set_context = True
         encoded_name = gui._bind_var(name)
         attr = getattr(gui._bindings(), encoded_name)
-        if current_context is None:
+        if set_context:
             gui._reset_locals_context()
         return attr
 
@@ -115,13 +119,17 @@ class State:
         if name not in super().__getattribute__(State.__attrs[1]):
             raise AttributeError(f"Variable '{name}' is not accessible.")
         gui: "Gui" = super().__getattribute__(State.__gui_attr)
-        current_context = _get_module_name_from_frame(t.cast(FrameType, t.cast(FrameType, inspect.stack()[1].frame)))
-        if current_context != gui._get_locals_context():
-            gui._set_locals_context(current_context)
-            current_context = None
+        set_context = False
+        if len(inspect.stack()) > 1:
+            current_context = _get_module_name_from_frame(
+                t.cast(FrameType, t.cast(FrameType, inspect.stack()[1].frame))
+            )
+            if current_context != gui._get_locals_context():
+                gui._set_locals_context(current_context)
+                set_context = True
         encoded_name = gui._bind_var(name)
         setattr(gui._bindings(), encoded_name, value)
-        if current_context is None:
+        if set_context:
             gui._reset_locals_context()
 
     def _get_placeholder(self, name: str):
