@@ -21,6 +21,7 @@ class _LocalsContext:
 
     def __init__(self) -> None:
         self.__default_module: str = ""
+        self._lc_stack: t.List[str] = []
         self._locals_map: t.Dict[str, t.Dict[str, t.Any]] = {}
 
     def set_default(self, default: t.Dict[str, t.Any], default_module_name: str = "") -> None:
@@ -44,6 +45,7 @@ class _LocalsContext:
     def set_locals_context(self, context: t.Optional[str]) -> None:
         if context in self._locals_map:
             setattr(g, _LocalsContext.__ctx_g_name, context)
+            self._lc_stack.append(context)
 
     def get_locals(self) -> t.Dict[str, t.Any]:
         return self.get_default() if (context := self.get_context()) is None else self._locals_map[context]
@@ -61,4 +63,7 @@ class _LocalsContext:
 
     def reset_locals_context(self) -> None:
         if hasattr(g, _LocalsContext.__ctx_g_name):
-            delattr(g, _LocalsContext.__ctx_g_name)
+            if self._lc_stack:
+                setattr(g, _LocalsContext.__ctx_g_name, self._lc_stack.pop())
+            else:
+                delattr(g, _LocalsContext.__ctx_g_name)
