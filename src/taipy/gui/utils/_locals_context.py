@@ -44,8 +44,9 @@ class _LocalsContext:
 
     def set_locals_context(self, context: t.Optional[str]) -> None:
         if context in self._locals_map:
+            if hasattr(g, _LocalsContext.__ctx_g_name):
+                self._lc_stack.append(getattr(g, _LocalsContext.__ctx_g_name))
             setattr(g, _LocalsContext.__ctx_g_name, context)
-            self._lc_stack.append(context)
 
     def get_locals(self) -> t.Dict[str, t.Any]:
         return self.get_default() if (context := self.get_context()) is None else self._locals_map[context]
@@ -63,7 +64,7 @@ class _LocalsContext:
 
     def reset_locals_context(self) -> None:
         if hasattr(g, _LocalsContext.__ctx_g_name):
-            if self._lc_stack:
+            if len(self._lc_stack) > 0:
                 setattr(g, _LocalsContext.__ctx_g_name, self._lc_stack.pop())
             else:
                 delattr(g, _LocalsContext.__ctx_g_name)
