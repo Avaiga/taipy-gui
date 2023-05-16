@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import typing as t
+from inspect import isclass
 from enum import Enum
 
 from .data import Decimator
@@ -125,6 +126,8 @@ class PropertyType(Enum):
 def _get_taipy_type(a_type: t.Optional[PropertyType]) -> t.Optional[t.Type[_TaipyBase]]:
     if isinstance(a_type, PropertyType) and not isinstance(a_type.value, str):
         return a_type.value
+    if isclass(a_type) and issubclass(a_type, _TaipyBase):
+        return a_type
     if a_type == PropertyType.boolean:
         return _TaipyBool
     elif a_type == PropertyType.number:
