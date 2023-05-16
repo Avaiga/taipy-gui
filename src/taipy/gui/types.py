@@ -10,8 +10,8 @@
 # specific language governing permissions and limitations under the License.
 
 import typing as t
-from inspect import isclass
 from enum import Enum
+from inspect import isclass
 
 from .data import Decimator
 from .utils import (
