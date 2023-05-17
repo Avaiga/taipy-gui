@@ -51,8 +51,8 @@ def init_config():
     Config._serializer = _TomlSerializer()
     _Checker._checkers = [_GlobalConfigChecker]
 
-    from src.taipy.gui._default_config import default_config
-    from src.taipy.gui._gui_section import _GuiSection
+    from taipy.gui._default_config import default_config
+    from taipy.gui._gui_section import _GuiSection
     from taipy.config import _inject_section
 
     _inject_section(
