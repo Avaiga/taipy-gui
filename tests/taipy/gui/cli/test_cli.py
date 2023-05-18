@@ -39,7 +39,6 @@ class NamedTemporaryFile:
         os.unlink(self.filename)
 
 
-@pytest.fixture(scope="function", autouse=True)
 def init_config():
     Config.unblock_update()
     Config._default_config = _Config()._default_config()
@@ -62,6 +61,15 @@ def init_config():
         [("configure_gui", _GuiSection._configure)],
         add_to_unconflicted_sections=True,
     )
+
+
+@pytest.fixture(scope="function", autouse=True)
+def cleanup_test(helpers):
+    init_config()
+    helpers.test_cleanup()
+    yield
+    init_config()
+    helpers.test_cleanup()
 
 
 def test_gui_service_arguments_hierarchy():
