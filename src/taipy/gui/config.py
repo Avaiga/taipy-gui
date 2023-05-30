@@ -32,6 +32,7 @@ ConfigParameter = t.Literal[
     "async_mode",
     "change_delay",
     "chart_dark_template",
+    "base_url",
     "dark_mode",
     "dark_theme",
     "data_url_max_size",
@@ -102,6 +103,7 @@ Config = t.TypedDict(
         "async_mode": str,
         "change_delay": t.Optional[int],
         "chart_dark_template": t.Optional[t.Dict[str, t.Any]],
+        "base_url": t.Optional[str],
         "dark_mode": bool,
         "dark_theme": t.Optional[t.Dict[str, t.Any]],
         "data_url_max_size": t.Optional[int],
@@ -182,8 +184,8 @@ class _Config(object):
         return tz
 
     def _handle_argparse(self):
-        _GuiCLI._create_parser()
-        args = _GuiCLI._parse_arguments()
+        _GuiCLI.create_parser()
+        args = _GuiCLI.parse_arguments()
 
         config = self.config
         if args.port:
@@ -242,9 +244,6 @@ class _Config(object):
                             f"Invalid env value in Gui.run(): {key} - {value}. Unable to parse value to the correct type:\n{e}"
                         )
 
-        # Load from system arguments
-        self._handle_argparse()
-
         # Taipy-config
         if find_spec("taipy") and find_spec("taipy.config"):
             from taipy.config import Config as TaipyConfig
@@ -254,6 +253,9 @@ class _Config(object):
                 self.config.update(section._to_dict())
             except KeyError:
                 _warn("taipy-config section for taipy-gui is not initialized.")
+
+        # Load from system arguments
+        self._handle_argparse()
 
     def __log_outside_reloader(self, logger, msg):
         if not is_running_from_reloader():
@@ -294,6 +296,7 @@ class _Config(object):
 
         self._resolve_notebook_proxy()
         self._resolve_stylekit()
+        self._resolve_url_prefix()
 
     def _resolve_stylekit(self):
         app_config = self.config
@@ -310,6 +313,16 @@ class _Config(object):
             ):
                 app_config["stylekit"]["root_margin"] = str(app_config["margin"])
             app_config["margin"] = None
+
+    def _resolve_url_prefix(self):
+        app_config = self.config
+        base_url = app_config.get("base_url")
+        if base_url is None:
+            app_config["base_url"] = "/"
+        else:
+            base_url = f"{'' if base_url.startswith('/') else '/'}{base_url}"
+            base_url = f"{base_url}{'' if base_url.endswith('/') else '/'}"
+            app_config["base_url"] = base_url
 
     def _resolve_notebook_proxy(self):
         app_config = self.config

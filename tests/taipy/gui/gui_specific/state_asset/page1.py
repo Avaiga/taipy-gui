@@ -9,27 +9,21 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import inspect
-from importlib import util
+from taipy.gui import Markdown
 
-import pytest
-
-if util.find_spec("playwright"):
-    from playwright._impl._page import Page
-
-from taipy.gui import Gui
+a = 20
 
 
-@pytest.mark.teste2e
-def test_redirect(page: "Page", gui: Gui, helpers):
-    page_md = """
-<|Redirect Successfully|id=text1|>
+def get_a(state):
+    return state.a
+
+
+def set_a(state, val):
+    state.a = val
+
+
+md_page1 = Markdown(
+    """
+<|{a}|>
 """
-    gui._set_frame(inspect.currentframe())
-    gui.add_page(name="test", page=page_md)
-    helpers.run_e2e(gui)
-    page.goto("./")
-    page.expect_websocket()
-    page.wait_for_selector("#text1")
-    text1 = page.query_selector("#text1")
-    assert text1.inner_text() == "Redirect Successfully"
+)
