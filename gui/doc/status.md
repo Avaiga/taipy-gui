@@ -4,8 +4,8 @@ Displays a status or a list of statuses.
 
 Every status line has a message to be displayed and a status priority.
 
-The status priority is defined by a string among "info", "success" (or "s"), "warning" (or "w"), and "error" (or
-"e"). An unknown string value sets the priority to "info".<br/>
+The status priority is defined by a string among "info" (or "i"), "success" (or "s"), "warning" (or "w"), and
+"error" (or "e"). An unknown string value sets the priority to "info".<br/>
 These priorities are sorted from lower to higher as indicated here.
 
 The property [*value*](#p-value) can be set to a value with the following type:
