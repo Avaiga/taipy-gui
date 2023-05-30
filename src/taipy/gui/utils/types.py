@@ -15,7 +15,7 @@ from abc import ABC
 from datetime import datetime
 
 from .._warnings import _warn
-from . import _date_to_ISO, _ISO_to_date, _variable_decode, _MapDict
+from . import _date_to_ISO, _ISO_to_date, _MapDict, _variable_decode
 
 
 class _TaipyBase(ABC):
