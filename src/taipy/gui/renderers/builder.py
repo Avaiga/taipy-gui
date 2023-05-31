@@ -215,7 +215,7 @@ class _Builder:
 
         Arguments:
             name (str): The property name.
-            default value (dict): iused if no value is specified
+            default value (dict): used if no value is specified.
         """
         dict_attr = self.__attributes.get(name)
         if dict_attr is None:
@@ -238,7 +238,7 @@ class _Builder:
 
         Arguments:
             name (str): The property name.
-            default value (dict): iused if no value is specified
+            default value (dict): used if no value is specified.
         """
         dict_attr = self.__attributes.get(name)
         if dict_attr is None:
