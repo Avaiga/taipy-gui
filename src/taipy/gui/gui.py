@@ -59,6 +59,7 @@ from .server import _Server
 from .state import State
 from .types import _WsType
 from .utils import (
+    ClassModule,
     _delscopeattr,
     _filter_locals,
     _get_broadcast_var_name,
@@ -82,6 +83,7 @@ from .utils import (
     _TaipyLovValue,
     _to_camel_case,
     _variable_decode,
+    get_page_from_class_module,
     is_debugging,
 )
 from .utils._adapter import _Adapter
@@ -1280,7 +1282,7 @@ class Gui:
     def add_page(
         self,
         name: str,
-        page: t.Union[str, Page],
+        page: t.Union[str, Page, type[ClassModule]],
         style: t.Optional[str] = "",
     ) -> None:
         """Add a page to the Graphical User Interface.
@@ -1315,6 +1317,8 @@ class Gui:
             raise SyntaxError(f'Page name "{name}" cannot start with forward slash (/) character.')
         if name in self._config.routes:  # pragma: no cover
             raise Exception(f'Page name "{name if name != Gui.__root_page_name else "/"}" is already defined.')
+        if inspect.isclass(page) and issubclass(page, ClassModule):
+            page = get_page_from_class_module(page)
         if isinstance(page, str):
             from .renderers import Markdown
 
@@ -1337,7 +1341,8 @@ class Gui:
         # Update locals context
         self.__locals_context.add(page._get_module_name(), page._get_locals())
         # Update variable directory
-        self.__var_dir.add_frame(page._frame)
+        if not page._is_class_module():
+            self.__var_dir.add_frame(page._frame)
 
     def add_pages(self, pages: t.Optional[t.Union[t.Dict[str, t.Union[str, Page]], str]] = None) -> None:
         """Add several pages to the Graphical User Interface.

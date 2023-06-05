@@ -89,7 +89,7 @@ from .page import Page
 from .partial import Partial
 from .renderers import Html, Markdown
 from .state import State
-from .utils import is_debugging
+from .utils import ClassModule, is_debugging
 
 if find_spec("taipy") and find_spec("taipy.config"):
     from taipy.config import _inject_section

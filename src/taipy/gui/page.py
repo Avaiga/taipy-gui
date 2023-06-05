@@ -40,6 +40,8 @@ class Page(ABC):
         """
         self._content = ""
         self._filepath = ""
+        self._class_module_name = ""
+        self._class_locals: t.Dict[str, t.Any] = {}
         self._frame: t.Optional[FrameType] = None
         if "frame" in kwargs:
             self._frame = kwargs.get("frame")
@@ -85,10 +87,27 @@ class Page(ABC):
         return ""
 
     def _get_locals(self) -> t.Optional[t.Dict[str, t.Any]]:
-        return None if self._frame is None else _filter_locals(self._frame.f_locals)
+        return (
+            self._class_locals
+            if self._class_locals != {}
+            else None
+            if self._frame is None
+            else _filter_locals(self._frame.f_locals)
+        )
+
+    def _set_class_module(self, name: str, locals_: t.Dict[str, t.Any]) -> None:
+        self._class_module_name = name
+        self._class_locals = locals_
+
+    def _is_class_module(self):
+        return self._class_module_name != ""
 
     def _get_module_name(self) -> t.Optional[str]:
-        return None if self._frame is None else _get_module_name_from_frame(self._frame)
+        return (
+            None
+            if self._frame is None
+            else f"{_get_module_name_from_frame(self._frame)}{'.' if self._class_module_name else ''}{self._class_module_name}"
+        )
 
     @abstractmethod
     def render(self, gui) -> str:
