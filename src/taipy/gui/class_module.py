@@ -12,7 +12,7 @@
 import inspect
 import typing as t
 
-from ..page import Page
+from .page import Page
 
 
 class ClassModule:

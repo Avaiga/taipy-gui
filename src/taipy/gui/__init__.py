@@ -70,6 +70,7 @@ application.
 
 from importlib.util import find_spec
 
+from .class_module import ClassModule
 from .gui import Gui
 from .gui_actions import (
     download,
@@ -89,7 +90,7 @@ from .page import Page
 from .partial import Partial
 from .renderers import Html, Markdown
 from .state import State
-from .utils import ClassModule, is_debugging
+from .utils import is_debugging
 
 if find_spec("taipy") and find_spec("taipy.config"):
     from taipy.config import _inject_section

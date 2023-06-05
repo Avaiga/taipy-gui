@@ -42,6 +42,7 @@ if util.find_spec("pyngrok"):
 from ._default_config import _default_stylekit, default_config
 from ._page import _Page
 from ._warnings import _warn
+from .class_module import ClassModule, get_page_from_class_module
 from .config import Config, ConfigParameter, ServerConfig, Stylekit, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
@@ -59,7 +60,6 @@ from .server import _Server
 from .state import State
 from .types import _WsType
 from .utils import (
-    ClassModule,
     _delscopeattr,
     _filter_locals,
     _get_broadcast_var_name,
@@ -83,7 +83,6 @@ from .utils import (
     _TaipyLovValue,
     _to_camel_case,
     _variable_decode,
-    get_page_from_class_module,
     is_debugging,
 )
 from .utils._adapter import _Adapter

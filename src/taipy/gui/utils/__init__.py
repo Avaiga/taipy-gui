@@ -22,7 +22,6 @@ from ._map_dict import _MapDict
 from ._runtime_manager import _RuntimeManager
 from ._variable_directory import _variable_decode, _variable_encode, _VariableDirectory
 from .boolean import _is_boolean, _is_boolean_true
-from .class_module import ClassModule, get_page_from_class_module
 from .clientvarname import _get_broadcast_var_name, _get_client_var_name, _to_camel_case
 from .datatype import _get_data_type
 from .date import _date_to_ISO, _ISO_to_date
