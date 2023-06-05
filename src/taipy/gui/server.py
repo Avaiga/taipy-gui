@@ -163,7 +163,7 @@ class _Server:
                     )
                 except Exception:
                     raise RuntimeError(
-                        "Something is wrong with the taipy-gui front-end installation. Check that the js bundle has been properly built (is NodeJs installed?)."
+                        "Something is wrong with the taipy-gui front-end installation. Check that the js bundle has been properly built (is Node.js installed?)."
                     )
 
             if path == "taipy.status.json":
