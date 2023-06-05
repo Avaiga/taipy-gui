@@ -161,7 +161,7 @@ class _Server:
                         css_vars=css_vars,
                         base_url=base_url,
                     )
-                except Exception:
+                except Exception: # pragma: no cover
                     raise RuntimeError(
                         "Something is wrong with the taipy-gui front-end installation. Check that the js bundle has been properly built (is Node.js installed?)."
                     )
