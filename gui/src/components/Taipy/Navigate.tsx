@@ -41,6 +41,8 @@ const Navigate = ({ to, tab, force }: NavigateProps) => {
             }
             dispatch(createNavigateAction());
         }
+        // we surely don't want to depend on location.pathname!
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [to, tab, force, state.locations, dispatch, navigate]);
 
     return null;
