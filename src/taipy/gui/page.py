@@ -89,7 +89,7 @@ class Page(ABC):
     def _get_locals(self) -> t.Optional[t.Dict[str, t.Any]]:
         return (
             self._class_locals
-            if self._class_locals != {}
+            if self._is_class_module()
             else None
             if self._frame is None
             else _filter_locals(self._frame.f_locals)
