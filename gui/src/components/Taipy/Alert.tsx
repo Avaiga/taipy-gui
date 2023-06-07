@@ -72,7 +72,7 @@ const Alert = ({ alerts }: AlertProps) => {
             }
             dispatch(createDeleteAlertAction());
         }
-    }, [alert, enqueueSnackbar, closeSnackbar, notifAction, faviconUrl]);
+    }, [alert, enqueueSnackbar, closeSnackbar, notifAction, faviconUrl, dispatch]);
 
     useEffect(() => {
         alert?.system && window.Notification && Notification.requestPermission();
