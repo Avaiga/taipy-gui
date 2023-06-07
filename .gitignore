@@ -146,9 +146,3 @@ taipy_webapp/
 
 # Packaging
 gui/packaging/taipy-gui.gen.d.ts
-
-# FLE
-doc/extension/taipy/
-MyNotes.txt
-log
-*.FLE
