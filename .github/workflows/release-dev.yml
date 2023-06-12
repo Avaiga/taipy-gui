@@ -27,7 +27,7 @@ jobs:
 
       - name: Check dependencies are available
         run: |
-          curl https://pypi.org/simple/taipy-gui/ | grep -o ">taipy-config-${{ github.event.inputs.taipy-config-version }}\.tar\.gz<"
+          curl https://pypi.org/simple/taipy-config/ | grep -o ">taipy-config-${{ github.event.inputs.taipy-config-version }}\.tar\.gz<"
 
       - name: Ensure package version is properly set
         id: current-version
