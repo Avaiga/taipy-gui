@@ -6,11 +6,16 @@ on:
       taipy-config-version:
         description: "The taipy-config version to use (ex: 2.3.0.dev0)"
         required: true
+      taipy-publish-pypi:
+        type: boolean
+        description: Publish to pypi
+        default: false
 
 jobs:
   publish:
     timeout-minutes: 20
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.taipy-publish-pypi == 'true' && 'publish' || ''}}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -76,3 +81,10 @@ jobs:
             gh release create dev-${{ steps.current-version.outputs.VERSION }} ./dist/taipy-${{ steps.current-version.outputs.VERSION }}.tar.gz --draft --prerelease --notes "Release Draft ${{ steps.current-version.outputs.VERSION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Pypi
+        if: ${{ github.event.inputs.taipy-publish-pypi == 'true' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
