@@ -152,9 +152,13 @@ const Router = () => {
                                         ) : null}
                                     </Box>
                                     <ErrorBoundary FallbackComponent={ErrorFallback}>
-                                        <Alert alert={state.alert} />
+                                        <Alert alerts={state.alerts} />
                                         <UIBlocker block={state.block} />
-                                        <Navigate to={state.navigateTo} tab={state.navigateTab} />
+                                        <Navigate
+                                            to={state.navigateTo}
+                                            tab={state.navigateTab}
+                                            force={state.navigateForce}
+                                        />
                                         <GuiDownload download={state.download} />
                                     </ErrorBoundary>
                                 </BrowserRouter>

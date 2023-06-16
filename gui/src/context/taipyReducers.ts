@@ -36,6 +36,7 @@ enum Types {
     SetTheme = "SET_THEME",
     SetTimeZone = "SET_TIMEZONE",
     SetAlert = "SET_ALERT",
+    DeleteAlert = "DELETE_ALERT",
     SetBlock = "SET_BLOCK",
     Navigate = "NAVIGATE",
     ClientId = "CLIENT_ID",
@@ -58,10 +59,11 @@ export interface TaipyState {
     timeZone?: string;
     dateTimeFormat?: string;
     numberFormat?: string;
-    alert?: AlertMessage;
+    alerts: AlertMessage[];
     block?: BlockMessage;
     navigateTo?: string;
     navigateTab?: string;
+    navigateForce?: boolean;
     id: string;
     menu: MenuProps;
     download?: FileDownloadProps;
@@ -116,6 +118,7 @@ interface TaipyBlockAction extends TaipyBaseAction, BlockMessage {}
 interface NavigateMessage {
     to?: string;
     tab?: string;
+    force?: boolean;
 }
 
 interface TaipyNavigateAction extends TaipyBaseAction, NavigateMessage {}
@@ -195,12 +198,13 @@ export const INITIAL_STATE: TaipyState = {
     id: getLocalStorageValue("TaipyClientId", ""),
     menu: {},
     ackList: [],
+    alerts: [],
 };
 
 export const taipyInitialize = (initialState: TaipyState): TaipyState => ({
     ...initialState,
     isSocketConnected: false,
-    socket: io("/", { autoConnect: false, path:`${getBaseURL()}socket.io` }),
+    socket: io("/", { autoConnect: false, path: `${getBaseURL()}socket.io` }),
 });
 
 const storeClientId = (id: string) => localStorage && localStorage.setItem("TaipyClientId", id);
@@ -218,7 +222,8 @@ const messageToAction = (message: WsMessage) => {
         } else if (message.type === "NA") {
             return createNavigateAction(
                 (message as unknown as NavigateMessage).to,
-                (message as unknown as NavigateMessage).tab
+                (message as unknown as NavigateMessage).tab,
+                (message as unknown as NavigateMessage).force
             );
         } else if (message.type === "ID") {
             return createIdAction((message as unknown as IdMessage).id);
@@ -341,19 +346,23 @@ export const taipyReducer = (state: TaipyState, baseAction: TaipyBaseAction): Ta
             return { ...state, locations: action.payload.value as Record<string, string> };
         case Types.SetAlert:
             const alertAction = action as unknown as TaipyAlertAction;
-            if (alertAction) {
-                return {
-                    ...state,
-                    alert: {
+            return {
+                ...state,
+                alerts: [
+                    ...state.alerts,
+                    {
                         atype: alertAction.atype,
                         message: alertAction.message,
                         system: alertAction.system,
                         duration: alertAction.duration,
                     },
-                };
+                ],
+            };
+        case Types.DeleteAlert:
+            if (state.alerts.length) {
+                return { ...state, alerts: state.alerts.filter((_, i) => i) };
             }
-            delete state.alert;
-            return { ...state };
+            return state;
         case Types.SetBlock:
             const blockAction = action as unknown as TaipyBlockAction;
             if (blockAction.close) {
@@ -377,6 +386,7 @@ export const taipyReducer = (state: TaipyState, baseAction: TaipyBaseAction): Ta
                 ...state,
                 navigateTo: (action as unknown as TaipyNavigateAction).to,
                 navigateTab: (action as unknown as TaipyNavigateAction).tab,
+                navigateForce: (action as unknown as TaipyNavigateAction).force,
             };
         case Types.ClientId:
             const id = (action as unknown as TaipyIdAction).id;
@@ -690,7 +700,12 @@ export const createRequestDataUpdateAction = (
  * @param forceRefresh - Should Taipy re-evaluate the variables or use the current values
  * @returns The action fed to the reducer.
  */
-export const createRequestUpdateAction = (id: string | undefined, context: string | undefined, names: string[], forceRefresh = false): TaipyAction => ({
+export const createRequestUpdateAction = (
+    id: string | undefined,
+    context: string | undefined,
+    names: string[],
+    forceRefresh = false
+): TaipyAction => ({
     type: Types.RequestUpdate,
     name: "",
     context: context,
@@ -737,12 +752,16 @@ const getAlertType = (aType: string) => {
     return aType;
 };
 
-export const createAlertAction = (alert?: AlertMessage): TaipyAlertAction => ({
+export const createAlertAction = (alert: AlertMessage): TaipyAlertAction => ({
     type: Types.SetAlert,
-    atype: alert ? getAlertType(alert.atype) : "",
-    message: alert ? alert.message : "",
-    system: alert ? alert.system : false,
-    duration: alert ? alert.duration : 3000,
+    atype: getAlertType(alert.atype),
+    message: alert.message,
+    system: alert.system,
+    duration: alert.duration,
+});
+
+export const createDeleteAlertAction = (): TaipyBaseAction => ({
+    type: Types.DeleteAlert,
 });
 
 export const createBlockAction = (block: BlockMessage): TaipyBlockAction => ({
@@ -753,10 +772,11 @@ export const createBlockAction = (block: BlockMessage): TaipyBlockAction => ({
     message: block.message,
 });
 
-export const createNavigateAction = (to?: string, tab?: string): TaipyNavigateAction => ({
+export const createNavigateAction = (to?: string, tab?: string, force?: boolean): TaipyNavigateAction => ({
     type: Types.Navigate,
     to,
     tab,
+    force,
 });
 
 export const createIdAction = (id: string): TaipyIdAction => ({
