@@ -970,7 +970,7 @@
           },
           {
             "name": "editable[<i>column_name</i>]",
-            "type": "dynamic(bool)",
+            "type": "bool",
             "default_value": "editable",
             "doc": "Indicates, if False, that the indicated column cannot be edited when editable is True."
           },
