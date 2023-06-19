@@ -1344,7 +1344,7 @@ class Gui:
         if not page._is_class_module():
             self.__var_dir.add_frame(page._frame)
 
-    def add_pages(self, pages: t.Optional[t.Union[t.Dict[str, t.Union[str, Page]], str]] = None) -> None:
+    def add_pages(self, pages: t.Optional[t.Union[t.Mapping[str, t.Union[str, Page]], str]] = None) -> None:
         """Add several pages to the Graphical User Interface.
 
         Arguments:
@@ -1685,10 +1685,14 @@ class Gui:
     def get_flask_app(self) -> Flask:
         """Get the internal Flask application.
 
+        This method must be called **after** (Gui.)run^ method was invoked.
+
         Returns:
             The Flask instance used.
         """
-        return self._server.get_flask()
+        if hasattr(self, "_server"):
+            return self._server.get_flask()
+        raise RuntimeError("get_flask_app() cannot be invoked before run() has been called.")
 
     def _set_frame(self, frame: FrameType):
         if not isinstance(frame, FrameType):  # pragma: no cover
