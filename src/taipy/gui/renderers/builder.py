@@ -665,7 +665,13 @@ class _Builder:
             self.__set_react_attribute(var_name, hash_name)
         return self
 
-    def __set_default_value(self, var_name: str, value: t.Optional[t.Any] = None, native_type: bool = False, var_type: t.Optional[PropertyType] = None):
+    def __set_default_value(
+        self,
+        var_name: str,
+        value: t.Optional[t.Any] = None,
+        native_type: bool = False,
+        var_type: t.Optional[PropertyType] = None,
+    ):
         if value is None:
             value = self.__attributes.get(var_name)
         default_var_name = _to_camel_case(f"default_{var_name}")
