@@ -42,7 +42,6 @@ if util.find_spec("pyngrok"):
 from ._default_config import _default_stylekit, default_config
 from ._page import _Page
 from ._warnings import _warn
-from .class_module import ClassModule, get_page_from_class_module
 from .config import Config, ConfigParameter, ServerConfig, Stylekit, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
@@ -1286,7 +1285,7 @@ class Gui:
     def add_page(
         self,
         name: str,
-        page: t.Union[str, Page, type[ClassModule]],
+        page: t.Union[str, Page],
         style: t.Optional[str] = "",
     ) -> None:
         """Add a page to the Graphical User Interface.
@@ -1321,8 +1320,6 @@ class Gui:
             raise SyntaxError(f'Page name "{name}" cannot start with forward slash (/) character.')
         if name in self._config.routes:  # pragma: no cover
             raise Exception(f'Page name "{name if name != Gui.__root_page_name else "/"}" is already defined.')
-        if inspect.isclass(page) and issubclass(page, ClassModule):
-            page = get_page_from_class_module(page)
         if isinstance(page, str):
             from .renderers import Markdown
 

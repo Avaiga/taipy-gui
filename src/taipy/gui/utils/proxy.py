@@ -11,10 +11,16 @@
 
 import contextlib
 import typing as t
+import warnings
 from threading import Thread
 from urllib.parse import quote as urlquote
 from urllib.parse import urlparse
 
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="You do not have a working installation of the service_identity module: 'No module named 'service_identity''.*",
+)
 from twisted.internet import reactor
 from twisted.web.proxy import ProxyClient, ProxyClientFactory
 from twisted.web.resource import Resource
