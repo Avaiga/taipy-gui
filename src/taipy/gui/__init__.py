@@ -71,6 +71,7 @@ application.
 from importlib.util import find_spec
 
 from ._init import *
+from .class_module import ClassModule
 from .gui_actions import (
     download,
     get_module_context,
