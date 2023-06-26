@@ -71,7 +71,7 @@ class _Renderer(Page, ABC):
             raise RuntimeError("'set_content()' must be used in an IPython notebook context")
         self.__process_content(content)
 
-    def _get_content_detail(self, gui) -> str:
+    def _get_content_detail(self, gui: "Gui") -> str:
         if self._filepath:
             return f"in file '{self._filepath}'"
         if varname := _varname_from_content(gui, self._content):
@@ -79,7 +79,7 @@ class _Renderer(Page, ABC):
         return ""
 
     @abstractmethod
-    def render(self, gui) -> str:
+    def render(self, gui: "Gui") -> str:
         pass
 
 
@@ -87,7 +87,7 @@ class _EmptyPage(_Renderer):
     def __init__(self) -> None:
         super().__init__(content="<PageContent />")
 
-    def render(self, gui) -> str:
+    def render(self, gui: "Gui") -> str:
         return self._content
 
 
@@ -116,7 +116,7 @@ class Markdown(_Renderer):
         super().__init__(**kwargs)
 
     # Generate JSX from Markdown
-    def render(self, gui) -> str:
+    def render(self, gui: "Gui") -> str:
         return gui._markdown.convert(self._content)
 
 
@@ -150,7 +150,7 @@ class Html(_Renderer):
         self._content = self._content.replace("{{taipy_base_url}}", f"{base_url}")
 
     # Generate JSX from HTML
-    def render(self, gui) -> str:
+    def render(self, gui: "Gui") -> str:
         parser = _TaipyHTMLParser(gui)
         parser.feed_data(self._content)
         self.head = parser.head
