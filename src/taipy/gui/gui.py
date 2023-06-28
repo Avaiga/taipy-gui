@@ -23,7 +23,7 @@ import time
 import typing as t
 import warnings
 from importlib import util
-from types import FrameType
+from types import FrameType, SimpleNamespace
 from urllib.parse import unquote, urlencode, urlparse
 
 import __main__
@@ -390,8 +390,11 @@ class Gui:
     def _bindings(self):
         return self.__bindings
 
-    def _get_data_scope(self):
+    def _get_data_scope(self) -> SimpleNamespace:
         return self.__bindings._get_data_scope()
+
+    def _get_all_data_scopes(self) -> t.Dict[str, SimpleNamespace]:
+        return self.__bindings._get_all_scopes()
 
     def _get_config(self, name: ConfigParameter, default_value: t.Any) -> t.Any:
         return self._config._get_config(name, default_value)
@@ -788,7 +791,6 @@ class Gui:
                 modified_vars.remove(k)
         for _var in modified_vars:
             newvalue = values.get(_var)
-            # self._scopes.broadcast_data(_var, newvalue)
             if isinstance(newvalue, _TaipyData):
                 newvalue = None
             else:
@@ -966,7 +968,10 @@ class Gui:
             {"name": _get_client_var_name(k), "payload": (v if isinstance(v, dict) and "value" in v else {"value": v})}
             for k, v in modified_values.items()
         ]
-        self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
+        if self._is_broadcasting():
+            self.__broadcast_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
+        else:
+            self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
     def __send_ws_broadcast(self, var_name: str, var_value: t.Any):
         self.__broadcast_ws(
@@ -1540,6 +1545,14 @@ class Gui:
             value: The value (must be serializable to the JSON format).
         """
         self.__send_ws_broadcast(name, value)
+
+    def _broadcast_all_clients(self, name: str, value: t.Any):
+        setattr(g, "is_broadcasting", True)
+        self._update_var(name, value)
+        delattr(g, "is_broadcasting")
+
+    def _is_broadcasting(self) -> bool:
+        return getattr(g, "is_broadcasting", False)
 
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
         content_str = self._get_content("Gui.download", content, False)
