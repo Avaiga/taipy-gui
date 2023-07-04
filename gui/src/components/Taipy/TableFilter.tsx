@@ -330,6 +330,10 @@ const TableFilter = (props: TableFilterProps) => {
         onShowFilterClick();
     }, [onValidate, onShowFilterClick]);
 
+    useEffect(() => {
+        columns && setFilters(appliedFilters.filter((fd) => Object.values(columns).some((cd) => cd.dfid === fd.col)));
+    }, [columns, appliedFilters]);
+
     return (
         <>
             <Tooltip title="Filter list">
@@ -373,11 +377,11 @@ const TableFilter = (props: TableFilterProps) => {
                         <Button
                             endIcon={<ClearIcon />}
                             onClick={onRemove}
-                            disabled={appliedFilters.length == 0}
+                            disabled={filters.length == 0}
                             variant="outlined"
                             color="inherit"
                         >
-                            {`Reset list (remove applied filter${appliedFilters.length > 1 ? "s" : ""})`}
+                            {`Reset list (remove applied filter${filters.length > 1 ? "s" : ""})`}
                         </Button>
                         <Button
                             endIcon={<SendIcon />}
