@@ -28,7 +28,7 @@ def _getscopeattr_drill(gui: "Gui", name: str) -> t.Any:
 
 def _setscopeattr(gui: "Gui", name: str, value: t.Any):
     if gui._is_broadcasting():
-        for _, scope in gui._get_all_data_scopes().items():
+        for scope in gui._get_all_data_scopes().values():
             setattr(scope, name, value)
     else:
         setattr(gui._get_data_scope(), name, value)
@@ -36,7 +36,7 @@ def _setscopeattr(gui: "Gui", name: str, value: t.Any):
 
 def _setscopeattr_drill(gui: "Gui", name: str, value: t.Any):
     if gui._is_broadcasting():
-        for _, scope in gui._get_all_data_scopes().items():
+        for scope in gui._get_all_data_scopes().values():
             _attrsetter(scope, name, value)
     else:
         _attrsetter(gui._get_data_scope(), name, value)
