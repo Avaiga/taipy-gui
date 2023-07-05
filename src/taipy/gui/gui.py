@@ -1575,13 +1575,18 @@ class Gui:
         self._del_broadcast()
 
     def _set_broadcast(self, broadcast: bool = True):
-        setattr(g, "is_broadcasting", broadcast)
+        with contextlib.suppress(RuntimeError):
+            setattr(g, "is_broadcasting", broadcast)
 
     def _del_broadcast(self):
-        delattr(g, "is_broadcasting")
+        with contextlib.suppress(RuntimeError):
+            delattr(g, "is_broadcasting")
 
     def _is_broadcasting(self) -> bool:
-        return getattr(g, "is_broadcasting", False)
+        try:
+            return getattr(g, "is_broadcasting", False)
+        except RuntimeError:
+            return False
 
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
         content_str = self._get_content("Gui.download", content, False)
