@@ -297,7 +297,7 @@ const FilterRow = (props: FilterRowProps) => {
 };
 
 const TableFilter = (props: TableFilterProps) => {
-    const { onValidate, appliedFilters = [], columns, colsOrder, className = "" } = props;
+    const { onValidate, appliedFilters, columns, colsOrder, className = "" } = props;
 
     const [showFilter, setShowFilter] = useState(false);
     const filterRef = useRef<HTMLButtonElement | null>(null);
@@ -331,7 +331,7 @@ const TableFilter = (props: TableFilterProps) => {
     }, [onValidate, onShowFilterClick]);
 
     useEffect(() => {
-        columns && setFilters(appliedFilters.filter((fd) => Object.values(columns).some((cd) => cd.dfid === fd.col)));
+        columns && appliedFilters && setFilters(appliedFilters.filter((fd) => Object.values(columns).some((cd) => cd.dfid === fd.col)));
     }, [columns, appliedFilters]);
 
     return (
