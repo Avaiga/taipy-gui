@@ -220,6 +220,8 @@ class Gui:
 
     __extensions: t.Dict[str, t.List[ElementLibrary]] = {}
 
+    __shared_variables: t.List[str] = []
+
     def __init__(
         self,
         page: t.Optional[t.Union[str, Page]] = None,
@@ -382,6 +384,23 @@ class Gui:
                 f"add_library() argument should be a subclass of ElementLibrary instead of '{type(library)}'"
             )
 
+    @staticmethod
+    def add_shared_variable(*names: str) -> None:
+        """Add a shared variable.
+
+        This variable will be synchronized between all clients.
+        Only variable from the main module would be registered.
+
+        Arguments:
+            name: The name of the variable.
+        """
+        for name in names:
+            if name not in Gui.__shared_variables:
+                Gui.__shared_variables.append(name)
+
+    def _get_shared_variables(self) -> t.List[str]:
+        return self.__evaluator.get_shared_variables()
+
     def __get_content_accessor(self):
         if self.__content_accessor is None:
             self.__content_accessor = _ContentAccessor(self._get_config("data_url_max_size", 50 * 1024))
@@ -533,6 +552,9 @@ class Gui:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
         derived_vars = {hash_expr}
+        # set to broadcast mode if hash_expr is in shared_variable
+        if hash_expr in self._get_shared_variables():
+            self._set_broadcast()
         # Use custom attrsetter function to allow value binding for _MapDict
         if propagate:
             _setscopeattr_drill(self, hash_expr, value)
@@ -970,6 +992,7 @@ class Gui:
         ]
         if self._is_broadcasting():
             self.__broadcast_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
+            self._del_broadcast()
         else:
             self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
@@ -1547,8 +1570,14 @@ class Gui:
         self.__send_ws_broadcast(name, value)
 
     def _broadcast_all_clients(self, name: str, value: t.Any):
-        setattr(g, "is_broadcasting", True)
+        self._set_broadcast()
         self._update_var(name, value)
+        self._del_broadcast()
+
+    def _set_broadcast(self, broadcast: bool = True):
+        setattr(g, "is_broadcasting", broadcast)
+
+    def _del_broadcast(self):
         delattr(g, "is_broadcasting")
 
     def _is_broadcasting(self) -> bool:
@@ -2014,7 +2043,7 @@ class Gui:
                         _warn(f"Method {name}.on_init() raised an exception:\n{e}")
 
         # Initiate the Evaluator with the right context
-        self.__evaluator = _Evaluator(glob_ctx)
+        self.__evaluator = _Evaluator(glob_ctx, self.__shared_variables)
 
         self.__register_blueprint()
 
