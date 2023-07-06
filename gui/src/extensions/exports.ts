@@ -36,7 +36,7 @@ export {
     createSendActionNameAction,
     createSendUpdateAction,
     getUpdateVar,
-    useClassNames
+    useClassNames,
     useDispatchRequestUpdateOnFirstRender,
     useDispatch,
     useDynamicProperty,
