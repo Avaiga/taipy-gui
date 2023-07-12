@@ -193,6 +193,7 @@ class Gui:
     __UI_BLOCK_NAME = "TaipyUiBlockVar"
     __MESSAGE_GROUPING_NAME = "TaipyMessageGrouping"
     __ON_INIT_NAME = "TaipyOnInit"
+    __ON_LIB_INIT_NAME = "TaipyOnLibsInit"
     __ARG_CLIENT_ID = "client_id"
     __INIT_URL = "taipy-init"
     __JSX_URL = "taipy-jsx"
@@ -277,17 +278,11 @@ class Gui:
         # store suspected local containing frame
         self.__frame = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back)
         self.__default_module_name = _get_module_name_from_frame(self.__frame)
+        self._set_css_file(css_file)
 
         # Preserve server config for server initialization
         self._path_mapping = path_mapping
         self._flask = flask
-        if css_file is None:
-            script_file = pathlib.Path(self.__frame.f_code.co_filename or ".").resolve()
-            if script_file.with_suffix(".css").exists():
-                css_file = f"{script_file.stem}.css"
-            elif script_file.is_dir() and (script_file / "taipy.css").exists():
-                css_file = "taipy.css"
-        self.__css_file = css_file
 
         self._config = _Config()
         self.__content_accessor = None
@@ -1588,24 +1583,30 @@ class Gui:
         self.__send_ws_navigate(to if to != Gui.__root_page_name else "/", tab, force or False)
         return True
 
+    def __init_libs(self):
+        if not _hasscopeattr(self, Gui.__ON_LIB_INIT_NAME):
+            _setscopeattr(self, Gui.__ON_LIB_INIT_NAME, True)
+            for name, libs in self.__extensions.items():
+                for lib in libs:
+                    if not isinstance(lib, ElementLibrary):
+                        continue
+                    try:
+                        self._call_function_with_state(lib.on_user_init, [])
+                    except Exception as e:  # pragma: no cover
+                        if not self._call_on_exception(f"{name}.on_user_init", e):
+                            _warn(f"Exception raised in {name}.on_user_init():\n{e}")
+
     def __init_route(self):
         self.__set_client_id_in_context()
-        if hasattr(self, "on_init") and callable(self.on_init) and not _hasscopeattr(self, Gui.__ON_INIT_NAME):
-            _setscopeattr(self, Gui.__ON_INIT_NAME, True)
-            try:
-                self._call_function_with_state(self.on_init, [])
-            except Exception as e:  # pragma: no cover
-                if not self._call_on_exception("on_init", e):
-                    _warn(f"Exception raised in on_init():\n{e}")
-        for name, libs in self.__extensions.items():
-            for lib in libs:
-                if not isinstance(lib, ElementLibrary):
-                    continue
+        self.__init_libs()
+        if not _hasscopeattr(self, Gui.__ON_INIT_NAME):
+            if hasattr(self, "on_init") and callable(self.on_init):
+                _setscopeattr(self, Gui.__ON_INIT_NAME, True)
                 try:
-                    self._call_function_with_state(lib.on_user_init, [])
+                    self._call_function_with_state(self.on_init, [])
                 except Exception as e:  # pragma: no cover
-                    if not self._call_on_exception(f"{name}.on_user_init", e):
-                        _warn(f"Exception raised in {name}.on_user_init():\n{e}")
+                    if not self._call_on_exception("on_init", e):
+                        _warn(f"Exception raised in on_init():\n{e}")
         return self._render_route()
 
     def _call_on_exception(self, function_name: str, exception: Exception) -> bool:
@@ -1699,6 +1700,15 @@ class Gui:
             raise RuntimeError("frame must be a FrameType where Gui can collect the local variables.")
         self.__frame = frame
         self.__default_module_name = _get_module_name_from_frame(self.__frame)
+
+    def _set_css_file(self, css_file: t.Optional[str] = None):
+        if css_file is None:
+            script_file = pathlib.Path(self.__frame.f_code.co_filename or ".").resolve()
+            if script_file.with_suffix(".css").exists():
+                css_file = f"{script_file.stem}.css"
+            elif script_file.is_dir() and (script_file / "taipy.css").exists():
+                css_file = "taipy.css"
+        self.__css_file = css_file
 
     def _set_state(self, state: State):
         if isinstance(state, State):
