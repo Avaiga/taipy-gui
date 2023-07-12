@@ -234,6 +234,10 @@ class _PandasDataAccessor(_DataAccessor):
                 value = value.query(query)
             except Exception as e:
                 _warn(f"Dataframe filtering: invalid query '{query}' on {value.head()}:\n{e}")
+            if _PandasDataAccessor.__INDEX_COL not in value.columns:
+                value[_PandasDataAccessor.__INDEX_COL] = value.index
+            if _PandasDataAccessor.__INDEX_COL not in columns:
+                columns.append(_PandasDataAccessor.__INDEX_COL)
 
         if paged:
             aggregates = payload.get("aggregates")

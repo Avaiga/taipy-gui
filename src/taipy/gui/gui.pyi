@@ -2,7 +2,7 @@ import pathlib
 import typing as t
 from types import FrameType
 
-from _typeshed import Incomplete
+from typing import Any as Incomplete
 from flask import Flask
 
 from .config import Config, ConfigParameter
