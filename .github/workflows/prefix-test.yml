@@ -50,6 +50,7 @@ jobs:
         run: |
           pip install pipenv
           pipenv install --dev
+          pipenv run pip install --upgrade pip
           pipenv run pip install jsonschema==4.17.3
           pipenv run playwright install chromium --with-deps
       - name: run pytest
