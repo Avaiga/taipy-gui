@@ -32,40 +32,45 @@ class Page:
     """
 
     def __init__(self, **kwargs) -> None:
-        is_class_module = kwargs.get("is_class_module", False)
         self._class_module_name = ""
         self._class_locals: t.Dict[str, t.Any] = {}
         self._frame: t.Optional[FrameType] = None
-        self._renderer: t.Optional["_Renderer"] = getattr(self, "renderer", None)
+        self._renderer: t.Optional["_Renderer"] = self.create_page()
         if "frame" in kwargs:
             self._frame = kwargs.get("frame")
         else:
-            if is_class_module:
-                if self._renderer is None:
-                    raise AttributeError(f"Page '{type(self).__name__}' must have a 'renderer' attribute")
+            if self._renderer:
                 self._frame = self._renderer._frame
             else:
                 if len(inspect.stack()) < 4:
                     raise RuntimeError(f"Can't resolve module. Page '{type(self).__name__}' is not registered.")
                 self._frame = t.cast(FrameType, t.cast(FrameType, inspect.stack()[3].frame))
-        self.__extract_page_class(is_class_module)
+        if self._renderer:
+            # Extract the page module's attributes and methods
+            cls = type(self)
+            cls_locals = dict(self.__dict__.items())
+            funcs = [i[0] for i in inspect.getmembers(cls)
+                     if not i[0].startswith("_") and (inspect.ismethod(i[1]) or inspect.isfunction(i[1]))]
+            for f in funcs:
+                cls_locals[f] = getattr(self, f).__func__
+            self._class_module_name = cls.__name__
+            self._class_locals = cls_locals
 
-    def register_page(self) -> None:
-        Page.__init__(self, is_class_module=True)
 
-    def __extract_page_class(self, is_class_module: bool = False):
-        if not is_class_module:
-            return
-        cls = type(self)
-        valid_func = [
-            i[0]
-            for i in inspect.getmembers(cls)
-            if not i[0].startswith("_") and (inspect.ismethod(i[1]) or inspect.isfunction(i[1]))
-        ]
-        cls_locals = dict(self.__dict__.items())
-        for f in valid_func:
-            cls_locals[f] = getattr(self, f).__func__
-        self._set_class_module(cls.__name__, cls_locals)
+    def create_page(self) -> t.Optional["Page"]:
+        """Create the page content for page modules.
+
+        If this page is a page module, this method must be overloaded and return the page content.
+
+        This method should never be called directly: only the Taipy GUI internals will.
+
+        The default implementation returns None, indicating that this class does not implement
+        a page module.
+
+        Returns:
+            The page content for this Page subclass, making it a page module.
+        """
+        return None
 
     def _get_locals(self) -> t.Optional[t.Dict[str, t.Any]]:
         return (
@@ -75,10 +80,6 @@ class Page:
             if (frame := self._get_frame()) is None
             else _filter_locals(frame.f_locals)
         )
-
-    def _set_class_module(self, name: str, locals_: t.Dict[str, t.Any]) -> None:
-        self._class_module_name = name
-        self._class_locals = locals_
 
     def _is_class_module(self):
         return self._class_module_name != ""

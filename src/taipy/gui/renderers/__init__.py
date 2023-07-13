@@ -57,7 +57,7 @@ class _Renderer(Page, ABC):
         Reads the new renderer content and reinitializes the _Renderer instance to reflect the change.
 
         !!! important
-            This function can only be used an IPython notebook context.
+            This function can only be used in an IPython notebook context.
 
         Arguments:
             content (str): The text content or the path to the file holding the text to be transformed.
