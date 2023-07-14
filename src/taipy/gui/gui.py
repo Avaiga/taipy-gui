@@ -1424,6 +1424,20 @@ class Gui:
             self.__directory_name_of_pages.append(folder_name)
             self.__add_pages_in_folder(folder_name, folder_path)
 
+    def add_page_scopes(self, folder_path: str) -> None:
+        pages: t.Mapping[str, t.Union[str, Page]] = {}
+
+        def _resolve_modules(folder_path: str, pages: t.Mapping[str, t.Union[str, Page]]) -> None:
+            list_of_files = os.listdir(folder_path)
+            for file_name in list_of_files:
+                if file_name.endswith(".py"):
+                    file_path = os.path.join(folder_path, file_name)
+                if os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
+                    _resolve_modules(child_dir_path, pages)
+
+        _resolve_modules(folder_path, pages)
+        self.add_pages(pages)
+
     # partials
 
     def add_partial(
