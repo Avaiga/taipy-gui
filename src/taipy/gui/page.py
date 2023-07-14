@@ -9,14 +9,13 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from __future__ import annotations
+
 import inspect
 import typing as t
 from types import FrameType
 
 from .utils import _filter_locals, _get_module_name_from_frame
-
-if t.TYPE_CHECKING:
-    from .renderers import _Renderer
 
 
 class Page:
@@ -35,29 +34,30 @@ class Page:
         self._class_module_name = ""
         self._class_locals: t.Dict[str, t.Any] = {}
         self._frame: t.Optional[FrameType] = None
-        self._renderer: t.Optional["_Renderer"] = self.create_page()
+        self._renderer: t.Optional[Page] = self.create_page()
         if "frame" in kwargs:
             self._frame = kwargs.get("frame")
+        elif self._renderer:
+            self._frame = self._renderer._frame
+        elif len(inspect.stack()) < 4:
+            raise RuntimeError(f"Can't resolve module. Page '{type(self).__name__}' is not registered.")
         else:
-            if self._renderer:
-                self._frame = self._renderer._frame
-            else:
-                if len(inspect.stack()) < 4:
-                    raise RuntimeError(f"Can't resolve module. Page '{type(self).__name__}' is not registered.")
-                self._frame = t.cast(FrameType, t.cast(FrameType, inspect.stack()[3].frame))
+            self._frame = t.cast(FrameType, t.cast(FrameType, inspect.stack()[3].frame))
         if self._renderer:
             # Extract the page module's attributes and methods
             cls = type(self)
             cls_locals = dict(self.__dict__.items())
-            funcs = [i[0] for i in inspect.getmembers(cls)
-                     if not i[0].startswith("_") and (inspect.ismethod(i[1]) or inspect.isfunction(i[1]))]
+            funcs = [
+                i[0]
+                for i in inspect.getmembers(cls)
+                if not i[0].startswith("_") and (inspect.ismethod(i[1]) or inspect.isfunction(i[1]))
+            ]
             for f in funcs:
                 cls_locals[f] = getattr(self, f).__func__
             self._class_module_name = cls.__name__
             self._class_locals = cls_locals
 
-
-    def create_page(self) -> t.Optional["Page"]:
+    def create_page(self) -> t.Optional[Page]:
         """Create the page content for page modules.
 
         If this page is a page module, this method must be overloaded and return the page content.
