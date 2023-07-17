@@ -325,7 +325,7 @@ export const EditableCell = (props: EditableCellProps) => {
     const onSelect = useCallback(() => {
         onSelection && onSelection(rowIndex, colDesc.dfid);
         return false;
-    }, [onSelection, rowIndex]);
+    }, [onSelection, rowIndex, colDesc.dfid]);
 
     return (
         <TableCell {...getCellProps(colDesc, tableCellProps)} className={className} title={tooltip}>
