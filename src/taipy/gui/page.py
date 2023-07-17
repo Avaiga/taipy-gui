@@ -46,8 +46,7 @@ class Page:
         if self._renderer:
             # Extract the page module's attributes and methods
             cls = type(self)
-            cls_locals = {k: v for k, v in vars(cls).items() if not callable(v) and not k.startswith("_")}
-            cls_locals.update(dict(vars(self).items()))
+            cls_locals = dict(vars(self))
             funcs = [
                 i[0]
                 for i in inspect.getmembers(cls)

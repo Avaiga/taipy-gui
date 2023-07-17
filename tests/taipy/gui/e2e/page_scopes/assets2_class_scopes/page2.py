@@ -13,7 +13,9 @@ from taipy.gui import Markdown, Page
 
 
 class Page2(Page):
-    operand_2 = 0
+    def __init__(self):
+        self.operand_2 = 0
+        super().__init__()
 
     def create_page(self):
         return Markdown("page2.md")
