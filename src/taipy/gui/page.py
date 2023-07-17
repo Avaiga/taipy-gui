@@ -53,7 +53,9 @@ class Page:
                 if not i[0].startswith("_") and (inspect.ismethod(i[1]) or inspect.isfunction(i[1]))
             ]
             for f in funcs:
-                cls_locals[f] = getattr(self, f).__func__
+                func = getattr(self, f)
+                if hasattr(func, "__func__") and func.__func__ is not None:
+                    cls_locals[f] = func.__func__
             self._class_module_name = cls.__name__
             self._class_locals = cls_locals
 
