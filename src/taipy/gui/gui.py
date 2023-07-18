@@ -1253,13 +1253,13 @@ class Gui:
                 renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
             elif re_match := Gui.__RE_PY.match(file_name):
-                module_name = file_name[:-3]
+                module_name = re_match.group(1)
                 module_path = os.path.join(folder_name, module_name).replace(os.path.sep, ".")
                 try:
                     module = importlib.import_module(module_path)
                     page_instance = _get_page_from_module(module)
                     if page_instance is not None:
-                        self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=page_instance)
+                        self.add_page(name=f"{folder_name}/{module_name}", page=page_instance)
                 except Exception as e:
                     warnings.warn(f"Error while importing module '{module_path}': {e}")
             elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
