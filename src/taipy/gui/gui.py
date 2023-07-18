@@ -1239,10 +1239,12 @@ class Gui:
         return _taipy_on_cancel_block_ui
 
     def __add_pages_in_folder(self, folder_name: str, folder_path: str):
+        from .renderers import Html, Markdown
+
         list_of_files = os.listdir(folder_path)
         for file_name in list_of_files:
-            from .renderers import Html, Markdown
-
+            if file_name.startswith("__"):
+                continue
             if (re_match := Gui.__RE_HTML.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
                 renderers = Html(os.path.join(folder_path, file_name), frame=None)
                 renderers.modify_taipy_base_url(folder_name)
@@ -1250,21 +1252,17 @@ class Gui:
             elif (re_match := Gui.__RE_MD.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
                 renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
-            # Load python file that is not private
-            elif (re_match := Gui.__RE_PY.match(file_name)) and not file_name.startswith("__"):
+            elif re_match := Gui.__RE_PY.match(file_name):
                 module_name = file_name[:-3]
                 module_path = os.path.join(folder_name, module_name).replace(os.path.sep, ".")
                 try:
                     module = importlib.import_module(module_path)
                     page_instance = _get_page_from_module(module)
                     if page_instance is not None:
-                        self.add_page(module_name, page_instance)
+                        self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=page_instance)
                 except Exception as e:
                     warnings.warn(f"Error while importing module '{module_path}': {e}")
-            # Don't load folder with double underscores
-            elif not file_name.startswith("__") and os.path.isdir(
-                child_dir_path := os.path.join(folder_path, file_name)
-            ):
+            elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
 
