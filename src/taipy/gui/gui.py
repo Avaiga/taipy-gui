@@ -1261,7 +1261,7 @@ class Gui:
                     if page_instance is not None:
                         self.add_page(name=f"{folder_name}/{module_name}", page=page_instance)
                 except Exception as e:
-                    warnings.warn(f"Error while importing module '{module_path}': {e}")
+                    _warn(f"Error while importing module '{module_path}': {e}")
             elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
