@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import contextlib
+import importlib
 import inspect
 import json
 import os
@@ -66,6 +67,7 @@ from .utils import (
     _get_css_var_value,
     _get_module_name_from_frame,
     _get_non_existent_file_path,
+    _get_page_from_module,
     _getscopeattr,
     _getscopeattr_drill,
     _hasscopeattr,
@@ -206,6 +208,7 @@ class Gui:
 
     __RE_HTML = re.compile(r"(.*?)\.html")
     __RE_MD = re.compile(r"(.*?)\.md")
+    __RE_PY = re.compile(r"(.*?)\.py")
     __RE_PAGE_NAME = re.compile(r"^[\w\-\/]+$")
 
     __reserved_routes: t.List[str] = [
@@ -1240,14 +1243,28 @@ class Gui:
         for file_name in list_of_files:
             from .renderers import Html, Markdown
 
-            if re_match := Gui.__RE_HTML.match(file_name):
+            if (re_match := Gui.__RE_HTML.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
                 renderers = Html(os.path.join(folder_path, file_name), frame=None)
                 renderers.modify_taipy_base_url(folder_name)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers)
-            elif re_match := Gui.__RE_MD.match(file_name):
+            elif (re_match := Gui.__RE_MD.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
                 renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
-            elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
+            # Load python file that is not private
+            elif (re_match := Gui.__RE_PY.match(file_name)) and not file_name.startswith("__"):
+                module_name = file_name[:-3]
+                module_path = os.path.join(folder_name, module_name).replace(os.path.sep, ".")
+                try:
+                    module = importlib.import_module(module_path)
+                    page_instance = _get_page_from_module(module)
+                    if page_instance is not None:
+                        self.add_page(module_name, page_instance)
+                except Exception as e:
+                    warnings.warn(f"Error while importing module '{module_path}': {e}")
+            # Don't load folder with double underscores
+            elif not file_name.startswith("__") and os.path.isdir(
+                child_dir_path := os.path.join(folder_path, file_name)
+            ):
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
 
@@ -1452,20 +1469,6 @@ class Gui:
                 raise Exception(f"Invalid directory. Directory {folder_name} is a reserved route")
             self.__directory_name_of_pages.append(folder_name)
             self.__add_pages_in_folder(folder_name, folder_path)
-
-    def add_page_scopes(self, folder_path: str) -> None:
-        pages: t.Mapping[str, t.Union[str, Page]] = {}
-
-        def _resolve_modules(folder_path: str, pages: t.Mapping[str, t.Union[str, Page]]) -> None:
-            list_of_files = os.listdir(folder_path)
-            for file_name in list_of_files:
-                if file_name.endswith(".py"):
-                    file_path = os.path.join(folder_path, file_name)
-                if os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
-                    _resolve_modules(child_dir_path, pages)
-
-        _resolve_modules(folder_path, pages)
-        self.add_pages(pages)
 
     # partials
 
