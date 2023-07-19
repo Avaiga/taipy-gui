@@ -55,6 +55,7 @@ class _Chart_iprops(Enum):
     values = 28
     labels = 29
     decimator = 30
+    measure = 31
 
 
 __CHART_AXIS: t.Dict[str, t.Tuple[_Chart_iprops, ...]] = {
@@ -73,7 +74,8 @@ __CHART_AXIS: t.Dict[str, t.Tuple[_Chart_iprops, ...]] = {
     "bar": (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.base),
     "pie": (_Chart_iprops.values, _Chart_iprops.labels),
     "choropleth": (_Chart_iprops.locations, _Chart_iprops.z),
-    "funnelarea": (_Chart_iprops.values,),
+    "funnelarea": (_Chart_iprops.values),
+    "waterfall": (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.measure)
 }
 __CHART_DEFAULT_AXIS: t.Tuple[_Chart_iprops, ...] = (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.z)
 __CHART_MARKER_TO_COLS: t.Tuple[str, ...] = ("color", "size", "symbol", "opacity")
