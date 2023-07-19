@@ -206,9 +206,9 @@ class Gui:
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
 
-    __RE_HTML = re.compile(r"(.*?)\.html")
-    __RE_MD = re.compile(r"(.*?)\.md")
-    __RE_PY = re.compile(r"(.*?)\.py")
+    __RE_HTML = re.compile(r"(.*?)\.html$")
+    __RE_MD = re.compile(r"(.*?)\.md$")
+    __RE_PY = re.compile(r"(.*?)\.py$")
     __RE_PAGE_NAME = re.compile(r"^[\w\-\/]+$")
 
     __reserved_routes: t.List[str] = [
