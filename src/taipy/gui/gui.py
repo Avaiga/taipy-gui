@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import contextlib
+import importlib
 import inspect
 import json
 import os
@@ -23,7 +24,7 @@ import time
 import typing as t
 import warnings
 from importlib import util
-from types import FrameType
+from types import FrameType, SimpleNamespace
 from urllib.parse import unquote, urlencode, urlparse
 
 import __main__
@@ -66,6 +67,7 @@ from .utils import (
     _get_css_var_value,
     _get_module_name_from_frame,
     _get_non_existent_file_path,
+    _get_page_from_module,
     _getscopeattr,
     _getscopeattr_drill,
     _hasscopeattr,
@@ -193,6 +195,7 @@ class Gui:
     __UI_BLOCK_NAME = "TaipyUiBlockVar"
     __MESSAGE_GROUPING_NAME = "TaipyMessageGrouping"
     __ON_INIT_NAME = "TaipyOnInit"
+    __ON_LIB_INIT_NAME = "TaipyOnLibsInit"
     __ARG_CLIENT_ID = "client_id"
     __INIT_URL = "taipy-init"
     __JSX_URL = "taipy-jsx"
@@ -203,8 +206,9 @@ class Gui:
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
 
-    __RE_HTML = re.compile(r"(.*?)\.html")
-    __RE_MD = re.compile(r"(.*?)\.md")
+    __RE_HTML = re.compile(r"(.*?)\.html$")
+    __RE_MD = re.compile(r"(.*?)\.md$")
+    __RE_PY = re.compile(r"(.*?)\.py$")
     __RE_PAGE_NAME = re.compile(r"^[\w\-\/]+$")
 
     __reserved_routes: t.List[str] = [
@@ -219,6 +223,8 @@ class Gui:
     __LOCAL_TZ = str(tzlocal.get_localzone())
 
     __extensions: t.Dict[str, t.List[ElementLibrary]] = {}
+
+    __shared_variables: t.List[str] = []
 
     def __init__(
         self,
@@ -277,17 +283,11 @@ class Gui:
         # store suspected local containing frame
         self.__frame = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back)
         self.__default_module_name = _get_module_name_from_frame(self.__frame)
+        self._set_css_file(css_file)
 
         # Preserve server config for server initialization
         self._path_mapping = path_mapping
         self._flask = flask
-        if css_file is None:
-            script_file = pathlib.Path(self.__frame.f_code.co_filename or ".").resolve()
-            if script_file.with_suffix(".css").exists():
-                css_file = f"{script_file.stem}.css"
-            elif script_file.is_dir() and (script_file / "taipy.css").exists():
-                css_file = "taipy.css"
-        self.__css_file = css_file
 
         self._config = _Config()
         self.__content_accessor = None
@@ -382,6 +382,23 @@ class Gui:
                 f"add_library() argument should be a subclass of ElementLibrary instead of '{type(library)}'"
             )
 
+    @staticmethod
+    def add_shared_variable(*names: str) -> None:
+        """Add a shared variable.
+
+        This variable will be synchronized between all clients.
+        Only variable from the main module would be registered.
+
+        Arguments:
+            name: The name of the variable.
+        """
+        for name in names:
+            if name not in Gui.__shared_variables:
+                Gui.__shared_variables.append(name)
+
+    def _get_shared_variables(self) -> t.List[str]:
+        return self.__evaluator.get_shared_variables()
+
     def __get_content_accessor(self):
         if self.__content_accessor is None:
             self.__content_accessor = _ContentAccessor(self._get_config("data_url_max_size", 50 * 1024))
@@ -390,8 +407,11 @@ class Gui:
     def _bindings(self):
         return self.__bindings
 
-    def _get_data_scope(self):
+    def _get_data_scope(self) -> SimpleNamespace:
         return self.__bindings._get_data_scope()
+
+    def _get_all_data_scopes(self) -> t.Dict[str, SimpleNamespace]:
+        return self.__bindings._get_all_scopes()
 
     def _get_config(self, name: ConfigParameter, default_value: t.Any) -> t.Any:
         return self._config._get_config(name, default_value)
@@ -530,6 +550,9 @@ class Gui:
             var_name = holder.get_name()
         hash_expr = self.__evaluator.get_hash_from_expr(var_name)
         derived_vars = {hash_expr}
+        # set to broadcast mode if hash_expr is in shared_variable
+        if hash_expr in self._get_shared_variables():
+            self._set_broadcast()
         # Use custom attrsetter function to allow value binding for _MapDict
         if propagate:
             _setscopeattr_drill(self, hash_expr, value)
@@ -788,7 +811,6 @@ class Gui:
                 modified_vars.remove(k)
         for _var in modified_vars:
             newvalue = values.get(_var)
-            # self._scopes.broadcast_data(_var, newvalue)
             if isinstance(newvalue, _TaipyData):
                 newvalue = None
             else:
@@ -966,7 +988,11 @@ class Gui:
             {"name": _get_client_var_name(k), "payload": (v if isinstance(v, dict) and "value" in v else {"value": v})}
             for k, v in modified_values.items()
         ]
-        self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
+        if self._is_broadcasting():
+            self.__broadcast_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
+            self._del_broadcast()
+        else:
+            self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
     def __send_ws_broadcast(self, var_name: str, var_value: t.Any):
         self.__broadcast_ws(
@@ -1213,17 +1239,29 @@ class Gui:
         return _taipy_on_cancel_block_ui
 
     def __add_pages_in_folder(self, folder_name: str, folder_path: str):
+        from .renderers import Html, Markdown
+
         list_of_files = os.listdir(folder_path)
         for file_name in list_of_files:
-            from .renderers import Html, Markdown
-
-            if re_match := Gui.__RE_HTML.match(file_name):
+            if file_name.startswith("__"):
+                continue
+            if (re_match := Gui.__RE_HTML.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
                 renderers = Html(os.path.join(folder_path, file_name), frame=None)
                 renderers.modify_taipy_base_url(folder_name)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers)
-            elif re_match := Gui.__RE_MD.match(file_name):
+            elif (re_match := Gui.__RE_MD.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
                 renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
                 self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
+            elif re_match := Gui.__RE_PY.match(file_name):
+                module_name = re_match.group(1)
+                module_path = os.path.join(folder_name, module_name).replace(os.path.sep, ".")
+                try:
+                    module = importlib.import_module(module_path)
+                    page_instance = _get_page_from_module(module)
+                    if page_instance is not None:
+                        self.add_page(name=f"{folder_name}/{module_name}", page=page_instance)
+                except Exception as e:
+                    _warn(f"Error while importing module '{module_path}': {e}")
             elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
@@ -1342,7 +1380,8 @@ class Gui:
         # Update locals context
         self.__locals_context.add(page._get_module_name(), page._get_locals())
         # Update variable directory
-        self.__var_dir.add_frame(page._frame)
+        if not page._is_class_module():
+            self.__var_dir.add_frame(page._frame)
 
     def add_pages(self, pages: t.Optional[t.Union[t.Mapping[str, t.Union[str, Page]], str]] = None) -> None:
         """Add several pages to the Graphical User Interface.
@@ -1541,6 +1580,25 @@ class Gui:
         """
         self.__send_ws_broadcast(name, value)
 
+    def _broadcast_all_clients(self, name: str, value: t.Any):
+        self._set_broadcast()
+        self._update_var(name, value)
+        self._del_broadcast()
+
+    def _set_broadcast(self, broadcast: bool = True):
+        with contextlib.suppress(RuntimeError):
+            setattr(g, "is_broadcasting", broadcast)
+
+    def _del_broadcast(self):
+        with contextlib.suppress(RuntimeError):
+            delattr(g, "is_broadcasting")
+
+    def _is_broadcasting(self) -> bool:
+        try:
+            return getattr(g, "is_broadcasting", False)
+        except RuntimeError:
+            return False
+
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
         content_str = self._get_content("Gui.download", content, False)
         self.__send_ws_download(content_str, str(name), str(on_action))
@@ -1588,24 +1646,30 @@ class Gui:
         self.__send_ws_navigate(to if to != Gui.__root_page_name else "/", tab, force or False)
         return True
 
+    def __init_libs(self):
+        if not _hasscopeattr(self, Gui.__ON_LIB_INIT_NAME):
+            _setscopeattr(self, Gui.__ON_LIB_INIT_NAME, True)
+            for name, libs in self.__extensions.items():
+                for lib in libs:
+                    if not isinstance(lib, ElementLibrary):
+                        continue
+                    try:
+                        self._call_function_with_state(lib.on_user_init, [])
+                    except Exception as e:  # pragma: no cover
+                        if not self._call_on_exception(f"{name}.on_user_init", e):
+                            _warn(f"Exception raised in {name}.on_user_init():\n{e}")
+
     def __init_route(self):
         self.__set_client_id_in_context()
-        if hasattr(self, "on_init") and callable(self.on_init) and not _hasscopeattr(self, Gui.__ON_INIT_NAME):
-            _setscopeattr(self, Gui.__ON_INIT_NAME, True)
-            try:
-                self._call_function_with_state(self.on_init, [])
-            except Exception as e:  # pragma: no cover
-                if not self._call_on_exception("on_init", e):
-                    _warn(f"Exception raised in on_init():\n{e}")
-        for name, libs in self.__extensions.items():
-            for lib in libs:
-                if not isinstance(lib, ElementLibrary):
-                    continue
+        self.__init_libs()
+        if not _hasscopeattr(self, Gui.__ON_INIT_NAME):
+            if hasattr(self, "on_init") and callable(self.on_init):
+                _setscopeattr(self, Gui.__ON_INIT_NAME, True)
                 try:
-                    self._call_function_with_state(lib.on_user_init, [])
+                    self._call_function_with_state(self.on_init, [])
                 except Exception as e:  # pragma: no cover
-                    if not self._call_on_exception(f"{name}.on_user_init", e):
-                        _warn(f"Exception raised in {name}.on_user_init():\n{e}")
+                    if not self._call_on_exception("on_init", e):
+                        _warn(f"Exception raised in on_init():\n{e}")
         return self._render_route()
 
     def _call_on_exception(self, function_name: str, exception: Exception) -> bool:
@@ -1699,6 +1763,15 @@ class Gui:
             raise RuntimeError("frame must be a FrameType where Gui can collect the local variables.")
         self.__frame = frame
         self.__default_module_name = _get_module_name_from_frame(self.__frame)
+
+    def _set_css_file(self, css_file: t.Optional[str] = None):
+        if css_file is None:
+            script_file = pathlib.Path(self.__frame.f_code.co_filename or ".").resolve()
+            if script_file.with_suffix(".css").exists():
+                css_file = f"{script_file.stem}.css"
+            elif script_file.is_dir() and (script_file / "taipy.css").exists():
+                css_file = "taipy.css"
+        self.__css_file = css_file
 
     def _set_state(self, state: State):
         if isinstance(state, State):
@@ -2001,7 +2074,7 @@ class Gui:
                         _warn(f"Method {name}.on_init() raised an exception:\n{e}")
 
         # Initiate the Evaluator with the right context
-        self.__evaluator = _Evaluator(glob_ctx)
+        self.__evaluator = _Evaluator(glob_ctx, self.__shared_variables)
 
         self.__register_blueprint()
 
