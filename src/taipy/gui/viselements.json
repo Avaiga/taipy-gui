@@ -333,7 +333,7 @@
           {
             "name": "measure",
             "type": "indexed(str)",
-            "doc": "Column name for the <i>measure</i> value, for 'waterfall' charts. See <a href=\"https://plotly.com/javascript/reference/candlestick/#candlestick-close\">Plotly Candlestick charts</a>."
+            "doc": "Column name for the <i>measure</i> value, for 'waterfall' charts. See <a href=\"https://plotly.com/javascript/reference/waterfall/#waterfall-measure\">Plotly Waterfall charts</a>."
           },
           {
             "name": "locations",
