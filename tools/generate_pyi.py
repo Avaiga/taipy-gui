@@ -1,6 +1,6 @@
 import os
 
-os.system('stubgen ./src/taipy/gui/gui.py --no-import --parse-only --export-less -o ./')
+os.system('pipenv run stubgen ./src/taipy/gui/gui.py --no-import --parse-only --export-less -o ./')
 
 from src.taipy.gui.config import Config
 
@@ -19,5 +19,5 @@ with open("./src/taipy/gui/gui.pyi", "r") as file:
 with open("./src/taipy/gui/gui.pyi", "w") as write_file:
     write_file.write(replaced_content)
 
-os.system("isort src/taipy/gui/gui.pyi")
-os.system("black src/taipy/gui/gui.pyi")
+os.system("pipenv run isort src/taipy/gui/gui.pyi")
+os.system("pipenv run black src/taipy/gui/gui.pyi")
