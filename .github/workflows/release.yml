@@ -58,6 +58,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
 
+      - name: Generate pyi files
+        run: |
+          pip install mypy isort black
+          cp tools/generate_pyi.py temp.py && python temp.py && rm temp.py
+
       - name: Build and test the package
         run: |
           python setup.py build_py && python -m build
@@ -85,6 +90,6 @@ jobs:
 
       - name: Create/update release and tag
         run: |
-            gh release create ${{ github.event.inputs.version }} --target ${{ steps.extract_hash.outputs.HASH }} --notes "Release created using Github Workflows"
+            gh release create ${{ github.event.inputs.version }} ./dist/taipy-gui-${{ github.event.inputs.version }}.tar.gz --target ${{ steps.extract_hash.outputs.HASH }} --notes "Release created using Github Workflows"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
