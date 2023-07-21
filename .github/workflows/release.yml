@@ -63,6 +63,7 @@ jobs:
           pip install pipenv
           pipenv install --dev --skip-lock
           cp tools/generate_pyi.py temp.py && pipenv run python temp.py && rm temp.py
+          pipenv --rm
 
       - name: Build and test the package
         run: |
