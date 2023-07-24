@@ -1,15 +1,14 @@
-name: Create Github pre-release
+name: Create Github Dev Release
 
 on:
   workflow_dispatch:
     inputs:
       taipy-config-version:
-        description: "The taipy-config version to use (ex: 2.3.0.dev0)"
-        required: true
+        description: "The taipy-config version to use (ex: 1.0.0.dev0)"
 
 jobs:
-  publish:
-    timeout-minutes: 20
+  test-release-package:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,10 +51,6 @@ jobs:
           """ > /tmp/check1.py
           python /tmp/check1.py
 
-      - name: Check dependencies are available
-        run: |
-          curl https://pypi.org/simple/taipy-config/ | grep -o ">taipy-config-${{ github.event.inputs.taipy-config-version }}\.tar\.gz<"
-
       - name: Ensure package version is properly set
         id: current-version
         run: |
@@ -75,7 +70,13 @@ jobs:
             python -m pip install --upgrade pip
             pip install build
 
+      - name: Check dependencies are available
+        if: github.event.inputs.taipy-config-version != ''
+        run: |
+          curl https://pypi.org/simple/taipy-config/ | grep -o ">taipy-config-${{ github.event.inputs.taipy-config-version }}\.tar\.gz<"
+
       - name: Update setup.py locally
+        if: github.event.inputs.taipy-config-version != ''
         run: |
               mv setup.py setup.taipy.py
               echo """
