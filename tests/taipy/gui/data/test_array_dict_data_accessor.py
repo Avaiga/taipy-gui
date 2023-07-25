@@ -82,7 +82,7 @@ def test_array_of_array(gui: Gui, helpers, small_dataframe):
     assert value["rowcount"] == 2
     data = value["data"]
     assert len(data) == 2
-    assert len(data[0]) == 4 # _tp_index was added
+    assert len(data[0]) == 4  # _tp_index was added
 
 
 def test_empty_array(gui: Gui, helpers, small_dataframe):
