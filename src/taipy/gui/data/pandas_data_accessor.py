@@ -114,7 +114,7 @@ class _PandasDataAccessor(_DataAccessor):
                 if len(grps) > 4 and grps[4]:
                     data[newcol] = data[col].dt.tz_convert("UTC").dt.strftime(_DataAccessor._WS_DATE_FORMAT).astype(str)
                 else:
-                    with pd.option_context('mode.chained_assignment', None):
+                    with pd.option_context("mode.chained_assignment", None):
                         data[newcol] = (
                             data[col]
                             .dt.tz_localize(tz)
