@@ -69,7 +69,7 @@ class _PandasDataAccessor(_DataAccessor):
         styles: t.Optional[t.Dict[str, str]] = None,
         tooltips: t.Optional[t.Dict[str, str]] = None,
         is_copied: t.Optional[bool] = False,
-        new_indexes: t.Optional[np.ndarray[t.Any, t.Any]] = None,
+        new_indexes: t.Optional[np.ndarray] = None,
     ) -> pd.DataFrame:
         if isinstance(payload_cols, list) and len(payload_cols):
             col_types = dataframe.dtypes[dataframe.dtypes.index.astype(str).isin(payload_cols)]
