@@ -114,13 +114,14 @@ class _PandasDataAccessor(_DataAccessor):
                 if len(grps) > 4 and grps[4]:
                     data[newcol] = data[col].dt.tz_convert("UTC").dt.strftime(_DataAccessor._WS_DATE_FORMAT).astype(str)
                 else:
-                    data[newcol] = (
-                        data[col]
-                        .dt.tz_localize(tz)
-                        .dt.tz_convert("UTC")
-                        .dt.strftime(_DataAccessor._WS_DATE_FORMAT)
-                        .astype(str)
-                    )
+                    with pd.option_context('mode.chained_assignment', None):
+                        data[newcol] = (
+                            data[col]
+                            .dt.tz_localize(tz)
+                            .dt.tz_convert("UTC")
+                            .dt.strftime(_DataAccessor._WS_DATE_FORMAT)
+                            .astype(str)
+                        )
             # remove the date columns from the list of columns
             cols = list(set(cols) - set(datecols))
         data = data.loc[:, data.dtypes[data.dtypes.index.astype(str).isin(cols)].index]  # type: ignore
