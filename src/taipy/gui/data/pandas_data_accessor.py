@@ -352,7 +352,7 @@ class _PandasDataAccessor(_DataAccessor):
                                 z_column,
                                 decimator=decimator_instance,
                                 payload=decimator_payload,
-                                is_copied=is_copied
+                                is_copied=is_copied,
                             )
                             gui._call_on_change(f"{var_name}.{decimator}.nb_rows", len(value))
                         except Exception as e:
