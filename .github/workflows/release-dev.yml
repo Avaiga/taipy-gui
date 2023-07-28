@@ -7,7 +7,7 @@ on:
         description: "The taipy-config version to use (ex: 1.0.0.dev0)"
 
 jobs:
-  test-release-package:
+  release-dev-package:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +51,7 @@ jobs:
           """ > /tmp/check1.py
           python /tmp/check1.py
 
-      - name: Ensure package version is properly set
+      - name: Extract package version
         id: current-version
         run: |
               echo """

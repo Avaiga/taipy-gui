@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The Pypi package version to create (ex: 1.0.0, 1.0.0.dev0)"
+        description: "The tag of the package to publish on Pypi (ex: 1.0.0, 1.0.0.dev0)"
         required: true
 
 jobs:
