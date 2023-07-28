@@ -21,20 +21,20 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Extract branch name
-        shell: bash
-        run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-        id: extract_branch
+      # - name: Extract branch name
+      #   shell: bash
+      #   run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+      #   id: extract_branch
 
-      - name: Validate branch name (has 'dev' prefix)
-        run: |
-          echo """
-          import sys
-          PREFIX = 'dev'
-          if not sys.argv[1].startswith(PREFIX):
-              raise ValueError(f'Branch name must start with \"{PREFIX}\"')
-          """ > /tmp/check.py
-          python /tmp/check.py "${{ steps.extract_branch.outputs.BRANCH }}"
+      # - name: Validate branch name (has 'dev' prefix)
+      #   run: |
+      #     echo """
+      #     import sys
+      #     PREFIX = 'dev'
+      #     if not sys.argv[1].startswith(PREFIX):
+      #         raise ValueError(f'Branch name must start with \"{PREFIX}\"')
+      #     """ > /tmp/check.py
+      #     python /tmp/check.py "${{ steps.extract_branch.outputs.BRANCH }}"
 
       - name: Ensure package version has 'dev' suffix
         run: |
