@@ -15,6 +15,7 @@ from os import path
 
 from ..page import Page
 from ..utils import _is_in_notebook, _varname_from_content
+from ._class_api import BlockElementApi, ControlElementApi, ElementApi
 from ._html import _TaipyHTMLParser
 
 if t.TYPE_CHECKING:
@@ -31,16 +32,20 @@ class _Renderer(Page, ABC):
         If *content* is a path to a readable file, the file is read entirely as the text template.
         """
         super().__init__(**kwargs)
-        content: str = kwargs.get("content", None)
+        content: t.Optional[t.Union[str, ElementApi]] = kwargs.get("content", None)
         if content is None:
             raise ValueError("'content' argument is missing for class '_Renderer'")
-        if not isinstance(content, str):
-            raise ValueError(
-                f"'content' argument has incorrect type '{type(content).__name__}'. Property must be type of 'str'."
-            )
         self._content = ""
+        self._base_element: t.Optional[ElementApi] = None
         self._filepath = ""
-        self.__process_content(content)
+        if isinstance(content, str):
+            self.__process_content(content)
+        elif isinstance(content, ElementApi):
+            self._base_element = content
+        else:
+            raise ValueError(
+                f"'content' argument has incorrect type '{type(content).__name__}'. Property must be type of Union[str, ElementApi]"
+            )
 
     def __process_content(self, content: str) -> None:
         if path.exists(content) and path.isfile(content):
@@ -162,3 +167,19 @@ class Html(_Renderer):
         parser.feed_data(self._content)
         self.head = parser.head
         return parser.get_jsx()
+
+
+class ClassApi(_Renderer):
+    """
+    Page generator for Element Api.
+    """
+
+    def __init__(self, content: ElementApi, **kwargs) -> None:
+        kwargs["content"] = content
+        super().__init__(**kwargs)
+
+    # Generate JSX from Element Object
+    def render(self, gui) -> str:
+        if self._base_element is None:
+            return "<h1>No Base Element found for ClassApi</h1>"
+        return self._base_element._render(gui)
