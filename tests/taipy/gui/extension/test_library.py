@@ -53,16 +53,14 @@ class MyLibrary(ElementLibrary):
         ),
         "inner": Element(
             "value",
-            {
-                "value": ElementProperty(PropertyType.string, "")
-            },
-            inner_properties = {
+            {"value": ElementProperty(PropertyType.string, "")},
+            inner_properties={
                 "with_property": ElementProperty(
                     PropertyType.react,
                     f"{{<tp:prop:value>}}",
                 ),
-            }
-        )
+            },
+        ),
     }
 
     def get_name(self) -> str:
@@ -141,8 +139,13 @@ def test_lib_inner_md(gui: Gui, test_client, helpers):
     val = "title"  # noqa: F841
     gui._set_frame(inspect.currentframe())
     md_string = "<|{val}|test_lib.inner|>"
-    expected = ["<TestLib_Inner", "value={tpec_TpExPr_val_TPMDL_0}", "withProperty={tpec_TpExPr_tpec_TpExPr_val_TPMDL_0_TPMDL_0}"]
+    expected = [
+        "<TestLib_Inner",
+        "value={tpec_TpExPr_val_TPMDL_0}",
+        "withProperty={tpec_TpExPr_tpec_TpExPr_val_TPMDL_0_TPMDL_0}",
+    ]
     helpers.test_control_md(gui, md_string, expected)
+
 
 def test_lib_inner_no_value_md(gui: Gui, test_client, helpers):
     gui._set_frame(inspect.currentframe())
