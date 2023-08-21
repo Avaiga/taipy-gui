@@ -23,6 +23,7 @@ jobs:
           python-version: ${{ matrix.python-versions }}
       - name: Install pipenv
         run: |
+          rm Pipfile.lock
           pip install pipenv
           pipenv install --dev
       - name: Generate pyi
