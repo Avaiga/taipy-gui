@@ -50,7 +50,7 @@ const Slider = (props: SliderProps) => {
         updateVars = "",
         valueById,
     } = props;
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState<number|number[]|null>(0);
     const dispatch = useDispatch();
     const delayCall = useRef(-1);
     const lastVal = useRef<string|number>(0);
@@ -70,7 +70,7 @@ const Slider = (props: SliderProps) => {
 
     const handleRange = useCallback(
         (e: Event, val: number | number[]) => {
-            setValue(val as number);
+            setValue(val);
             if (update) {
                 lastVal.current = lovList.length && lovList.length > (val as number) ? lovList[val as number].id : val as number;
                 if (changeDelay) {
@@ -91,7 +91,7 @@ const Slider = (props: SliderProps) => {
 
     const handleRangeCommitted = useCallback(
         (e: Event | SyntheticEvent, val: number | number[]) => {
-            setValue(val as number);
+            setValue(val);
             if (!update) {
                 const value = lovList.length && lovList.length > (val as number) ? lovList[val as number].id : val;
                 dispatch(
@@ -124,13 +124,13 @@ const Slider = (props: SliderProps) => {
     );
 
     const getText = useCallback(
-        (value: number, before: boolean) => {
+        (value: number|number[]|null, before: boolean) => {
             if (lovList.length) {
                 if (before && (textAnchor === "top" || textAnchor === "left")) {
-                    return getLabel(value);
+                    return getLabel(value as number);
                 }
                 if (!before && (textAnchor === "bottom" || textAnchor === "right")) {
-                    return getLabel(value);
+                    return getLabel(value as number);
                 }
             }
             return null;
@@ -195,7 +195,7 @@ const Slider = (props: SliderProps) => {
 
     useEffect(() => {
         if (props.value === undefined) {
-            let val = 0;
+            let val: number | number[] | null = 0;
             if (defaultValue !== undefined) {
                 if (typeof defaultValue === "string") {
                     if (lovList.length) {
@@ -207,10 +207,18 @@ const Slider = (props: SliderProps) => {
                             // Too bad also
                         }
                     } else {
-                        try {
-                            val = parseInt(defaultValue, 10);
-                        } catch (e) {
-                            // too bad
+                        val = Number(defaultValue)
+                        if (isNaN(val)) {
+                            try {
+                                val = JSON.parse(defaultValue) as number[];
+                                if (val.some(isNaN)) {
+                                    throw new Error("Slider values should all be numbers");
+                                }
+                            } catch (e) {
+                                // Invalid values
+                                console.error(`${e}: ${defaultValue}.`)
+                                val = null
+                            }
                         }
                     }
                 } else {
@@ -234,7 +242,7 @@ const Slider = (props: SliderProps) => {
             <Tooltip title={hover || ""}>
                 <MuiSlider
                     id={id}
-                    value={value as number}
+                    value={value ? value : 0}
                     onChange={handleRange}
                     onChangeCommitted={handleRangeCommitted}
                     disabled={!active}
