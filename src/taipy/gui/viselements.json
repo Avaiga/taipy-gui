@@ -130,8 +130,8 @@
           {
             "name": "value",
             "default_property": true,
-            "type": "dynamic(int|float|str)",
-            "doc": "The value that is set for this slider.<br/>It would be a <i>lov</i> label if it is used."
+            "type": "dynamic(int|float|str|float[])",
+            "doc": "The value that is set for this slider.<br/>It would be a <i>lov</i> label if it is used.<br/>This value can also hold an array of numbers to indicate that the slider reflects a range (within the [<i>min</i>,<i>max</i>] domain) defined by several knobs that the user can move around."
           },
           {
             "name": "min",
