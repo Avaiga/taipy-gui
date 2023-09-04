@@ -15,7 +15,7 @@ from os import path
 
 from ..page import Page
 from ..utils import _is_in_notebook, _varname_from_content
-from ._class_api.element_api import ElementApi
+from ._class_api import BlockElementApi, ControlElementApi, ElementApi, _ElementApiGenerator
 from ._html import _TaipyHTMLParser
 
 if t.TYPE_CHECKING:

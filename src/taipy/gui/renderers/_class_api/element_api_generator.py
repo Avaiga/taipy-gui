@@ -16,9 +16,11 @@ import sys
 import types
 import typing as t
 
-from ...extension.library import ElementLibrary
 from ...utils.singleton import _Singleton
 from .element_api import BlockElementApi, ControlElementApi
+
+if t.TYPE_CHECKING:
+    from ...extension.library import ElementLibrary
 
 
 class _ElementApiGenerator(object, metaclass=_Singleton):
@@ -50,7 +52,7 @@ class _ElementApiGenerator(object, metaclass=_Singleton):
                     _ElementApiGenerator.createControlElement(controlElement[0], controlElement[0]),
                 )
 
-    def add_library(self, library: ElementLibrary):
+    def add_library(self, library: "ElementLibrary"):
         library_name = library.get_name()
         if self.__module is None:
             raise RuntimeError(f"Cannot add Element API for extension library: '{library_name}'")
