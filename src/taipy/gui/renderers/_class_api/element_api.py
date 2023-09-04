@@ -68,6 +68,13 @@ class BlockElementApi(ElementApi):
         return "\n".join([child._render(gui) for child in self._children])
 
 
+class DefaultBlockElement(BlockElementApi):
+    _ELEMENT_NAME = "part"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class ControlElementApi(ElementApi):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
