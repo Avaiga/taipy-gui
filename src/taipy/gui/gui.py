@@ -992,7 +992,7 @@ class Gui:
         ]
         if self._is_broadcasting():
             self.__broadcast_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
-            self._del_broadcast()
+            self._set_broadcast(False)
         else:
             self.__send_ws({"type": _WsType.MULTIPLE_UPDATE.value, "payload": payload})
 
@@ -1585,15 +1585,11 @@ class Gui:
     def _broadcast_all_clients(self, name: str, value: t.Any):
         self._set_broadcast()
         self._update_var(name, value)
-        self._del_broadcast()
+        self._set_broadcast(False)
 
     def _set_broadcast(self, broadcast: bool = True):
         with contextlib.suppress(RuntimeError):
             setattr(g, "is_broadcasting", broadcast)
-
-    def _del_broadcast(self):
-        with contextlib.suppress(RuntimeError):
-            delattr(g, "is_broadcasting")
 
     def _is_broadcasting(self) -> bool:
         try:
