@@ -14,6 +14,7 @@ from __future__ import annotations
 import typing as t
 from abc import ABC, abstractmethod
 
+from ...utils import _property_to_string
 from .element_api_context_manager import _ElementApiContextManager
 from .factory import _ClassApiFactory
 
@@ -33,9 +34,15 @@ class ElementApi(ABC):
 
     def __init__(self, **kwargs):
         self._properties = kwargs
+        self.parse_properties()
 
     def update(self, **kwargs):
         self._properties.update(kwargs)
+        self.parse_properties()
+
+    # Convert property value to string
+    def parse_properties(self):
+        self._properties = {k: _property_to_string(v) for k, v in self._properties.items()}
 
     @abstractmethod
     def _render(self, gui: "Gui") -> str:
