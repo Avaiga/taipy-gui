@@ -16,9 +16,9 @@ import sys
 import types
 import typing as t
 
-from ..extension.library import ElementLibrary
-from ..renderers._class_api import BlockElementApi, ControlElementApi
-from .singleton import _Singleton
+from ...extension.library import ElementLibrary
+from ...utils.singleton import _Singleton
+from .element_api import BlockElementApi, ControlElementApi
 
 
 class _ElementApiGenerator(object, metaclass=_Singleton):
@@ -33,7 +33,9 @@ class _ElementApiGenerator(object, metaclass=_Singleton):
             raise RuntimeError("Cannot generate Element API for the current module: taipy-gui module not found.")
         module_name = current_frame.f_back.f_globals["__name__"]
         self.__module = module = sys.modules[module_name]
-        with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "viselements.json"))) as viselements:
+        with open(
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "viselements.json"))
+        ) as viselements:
             data = json.load(viselements)
             if "blocks" not in data or "controls" not in data:
                 raise RuntimeError("Cannot generate Element API for the current module: Invalid viselements.json file.")

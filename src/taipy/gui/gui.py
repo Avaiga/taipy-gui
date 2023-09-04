@@ -52,6 +52,7 @@ from .extension.library import Element, ElementLibrary
 from .page import Page
 from .partial import Partial
 from .renderers import _EmptyPage
+from .renderers._class_api.element_api_generator import _ElementApiGenerator
 from .renderers._markdown import _TaipyMarkdownExtension
 from .renderers.factory import _Factory
 from .renderers.json import _TaipyJsonEncoder
@@ -88,7 +89,6 @@ from .utils import (
 )
 from .utils._adapter import _Adapter
 from .utils._bindings import _Bindings
-from .utils._element_api_generator import _ElementApiGenerator
 from .utils._evaluator import _Evaluator
 from .utils._variable_directory import _MODULE_ID, _VariableDirectory
 from .utils.chart_config_builder import _build_chart_config

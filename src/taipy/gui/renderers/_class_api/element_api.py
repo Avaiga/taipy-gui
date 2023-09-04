@@ -14,7 +14,7 @@ from __future__ import annotations
 import typing as t
 from abc import ABC, abstractmethod
 
-from ...utils import _ElementApiContextManager
+from .element_api_context_manager import _ElementApiContextManager
 from .factory import _ClassApiFactory
 
 if t.TYPE_CHECKING:
