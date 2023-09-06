@@ -15,6 +15,7 @@ import os
 import sys
 import types
 import typing as t
+import warnings
 
 from ...utils.singleton import _Singleton
 from .element_api import BlockElementApi, ControlElementApi
@@ -55,7 +56,8 @@ class _ElementApiGenerator(object, metaclass=_Singleton):
     def add_library(self, library: "ElementLibrary"):
         library_name = library.get_name()
         if self.__module is None:
-            raise RuntimeError(f"Cannot add Element API for extension library: '{library_name}'")
+            warnings.warn("Cannot add Element API for extension library '{library_name}': No default module found")
+            return
         library_module = getattr(self.__module, library_name, None)
         if library_module is None:
             library_module = types.ModuleType(library_name)
