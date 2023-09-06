@@ -51,9 +51,10 @@ const Slider = (props: SliderProps) => {
         valueById,
     } = props;
     const [value, setValue] = useState<number|number[]|null>(0);
+    const [parsedDefaultValue, setParsedDefaultValue] = useState<number | number[] | null>();
     const dispatch = useDispatch();
     const delayCall = useRef(-1);
-    const lastVal = useRef<string|number>(0);
+    const lastVal = useRef<number|string|number[]|string[]>(0);
     const module = useModule();
 
     const className = useClassNames(props.libClassName, props.dynamicClassName, props.className);
@@ -68,49 +69,53 @@ const Slider = (props: SliderProps) => {
     const max = lovList.length ? lovList.length - 1 : props.max;
     const horizontalOrientation = props.orientation ? props.orientation.charAt(0).toLowerCase() !== "v" : true;
 
+    // Converts the slider value (number or array of numbers) to a proper backend value
+    // depending on whether we're dealing with a lov or not
+    const convertValue = useCallback(
+        (v: number | number[]): number | number[] | string | string[] =>
+            Array.isArray(v)
+            ? (lovList.length
+                ? v.map((i) => lovList.length > (i as number) ? lovList[i as number].id : lovList[0].id)
+                : v)
+                : (lovList.length && lovList.length > (v as number) ? lovList[v as number].id : v),
+        [lovList])
+
     const handleRange = useCallback(
         (e: Event, val: number | number[]) => {
             setValue(val);
             if (update) {
-                lastVal.current = lovList.length && lovList.length > (val as number) ? lovList[val as number].id : val as number;
+                lastVal.current = convertValue(val)
+                const action = createSendUpdateAction(updateVarName, lastVal.current, module, props.onChange, propagate, valueById ? undefined : getUpdateVar(updateVars, "lov"))
                 if (changeDelay) {
                     if (delayCall.current < 0) {
                         delayCall.current = window.setTimeout(() => {
-                            dispatch(createSendUpdateAction(updateVarName, lastVal.current, module, props.onChange, propagate, valueById ? undefined : getUpdateVar(updateVars, "lov")));
+                            dispatch(action);
                             delayCall.current = -1;
                         }, changeDelay);
                     }
                 } else {
-                    dispatch(createSendUpdateAction(updateVarName, lastVal.current, module, props.onChange, propagate, valueById ? undefined : getUpdateVar(updateVars, "lov")));
+                    dispatch(action);
                 }
                 delayCall.current = 0;
             }
         },
-        [lovList, update, updateVarName, dispatch, propagate, updateVars, valueById, props.onChange, changeDelay, module]
+        [update, updateVarName, dispatch, propagate, updateVars, valueById, props.onChange, changeDelay, module, convertValue]
     );
 
     const handleRangeCommitted = useCallback(
         (e: Event | SyntheticEvent, val: number | number[]) => {
             setValue(val);
             if (!update) {
-                const value = lovList.length && lovList.length > (val as number) ? lovList[val as number].id : val;
-                dispatch(
-                    createSendUpdateAction(
-                        updateVarName,
-                        value,
-                        module,
-                        props.onChange,
-                        propagate,
-                        valueById ? undefined : getUpdateVar(updateVars, "lov")
-                    )
-                );
+                const converted_value = convertValue(val)
+                dispatch(createSendUpdateAction(updateVarName, converted_value, module, props.onChange, propagate, valueById ? undefined : getUpdateVar(updateVars, "lov")))
             }
         },
-        [lovList, update, updateVarName, dispatch, propagate, updateVars, valueById, props.onChange, module]
+        [update, updateVarName, dispatch, propagate, updateVars, valueById, props.onChange, module, convertValue]
     );
 
     const getLabel = useCallback(
-        (value: number) =>
+        (value: number | number[] | null) =>
+            value === null || Array.isArray(value) ? null :
             lovList.length && lovList.length > value ? (
                 typeof lovList[value].item === "string" ? (
                     <Typography>{lovList[value].item as string}</Typography>
@@ -127,16 +132,17 @@ const Slider = (props: SliderProps) => {
         (value: number|number[]|null, before: boolean) => {
             if (lovList.length) {
                 if (before && (textAnchor === "top" || textAnchor === "left")) {
-                    return getLabel(value as number);
+                    return getLabel(value);
                 }
                 if (!before && (textAnchor === "bottom" || textAnchor === "right")) {
-                    return getLabel(value as number);
+                    return getLabel(value);
                 }
             }
             return null;
         },
         [lovList, textAnchor, getLabel]
     );
+
 
     const marks = useMemo(() => {
         if (props.labels) {
@@ -195,46 +201,69 @@ const Slider = (props: SliderProps) => {
 
     useEffect(() => {
         if (props.value === undefined) {
-            let val: number | number[] | null = 0;
-            if (defaultValue !== undefined) {
-                if (typeof defaultValue === "string") {
-                    if (lovList.length) {
-                        try {
-                            const arrVal = JSON.parse(defaultValue) as string[];
-                            val = lovList.findIndex((item) => item.id === arrVal[0]);
-                            val = val === -1 ? 0 : val;
-                        } catch (e) {
-                            // Too bad also
-                        }
-                    } else {
-                        val = Number(defaultValue)
-                        if (isNaN(val)) {
-                            try {
-                                val = JSON.parse(defaultValue) as number[];
-                                if (val.some(isNaN)) {
-                                    throw new Error("Slider values should all be numbers");
-                                }
-                            } catch (e) {
-                                // Invalid values
-                                console.error(`${e}: ${defaultValue}.`)
-                                val = null
-                            }
-                        }
-                    }
-                } else {
-                    val = defaultValue as number;
-                }
+            if (parsedDefaultValue !== undefined) {
+                setValue(parsedDefaultValue);
             }
-            setValue(val);
         } else {
             if (lovList.length) {
-                const val = lovList.findIndex((item) => item.id === props.value);
-                setValue(val === -1 ? 0 : val);
+                if (Array.isArray(props.value)) {
+                    setValue(props.value.map((i) => lovList.findIndex((j) => j.id === i))
+                        // Force unknown values to index 0
+                        .map((v) => v === -1 ? 0 : v))
+                }
+                else {
+                    const val = lovList.findIndex((item) => item.id === props.value);
+                    setValue(val === -1 ? 0 : val);
+                }
             } else {
-                setValue(props.value as number);
+                setValue(Array.isArray(props.value) ? props.value as number[] : props.value as number);
             }
         }
-    }, [props.value, lovList, defaultValue]);
+    }, [props.value, lovList, parsedDefaultValue]);
+
+    // parsedDefaultValue init
+    const parseDefautValue = useCallback(() => {
+        if (typeof defaultValue === "string") {
+            if (lovList.length) {
+                try {
+                    const arr = JSON.parse(defaultValue) as string[];
+                    if (arr.length > 1) {
+                        setParsedDefaultValue(arr.map((i) => lovList.findIndex((j) => j.id === i))
+                                              // Force unknown values to index 0
+                                              .map((v) => v === -1 ? 0 : v))
+                    }
+                    else {
+                        const val = lovList.findIndex((item) => item.id === arr[0])
+                        setParsedDefaultValue(val === -1 ? 0 : val)
+                    }
+                } catch (e) {
+                    throw new Error("Slider lov value couldn't be parsed");
+                }
+            } else {
+                const val = Number(defaultValue)
+                if (isNaN(val)) {
+                    try {
+                        const arr = JSON.parse(defaultValue) as number[]
+                        if (arr.some(isNaN)) {
+                            throw new Error("Slider values should all be numbers")
+                        }
+                        setParsedDefaultValue(arr)
+                    } catch (e) {
+                        // Invalid values
+                        setParsedDefaultValue(null)
+                    }
+                }
+                else {
+                    setParsedDefaultValue(val)
+                }
+            }
+        } else {
+            setParsedDefaultValue(defaultValue);
+        }
+    }, [defaultValue, lovList])
+    useEffect(() => {
+	    parseDefautValue()
+    }, [parseDefautValue]);
 
     return (
         <Box sx={textAnchorSx} className={className}>
@@ -253,6 +282,8 @@ const Slider = (props: SliderProps) => {
                     marks={marks}
                     valueLabelFormat={getLabel}
                     orientation={horizontalOrientation ? undefined : "vertical"}
+                    getAriaLabel={Array.isArray(parsedDefaultValue) ? ()=>"" : undefined}
+                    aria-label={undefined}
                 />
             </Tooltip>
             {getText(value, false)}

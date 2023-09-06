@@ -9,7 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import collections.abc
 import contextlib
 import json
 import numbers
@@ -723,9 +722,11 @@ class _Builder:
                 var_type = PropertyType.lov_value
                 native_type = False
             else:
-                var_type = (PropertyType.dynamic_lo_numbers
-                            if isinstance(self._Builder__attributes.get("value"), collections.abc.Sequence)
-                            else PropertyType.dynamic_number)
+                var_type = (
+                    PropertyType.dynamic_lo_numbers
+                    if isinstance(self.__attributes.get("value"), list)
+                    else PropertyType.dynamic_number
+                )
                 native_type = True
         if var_type == PropertyType.dynamic_boolean:
             return self.set_attributes([(var_name, var_type, bool(default_val), with_update)])
