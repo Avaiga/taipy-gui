@@ -92,7 +92,7 @@ def test_slider_text_anchor_default_md(gui: Gui, test_client, helpers):
 
 
 def test_slider_array_md(gui: Gui, test_client, helpers):
-    gui._bind_var_val("x", [10,20])
+    gui._bind_var_val("x", [10, 20])
     md_string = "<|{x}|slider|>"
     expected_list = [
         "<Slider",
