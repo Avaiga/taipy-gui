@@ -83,7 +83,7 @@ describe("Slider Component", () => {
         });
     });
     it("holds a numeric range", async () => {
-        const { getByDisplayValue } = render(<Slider defaultValue={[10,90]} value={undefined as unknown as number[]} />);
+        const { getByDisplayValue } = render(<Slider defaultValue={"[10,90]"} value={undefined as unknown as number[]} />);
         const elt1 = getByDisplayValue("10");
         expect(elt1.tagName).toBe("INPUT");
         const elt2 = getByDisplayValue("90");
