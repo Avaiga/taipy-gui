@@ -44,9 +44,9 @@ from .types import (
     _TaipyData,
     _TaipyDate,
     _TaipyDict,
+    _TaipyLoNumbers,
     _TaipyLov,
     _TaipyLovValue,
     _TaipyNumber,
-    _TaipyLoNumbers,
 )
 from .varnamefromcontent import _varname_from_content
