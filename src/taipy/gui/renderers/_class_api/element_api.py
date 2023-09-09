@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import typing as t
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 
-from ...utils import _property_to_string
 from .element_api_context_manager import _ElementApiContextManager
 from .factory import _ClassApiFactory
 
@@ -42,7 +42,15 @@ class ElementApi(ABC):
 
     # Convert property value to string
     def parse_properties(self):
-        self._properties = {k: _property_to_string(v) for k, v in self._properties.items()}
+        self._properties = {k: ElementApi._parse_property(v) for k, v in self._properties.items()}
+
+    @staticmethod
+    def _parse_property(value: t.Any) -> t.Any:
+        if isinstance(value, (str, dict, Iterable)):
+            return value
+        if hasattr(value, "__name__"):
+            return str(getattr(value, "__name__"))
+        return str(value)
 
     @abstractmethod
     def _render(self, gui: "Gui") -> str:

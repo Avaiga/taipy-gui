@@ -9,12 +9,13 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from typing import Any
+import taipy.gui.builder as tgb
+from taipy.gui import Gui
 
 
-def _property_to_string(value: Any) -> str:
-    if isinstance(value, str):
-        return value
-    elif hasattr(value, "__name__"):
-        return str(getattr(value, "__name__"))
-    return str(value)
+def test_part_builder_1(gui: Gui, helpers):
+    with tgb.Page(frame=None) as page:
+        with tgb.part(class_name="class1"):
+            tgb.text(value="This is a part")
+    expected_list = ["<Part", "This is a part"]
+    helpers.test_control_builder(gui, page, expected_list)
