@@ -17,7 +17,6 @@ from ._attributes import (
     _setscopeattr,
     _setscopeattr_drill,
 )
-from ._element_api_context_manager import _ElementApiContextManager
 from ._locals_context import _LocalsContext
 from ._map_dict import _MapDict
 from ._runtime_manager import _RuntimeManager
@@ -44,6 +43,7 @@ from .types import (
     _TaipyData,
     _TaipyDate,
     _TaipyDict,
+    _TaipyLoNumbers,
     _TaipyLov,
     _TaipyLovValue,
     _TaipyNumber,
