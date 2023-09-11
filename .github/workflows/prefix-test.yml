@@ -51,7 +51,7 @@ jobs:
           pip install --upgrade pip
           pip install pipenv==2023.7.23
           pipenv install --dev
-          pipenv run pip install "pandas>=2.0.0,<2.1"
+          pipenv run pip install jsonschema==4.17.3 "pandas>=2.0.0,<2.1"
           pipenv run pip freeze
           pipenv run playwright install chromium --with-deps
       - name: run pytest
