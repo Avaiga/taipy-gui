@@ -18,6 +18,7 @@ def _is_in_notebook():  # pragma: no cover
             return False
 
         from IPython import get_ipython
+
         ipython = get_ipython()
 
         if ipython is None or "IPKernelApp" not in ipython.config:
