@@ -388,8 +388,8 @@ const Chart = (props: ChartProp) => {
                   // Hack for treemap charts: create a fallback 'parents' column if needed
                   // This works ONLY because 'parents' is the third named axis
                   // (see __CHART_AXIS in gui/utils/chart_config_builder.py)
-                  else if (config.types[idx] === "treemap" && ("values" in ret)) {
-                      ret["parents"] = Array((ret["values"] as Array<number>).length).fill("")
+                  else if (config.types[idx] === "treemap" && Array.isArray(ret.values)) {
+                      ret.parents = Array(ret.values.length).fill("")
                   }
                   // Other axis
                   for (let i = 3; i < axisNames.length; i++) {
