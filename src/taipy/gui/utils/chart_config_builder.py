@@ -76,7 +76,7 @@ __CHART_AXIS: t.Dict[str, t.Tuple[_Chart_iprops, ...]] = {
     "scattermapbox": (_Chart_iprops.lon, _Chart_iprops.lat),
     "scatterpolar": (_Chart_iprops.r, _Chart_iprops.theta),
     "scatterpolargl": (_Chart_iprops.r, _Chart_iprops.theta),
-    "treemap": (_Chart_iprops.values, _Chart_iprops.labels, _Chart_iprops.parents),
+    "treemap": (_Chart_iprops.labels, _Chart_iprops.parents, _Chart_iprops.values),
     "waterfall": (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.measure),
 }
 __CHART_DEFAULT_AXIS: t.Tuple[_Chart_iprops, ...] = (_Chart_iprops.x, _Chart_iprops.y, _Chart_iprops.z)
