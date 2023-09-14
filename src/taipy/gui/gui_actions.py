@@ -263,7 +263,7 @@ def invoke_shared_callback(
     """
     if isinstance(gui, Gui):
         return gui._call_shared_user_callback(callback, list(args), module_context)
-    _warn("'invoke_callback()' must be called with a valid Gui instance.")
+    _warn("'invoke_shared_callback()' must be called with a valid Gui instance.")
 
 
 def invoke_state_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
