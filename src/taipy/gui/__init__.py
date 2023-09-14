@@ -80,6 +80,7 @@ from .gui_actions import (
     hold_control,
     invoke_callback,
     invoke_long_callback,
+    invoke_shared_callback,
     navigate,
     notify,
     resume_control,

@@ -204,6 +204,8 @@ class Gui:
     __UPLOAD_URL = "taipy-uploads"
     _EXTENSION_ROOT = "taipy-extension"
     __USER_CONTENT_URL = "taipy-user-content"
+    __BROADCAST_G_ID = "taipy_broadcasting"
+    __SHARED_CALLBACK_G_ID = "taipy_shared_callback"
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
 
@@ -440,7 +442,7 @@ class Gui:
     def _get_client_id(self) -> str:
         return (
             _DataScopes._GLOBAL_ID
-            if self._bindings()._get_single_client()
+            if self._bindings()._is_single_client()
             else getattr(g, Gui.__ARG_CLIENT_ID, "unknown id")
         )
 
@@ -1002,7 +1004,7 @@ class Gui:
         )
 
     def __get_ws_receiver(self) -> t.Union[t.List[str], t.Any, None]:
-        if self._bindings()._get_single_client():
+        if self._bindings()._is_single_client():
             return None
         sid = getattr(request, "sid", None) if request else None
         sids = self.__client_id_2_sid.get(self._get_client_id(), set())
@@ -1124,6 +1126,30 @@ class Gui:
             if not self._call_on_exception(user_callback.__name__, e):
                 _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()':\n{e}")
         return None
+
+    def _call_shared_user_callback(
+        self, user_callback: t.Callable, args: t.List[t.Any], module_context: t.Optional[str]
+    ) -> t.Any:
+        try:
+            with self.get_flask_app().app_context():
+                # Use global scopes for shared callbacks
+                self.__set_client_id_in_context(_DataScopes._GLOBAL_ID)
+                if module_context is not None:
+                    self._set_locals_context(module_context)
+                setattr(g, Gui.__SHARED_CALLBACK_G_ID, True)
+                callback_result = self._call_function_with_state(user_callback, args)
+                setattr(g, Gui.__SHARED_CALLBACK_G_ID, False)
+                return callback_result
+        except Exception as e:  # pragma: no cover
+            if not self._call_on_exception(user_callback.__name__, e):
+                _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()':\n{e}")
+        return None
+
+    def _is_in_shared_callback(self):
+        try:
+            return getattr(g, Gui.__SHARED_CALLBACK_G_ID, False)
+        except RuntimeError:
+            return False
 
     # Proxy methods for Evaluator
     def _evaluate_expr(self, expr: str) -> t.Any:
@@ -1589,11 +1615,11 @@ class Gui:
 
     def _set_broadcast(self, broadcast: bool = True):
         with contextlib.suppress(RuntimeError):
-            setattr(g, "is_broadcasting", broadcast)
+            setattr(g, Gui.__BROADCAST_G_ID, broadcast)
 
     def _is_broadcasting(self) -> bool:
         try:
-            return getattr(g, "is_broadcasting", False)
+            return getattr(g, Gui.__BROADCAST_G_ID, False)
         except RuntimeError:
             return False
 

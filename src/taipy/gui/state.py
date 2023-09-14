@@ -110,6 +110,10 @@ class State:
             return gui
         if name in State.__excluded_attrs:
             raise AttributeError(f"Variable '{name}' is protected and is not accessible.")
+        if gui._is_in_shared_callback() and (
+            name not in gui._get_shared_variables() and not gui._bindings()._is_single_client()
+        ):
+            raise AttributeError(f"Variable '{name}' is not available to be accessed in shared callback.")
         if name not in super().__getattribute__(State.__attrs[1]):
             raise AttributeError(f"Variable '{name}' is not defined.")
         set_context = self._set_context(gui)
@@ -119,9 +123,13 @@ class State:
         return attr
 
     def __setattr__(self, name: str, value: t.Any) -> None:
+        gui: "Gui" = super().__getattribute__(State.__gui_attr)
+        if gui._is_in_shared_callback() and (
+            name not in gui._get_shared_variables() and not gui._bindings()._is_single_client()
+        ):
+            raise AttributeError(f"Variable '{name}' is not available to be accessed in shared callback.")
         if name not in super().__getattribute__(State.__attrs[1]):
             raise AttributeError(f"Variable '{name}' is not accessible.")
-        gui: "Gui" = super().__getattribute__(State.__gui_attr)
         set_context = self._set_context(gui)
         encoded_name = gui._bind_var(name)
         setattr(gui._bindings(), encoded_name, value)
