@@ -45,3 +45,14 @@
 .taipy-toggle.nolabel .MuiTypography-root {
     display: none;
 }
+
+.toggle-navbar .MuiButtonBase-root {
+    border: 0;
+    color: var(--color-contrast);
+}
+.toggle-navbar .MuiButtonBase-root.Mui-selected {
+    border: 0;
+    border-bottom: 1px solid;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
