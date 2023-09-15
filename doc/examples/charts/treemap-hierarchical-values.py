@@ -15,7 +15,7 @@
 # -----------------------------------------------------------------------------------------
 from taipy.gui import Gui
 
-# Major countries and their surface (in km2) one each continent
+# Major countries and their surface (in km2), for every continent
 # Source: https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_area
 continents = {
     "Africa": [
