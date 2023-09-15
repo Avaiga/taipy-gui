@@ -57,7 +57,7 @@ class MyLibrary(ElementLibrary):
             inner_properties={
                 "with_property": ElementProperty(
                     PropertyType.react,
-                    "{{<tp:prop:value>}}",
+                    "{<tp:prop:value>}",
                 ),
             },
         ),
