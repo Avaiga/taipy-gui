@@ -28,7 +28,7 @@ def test_navbar_navigate(page: "Page", gui: Gui, helpers):
     gui.add_page(name="Data", page="<|navbar|id=nav1|> <|Data|id=text-data|>")
     gui.add_page(name="Test", page="<|navbar|id=nav1|> <|Test|id=text-test|>")
     helpers.run_e2e(gui)
-    page.goto("Data")
+    page.goto("./Data")
     page.expect_websocket()
     page.wait_for_selector("#text-data")
     page.click("#nav1 button:nth-child(2)")
