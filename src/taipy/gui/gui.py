@@ -43,12 +43,12 @@ if util.find_spec("pyngrok"):
 from ._default_config import _default_stylekit, default_config
 from ._page import _Page
 from ._renderers import _EmptyPage
-from ._renderers._class_api.element_api_generator import _ElementApiGenerator
 from ._renderers._markdown import _TaipyMarkdownExtension
 from ._renderers.factory import _Factory
 from ._renderers.json import _TaipyJsonEncoder
 from ._renderers.utils import _get_columns_dict
 from ._warnings import _warn
+from .builder import _ElementApiGenerator
 from .config import Config, ConfigParameter, ServerConfig, Stylekit, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
@@ -376,9 +376,6 @@ class Gui:
                     Gui.__extensions[library_name] = [library]
                 else:
                     libs.append(library)
-                # invoke builder initialization
-                from . import builder
-
                 _ElementApiGenerator().add_library(library)
             else:
                 raise NameError(f"ElementLibrary passed to add_library() has an invalid name: '{library_name}'")
