@@ -67,10 +67,10 @@ const FileDownload = (props: FileDownloadProps) => {
                     aRef.current,
                     url,
                     name,
-                    onAction ? () => dispatch(createSendActionNameAction(id, module, onAction, {name, url})) : undefined
+                    onAction ? () => dispatch(createSendActionNameAction(id, module, onAction, name, url)) : undefined
                 );
             } else {
-                onAction && dispatch(createSendActionNameAction(id, module, onAction, {name, url}));
+                onAction && dispatch(createSendActionNameAction(id, module, onAction, name, url));
             }
         }
     }, [active, render, auto, name, url, dispatch, id, onAction, module]);
@@ -82,10 +82,10 @@ const FileDownload = (props: FileDownloadProps) => {
                     aRef.current,
                     url,
                     name,
-                    onAction ? () => dispatch(createSendActionNameAction(id, module, onAction, {name, url})) : undefined
+                    onAction ? () => dispatch(createSendActionNameAction(id, module, onAction, name, url)) : undefined
                 );
             } else {
-                onAction && dispatch(createSendActionNameAction(id, module, onAction, {name, url}));
+                onAction && dispatch(createSendActionNameAction(id, module, onAction, name, url));
             }
         }
     }, [url, name, dispatch, id, onAction, module]);

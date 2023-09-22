@@ -72,7 +72,7 @@ describe("FileDownload Component", () => {
         await waitFor(() => expect(dispatch).toHaveBeenCalled());
         expect(dispatch).toHaveBeenCalledWith({
             name: "anId",
-            payload: { args: [{name: "aName", url: "/url/toto.png"}], action: "on_action" },
+            payload: { args: ["aName", "/url/toto.png"], action: "on_action" },
             type: "SEND_ACTION_ACTION",
         });
     });
