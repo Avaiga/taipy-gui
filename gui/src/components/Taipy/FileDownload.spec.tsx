@@ -15,6 +15,7 @@ import React from "react";
 import { render, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
+import { newServer } from 'mock-xmlhttprequest';
 
 import FileDownload from "./FileDownload";
 import { TaipyContext } from "../../context/taipyContext";
@@ -59,7 +60,7 @@ describe("FileDownload Component", () => {
         const elt = getByRole("button");
         expect(elt).not.toHaveClass("Mui-disabled");
     });
-    it("dispatch a well formed message", async () => {
+    it("dispatch a well formed message when content is empty", async () => {
         const dispatch = jest.fn();
         const state: TaipyState = INITIAL_STATE;
         const { getByText } = render(
@@ -74,5 +75,30 @@ describe("FileDownload Component", () => {
             payload: { args: ["from.png", ""], action: "on_action" },
             type: "SEND_ACTION_ACTION",
         }));
+    });
+    it("dispatch a well formed message when content is not empty", async () => {
+        const server = newServer({
+            get: ['/some/link/to.png', {
+              // status: 200 is the default
+              //headers: { 'Content-Type': 'application/json' },
+              body: '{ "message": "Success!" }',
+            }],
+          });
+        server.install();
+        const dispatch = jest.fn();
+        const state: TaipyState = INITIAL_STATE;
+        const { getByText } = render(
+            <TaipyContext.Provider value={{ state, dispatch }}>
+                <FileDownload defaultContent="/some/link/to.png" onAction="on_action" id="anId" name="from.png" label="label" />
+            </TaipyContext.Provider>
+        );
+        const elt = getByText("label");
+        await userEvent.click(elt);
+        await waitFor(() => expect(dispatch).toHaveBeenCalledWith({
+            name: "anId",
+            payload: { args: ["from.png", "/some/link/to.png"], action: "on_action" },
+            type: "SEND_ACTION_ACTION",
+        }));
+        server.remove();
     });
 });
