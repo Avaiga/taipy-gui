@@ -376,6 +376,9 @@ class Gui:
                     Gui.__extensions[library_name] = [library]
                 else:
                     libs.append(library)
+                # invoke builder initialization
+                from . import builder
+
                 _ElementApiGenerator().add_library(library)
             else:
                 raise NameError(f"ElementLibrary passed to add_library() has an invalid name: '{library_name}'")
