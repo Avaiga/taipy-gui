@@ -94,6 +94,20 @@ class DefaultBlockElement(BlockElementApi):
         super().__init__(*args, **kwargs)
 
 
+class html(BlockElementApi):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not args:
+            raise RuntimeError("Can't render html element. Missing html tag name.")
+        self._ELEMENT_NAME = args[0]
+        self._content = args[1] if len(args) > 1 else ""
+
+    def _render(self, gui: "Gui") -> str:
+        open_tag_attributes = " ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()])
+        open_tag = f"<{self._ELEMENT_NAME} {open_tag_attributes}>"
+        return f"{open_tag}{self._content}{self._render_children(gui)}</{self._ELEMENT_NAME}>"
+
+
 class ControlElementApi(ElementApi):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
