@@ -20,6 +20,7 @@ import FileDownloadIco from "@mui/icons-material/FileDownload";
 import { useClassNames, useDispatch, useDynamicProperty, useModule } from "../../utils/hooks";
 import { noDisplayStyle, TaipyActiveProps } from "./utils";
 import { createSendActionNameAction } from "../../context/taipyReducers";
+import { runXHR } from "../../utils/downloads";
 
 interface FileDownloadProps extends TaipyActiveProps {
     content?: string;
@@ -35,7 +36,7 @@ interface FileDownloadProps extends TaipyActiveProps {
 }
 
 const FileDownload = (props: FileDownloadProps) => {
-    const { id, auto, name, bypassPreview, onAction, label, defaultLabel = "" } = props;
+    const { id, auto, name = "", bypassPreview, onAction, label, defaultLabel = "" } = props;
     const aRef = useRef<HTMLAnchorElement>(null);
     const dispatch = useDispatch();
     const module = useModule();
@@ -45,20 +46,6 @@ const FileDownload = (props: FileDownloadProps) => {
     const render = useDynamicProperty(props.render, props.defaultRender, true);
     const hover = useDynamicProperty(props.hoverText, props.defaultHoverText, undefined);
     const linkId = useMemo(() => (id || `tp-${Date.now()}-${Math.random()}`) + "-download-file", [id]);
-
-    useEffect(() => {
-        if (auto && aRef.current && active && render) {
-            aRef.current.click();
-            onAction && dispatch(createSendActionNameAction(id, module, onAction));
-        }
-    }, [active, render, auto, dispatch, id, onAction, module]);
-
-    const clickHandler = useCallback(() => {
-        if (aRef.current) {
-            aRef.current.click();
-            onAction && dispatch(createSendActionNameAction(id, module, onAction));
-        }
-    }, [dispatch, id, onAction, module]);
 
     const [url, download] = useMemo(() => {
         const url = props.content || props.defaultContent || "";
@@ -73,20 +60,44 @@ const FileDownload = (props: FileDownloadProps) => {
         return [ret.length ? url + "?" + ret : url, !!bypassPreview && (name || true)];
     }, [props.content, bypassPreview, name, props.defaultContent]);
 
+    useEffect(() => {
+        if (auto && aRef.current && active && render) {
+            if (url) {
+                runXHR(
+                    aRef.current,
+                    url,
+                    name,
+                    onAction ? () => dispatch(createSendActionNameAction(id, module, onAction, name, url)) : undefined
+                );
+            } else {
+                onAction && dispatch(createSendActionNameAction(id, module, onAction, name, url));
+            }
+        }
+    }, [active, render, auto, name, url, dispatch, id, onAction, module]);
+
+    const clickHandler = useCallback(() => {
+        if (aRef.current) {
+            if (url) {
+                runXHR(
+                    aRef.current,
+                    url,
+                    name,
+                    onAction ? () => dispatch(createSendActionNameAction(id, module, onAction, name, url)) : undefined
+                );
+            } else {
+                onAction && dispatch(createSendActionNameAction(id, module, onAction, name, url));
+            }
+        }
+    }, [url, name, dispatch, id, onAction, module]);
+
     const aProps = useMemo(() => (bypassPreview ? {} : { target: "_blank", rel: "noreferrer" }), [bypassPreview]);
 
     return render ? (
         <label htmlFor={linkId} className={className}>
-            <a style={noDisplayStyle} id={linkId} download={download} href={url} {...aProps} ref={aRef} />
+            <a style={noDisplayStyle} id={linkId} download={download} {...aProps} ref={aRef} />
             {auto ? null : (
                 <Tooltip title={hover || ""}>
-                    <Button
-                        id={id}
-                        variant="outlined"
-                        aria-label="download"
-                        disabled={!active}
-                        onClick={clickHandler}
-                    >
+                    <Button id={id} variant="outlined" aria-label="download" disabled={!active} onClick={clickHandler}>
                         <FileDownloadIco /> {label || defaultLabel}
                     </Button>
                 </Tooltip>
