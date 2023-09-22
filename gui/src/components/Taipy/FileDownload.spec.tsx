@@ -64,14 +64,14 @@ describe("FileDownload Component", () => {
         const state: TaipyState = INITIAL_STATE;
         const { getByText } = render(
             <TaipyContext.Provider value={{ state, dispatch }}>
-                <FileDownload defaultContent="/some/link/to.png" onAction="on_action" id="anId" name="from.png" label="label" />
+                <FileDownload defaultContent="" onAction="on_action" id="anId" name="from.png" label="label" />
             </TaipyContext.Provider>
         );
         const elt = getByText("label");
         await userEvent.click(elt);
         await waitFor(() => expect(dispatch).toHaveBeenCalledWith({
             name: "anId",
-            payload: { args: ["from.png", "/some/link/to.png"], action: "on_action" },
+            payload: { args: ["from.png", ""], action: "on_action" },
             type: "SEND_ACTION_ACTION",
         }));
     });
