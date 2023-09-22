@@ -109,6 +109,7 @@
     "jest-websocket-mock": "^2.2.1",
     "lint-staged": "^14.0.1",
     "mock-socket": "^9.0.7",
+    "mock-xmlhttprequest": "^8.2.0",
     "ts-jest": "^29.0.0",
     "ts-loader": "^9.2.6",
     "typedoc": "^0.25.1",

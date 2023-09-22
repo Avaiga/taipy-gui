@@ -28,7 +28,7 @@ const GuiDownload = ({ download }: GuiDownloadProps) => {
 
     useEffect(() => {
         if (content) {
-            runXHR(undefined, content, name, onAction ? (() => dispatch(createSendActionNameAction("Gui.download", module, onAction, name, content))) : undefined);
+            runXHR(undefined, content, name, onAction ? ((e?: ProgressEvent) => dispatch(createSendActionNameAction("Gui.download", module, onAction, name, content, e ? e.type: undefined))) : undefined);
             dispatch(createDownloadAction());
         }
     }, [content, name, dispatch, onAction, module]);

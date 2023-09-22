@@ -10,7 +10,7 @@ const handleLoadEvent = (e: ProgressEvent) => {
     }
 };
 
-const addListeners = (xhr: XMLHttpRequest, onLoaded?: () => void) => {
+const addListeners = (xhr: XMLHttpRequest, onLoaded?: (e?: ProgressEvent) => void) => {
     xhr.addEventListener("loadstart", handleLoadEvent);
     xhr.addEventListener("load", handleLoadEvent);
     xhr.addEventListener("loadend", onLoaded || handleLoadEvent);
@@ -19,7 +19,7 @@ const addListeners = (xhr: XMLHttpRequest, onLoaded?: () => void) => {
     xhr.addEventListener("abort", handleLoadEvent);
 };
 
-export const runXHR = (downloadLink: HTMLAnchorElement | undefined, url: string, name?: string, onAction?: ()=> void) => {
+export const runXHR = (downloadLink: HTMLAnchorElement | undefined, url: string, name?: string, onAction?: (e?: ProgressEvent)=> void) => {
     const request = new XMLHttpRequest();
     addListeners(request, onAction);
     request.open("GET", url, true);
