@@ -55,14 +55,14 @@ class _ElementApiGenerator(object, metaclass=_Singleton):
                 setattr(
                     module,
                     blockElement[0],
-                    _ElementApiGenerator.createBlockElement(blockElement[0], blockElement[0], default_property),
+                    _ElementApiGenerator.create_block_element(blockElement[0], blockElement[0], default_property),
                 )
             for controlElement in data["controls"]:
                 default_property = _ElementApiGenerator.find_default_property(controlElement[1]["properties"])
                 setattr(
                     module,
                     controlElement[0],
-                    _ElementApiGenerator.createControlElement(controlElement[0], controlElement[0], default_property),
+                    _ElementApiGenerator.create_control_element(controlElement[0], controlElement[0], default_property),
                 )
 
     def add_library(self, library: "ElementLibrary"):
@@ -80,29 +80,29 @@ class _ElementApiGenerator(object, metaclass=_Singleton):
             setattr(
                 library_module,
                 element_name,
-                _ElementApiGenerator().createControlElement(
+                _ElementApiGenerator().create_control_element(
                     element_name, f"{library_name}.{element_name}", element.default_attribute
                 ),
             )
 
     @staticmethod
-    def createBlockElement(
+    def create_block_element(
         classname: str,
         element_name: str,
         default_property: str,
     ):
-        return _ElementApiGenerator.createElementApi(classname, element_name, default_property, BlockElementApi)
+        return _ElementApiGenerator.create_element_api(classname, element_name, default_property, BlockElementApi)
 
     @staticmethod
-    def createControlElement(
+    def create_control_element(
         classname: str,
         element_name: str,
         default_property: str,
     ):
-        return _ElementApiGenerator.createElementApi(classname, element_name, default_property, ControlElementApi)
+        return _ElementApiGenerator.create_element_api(classname, element_name, default_property, ControlElementApi)
 
     @staticmethod
-    def createElementApi(
+    def create_element_api(
         classname: str,
         element_name: str,
         default_property: str,
