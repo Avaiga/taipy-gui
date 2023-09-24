@@ -243,7 +243,7 @@ def invoke_callback(
     _warn("'invoke_callback()' must be called with a valid Gui instance.")
 
 
-def invoke_shared_callback(
+def broadcast_callback(
     gui: Gui,
     callback: t.Callable,
     args: t.Union[t.Tuple, t.List],
@@ -251,19 +251,11 @@ def invoke_shared_callback(
 ) -> t.Any:
     """Invoke a user callback using state with shared variables.
 
-    See the [User Manual section on Long Running Callbacks in a Thread](../../gui/callbacks/#long-running-callbacks-in-a-thread)
-    for details on when and how this function can be used.
-
-    Arguments:
-        gui (Gui^): The current gui instance.
-        callback (Callable[[State^, ...], None]): The user-defined function that is invoked.<br/>
-            The first parameter of this function **must** be a `State^`.
-        args (Union[Tuple, List]): The remaining arguments, as a List or a Tuple.
-        module_context (Optional[str]): the name of the module that will be used.
+    TODO: document this function
     """
     if isinstance(gui, Gui):
         return gui._call_shared_user_callback(callback, list(args), module_context)
-    _warn("'invoke_shared_callback()' must be called with a valid Gui instance.")
+    _warn("'broadcast_callback()' must be called with a valid Gui instance.")
 
 
 def invoke_state_callback(gui: Gui, state_id: str, callback: t.Callable, args: t.Union[t.Tuple, t.List]) -> t.Any:
