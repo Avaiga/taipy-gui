@@ -25,10 +25,10 @@ class TaipyGuiWarning(UserWarning):
         )
 
 
-def _warn(message: str, e: t.Optional[Exception] = None):
+def _warn(message: str, e: t.Optional[BaseException] = None):
     is_debugging = e and TaipyGuiWarning.debug_mode
     warnings.warn(
-        f"{message}:\n{traceback.format_exception(e)}" if is_debugging else f"{message}:\n{e}" if e else message,
+        f"{message}:\n{''.join(traceback.format_exception(e))}" if is_debugging else f"{message}:\n{e}" if e else message,
         TaipyGuiWarning,
         stacklevel=2,
     )
