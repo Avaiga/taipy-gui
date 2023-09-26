@@ -18,6 +18,7 @@ import warnings
 class TaipyGuiWarning(UserWarning):
     debug_mode = False
 
+    @staticmethod
     def set_debug_mode(debug_mode: bool):
         TaipyGuiWarning.debug_mode = (
             debug_mode if debug_mode else hasattr(sys, "gettrace") and sys.gettrace() is not None
