@@ -877,7 +877,8 @@ class Gui:
                                 break
                         except Exception as e:  # pragma: no cover
                             _warn(
-                                f"Exception raised in '{lib_name}.get_data({lib_name}, payload, {user_var_name}, value)'", e
+                                f"Exception raised in '{lib_name}.get_data({lib_name}, payload, {user_var_name}, value)'",
+                                e,
                             )
             if not isinstance(ret_payload, dict):
                 ret_payload = self._accessors._get_data(self, var_name, newvalue, payload)
@@ -926,9 +927,7 @@ class Gui:
                 self._server._ws.emit("message", {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id})
                 time.sleep(0.001)
             except Exception as e:  # pragma: no cover
-                _warn(
-                    f"Exception raised in WebSocket communication (send ack) in '{self.__frame.f_code.co_name}'", e
-                )
+                _warn(f"Exception raised in WebSocket communication (send ack) in '{self.__frame.f_code.co_name}'", e)
 
     def _send_ws_id(self, id: str) -> None:
         self.__send_ws(

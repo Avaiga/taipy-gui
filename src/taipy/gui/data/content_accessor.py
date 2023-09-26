@@ -88,9 +88,7 @@ class _ContentAccessor:
                 with open(file_path, "wb") as temp_file:
                     temp_file.write(value)
             except Exception as e:
-                _warn(
-                    f"{self.__get_display_name(var_name)} ({type(value)}) cannot be written to file {file_path}", e
-                )
+                _warn(f"{self.__get_display_name(var_name)} ({type(value)}) cannot be written to file {file_path}", e)
             newvalue = file_path
         if isinstance(newvalue, (str, pathlib.Path)):
             path = pathlib.Path(newvalue) if isinstance(newvalue, str) else newvalue

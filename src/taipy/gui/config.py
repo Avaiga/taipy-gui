@@ -230,7 +230,8 @@ class _Config(object):
                         config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                 except Exception as e:
                     _warn(
-                        f"Invalid keyword arguments value in Gui.run {key} - {value}. Unable to parse value to the correct type", e
+                        f"Invalid keyword arguments value in Gui.run {key} - {value}. Unable to parse value to the correct type",
+                        e,
                     )
         # Load config from env file
         if os.path.isfile(env_file_abs_path):
@@ -241,7 +242,8 @@ class _Config(object):
                         config[key] = value if config[key] is None else type(config[key])(value)  # type: ignore
                     except Exception as e:
                         _warn(
-                            f"Invalid env value in Gui.run(): {key} - {value}. Unable to parse value to the correct type", e
+                            f"Invalid env value in Gui.run(): {key} - {value}. Unable to parse value to the correct type",
+                            e,
                         )
 
         # Taipy-config
