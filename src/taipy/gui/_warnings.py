@@ -16,19 +16,22 @@ import warnings
 
 
 class TaipyGuiWarning(UserWarning):
-    debug_mode = False
+    _tp_debug_mode = False
 
     @staticmethod
     def set_debug_mode(debug_mode: bool):
-        TaipyGuiWarning.debug_mode = (
+        TaipyGuiWarning._tp_debug_mode = (
             debug_mode if debug_mode else hasattr(sys, "gettrace") and sys.gettrace() is not None
         )
 
 
 def _warn(message: str, e: t.Optional[BaseException] = None):
-    is_debugging = e and TaipyGuiWarning.debug_mode
     warnings.warn(
-        f"{message}:\n{''.join(traceback.format_exception(e))}" if is_debugging else f"{message}:\n{e}" if e else message,
+        f"{message}:\n{''.join(traceback.format_exception(type(e), e, e.__traceback__))}"
+        if e and TaipyGuiWarning._tp_debug_mode
+        else f"{message}:\n{e}"
+        if e
+        else message,
         TaipyGuiWarning,
         stacklevel=2,
     )
