@@ -337,7 +337,7 @@ const Chart = (props: ChartProp) => {
     const skelStyle = useMemo(() => ({ ...style, minHeight: "7em" }), [style]);
 
     const dataPl = useMemo(() => {
-        if (data === null) {
+        if (data === null && lastDataPl.current) {
             return lastDataPl.current;
         }
         const datum = data[dataKey];
