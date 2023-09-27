@@ -203,6 +203,7 @@ const Chart = (props: ChartProp) => {
     const [selected, setSelected] = useState<number[][]>([]);
     const plotRef = useRef<HTMLDivElement>(null);
     const [dataKey, setDataKey] = useState("__default__");
+    const lastDataPl = useRef<Data[]>([]);
     const theme = useTheme();
     const module = useModule();
 
@@ -336,8 +337,11 @@ const Chart = (props: ChartProp) => {
     const skelStyle = useMemo(() => ({ ...style, minHeight: "7em" }), [style]);
 
     const dataPl = useMemo(() => {
-        const datum = data && data[dataKey];
-        return datum
+        if (data === null) {
+            return lastDataPl.current;
+        }
+        const datum = data[dataKey];
+        lastDataPl.current = datum
             ? config.traces.map((trace, idx) => {
                   const ret = {
                       ...getArrayValue(config.options, idx, {}),
@@ -408,11 +412,12 @@ const Chart = (props: ChartProp) => {
                   ret.textposition = getArrayValue(config.textAnchors, idx);
                   const selectedMarker = getArrayValue(config.selectedMarkers, idx);
                   if (selectedMarker) {
-                      ret.selected = { marker: selectedMarker };
+                      ret.selected = { marker: selectedMarker }
                   }
                   return ret as Data;
               })
             : [];
+        return lastDataPl.current
     }, [data, config, selected, dataKey]);
 
     const plotConfig = useMemo(() => {
