@@ -65,3 +65,18 @@ def _timezone_test_template(page: "Page", gui: Gui, helpers, time_zone, texts):
     page.wait_for_selector("#text1")
     text1 = page.query_selector("#text1")
     assert text1.inner_text() in texts
+
+
+def test_date_only(page: "Page", gui: Gui, helpers):
+    page_md = """
+<|{t}|id=text1|>
+"""
+    t = _ISO_to_date("Wed Jul 28 1993")  # noqa: F841
+    gui._set_frame(inspect.currentframe())
+    gui.add_page(name="test", page=page_md)
+    helpers.run_e2e(gui)
+    page.goto("./test")
+    page.expect_websocket()
+    page.wait_for_selector("#text1")
+    text1 = page.query_selector("#text1")
+    assert text1.inner_text() in ["1993/07/28"]
