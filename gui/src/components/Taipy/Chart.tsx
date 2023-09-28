@@ -207,7 +207,7 @@ const Chart = (props: ChartProp) => {
     const theme = useTheme();
     const module = useModule();
 
-    const refresh = data === null;
+    const refresh = typeof data === "number" ? data : 0
     const className = useClassNames(props.libClassName, props.dynamicClassName, props.className);
     const active = useDynamicProperty(props.active, props.defaultActive, true);
     const render = useDynamicProperty(props.render, props.defaultRender, true);
@@ -337,7 +337,7 @@ const Chart = (props: ChartProp) => {
     const skelStyle = useMemo(() => ({ ...style, minHeight: "7em" }), [style]);
 
     const dataPl = useMemo(() => {
-        if (data === null && lastDataPl.current) {
+        if (typeof data === "number" && lastDataPl.current) {
             return lastDataPl.current;
         }
         const datum = data[dataKey];
