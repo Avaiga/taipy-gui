@@ -818,7 +818,7 @@ class Gui:
             if isinstance(newvalue, _TaipyData):
                 # A changing integer that triggers a data request
                 newvalue = Gui._data_request_counter
-                Gui._data_request_counter = (Gui._data_request_counter%100)+1
+                Gui._data_request_counter = (Gui._data_request_counter % 100) + 1
             else:
                 if isinstance(newvalue, (_TaipyContent, _TaipyContentImage)):
                     ret_value = self.__get_content_accessor().get_info(
