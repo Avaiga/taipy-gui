@@ -1602,10 +1602,13 @@ class Gui:
             return False
 
     def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[t.Union[str, t.Callable]] = ""):
-        if callable(on_action):
-            on_action_name = _get_expr_var_name(on_action.__name__)
-            self._bind_var_val(on_action_name, on_action)
-            on_action = on_action_name
+        if callable(on_action) and on_action.__name__:
+            on_action_name = _get_expr_var_name(str(on_action.__code__)) if on_action.__name__ == "<lambda>" else _get_expr_var_name(on_action.__name__)
+            if on_action_name:
+                self._bind_var_val(on_action_name, on_action)
+                on_action = on_action_name
+            else:
+                _warn("download() on_action is invalid.")
         content_str = self._get_content("Gui.download", content, False)
         self.__send_ws_download(content_str, str(name), str(on_action))
 
