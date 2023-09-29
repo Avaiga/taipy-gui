@@ -1601,9 +1601,15 @@ class Gui:
         except RuntimeError:
             return False
 
-    def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[t.Union[str, t.Callable]] = ""):
+    def _download(
+        self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[t.Union[str, t.Callable]] = ""
+    ):
         if callable(on_action) and on_action.__name__:
-            on_action_name = _get_expr_var_name(str(on_action.__code__)) if on_action.__name__ == "<lambda>" else _get_expr_var_name(on_action.__name__)
+            on_action_name = (
+                _get_expr_var_name(str(on_action.__code__))
+                if on_action.__name__ == "<lambda>"
+                else _get_expr_var_name(on_action.__name__)
+            )
             if on_action_name:
                 self._bind_var_val(on_action_name, on_action)
                 on_action = on_action_name
