@@ -17,7 +17,9 @@ from .gui import Gui
 from .state import State
 
 
-def download(state: State, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[t.Union[str, t.Callable]] = ""):
+def download(
+    state: State, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[t.Union[str, t.Callable]] = ""
+):
     """Download content to the client.
 
     Arguments:
