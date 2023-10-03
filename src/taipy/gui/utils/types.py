@@ -15,7 +15,7 @@ from abc import ABC
 from datetime import datetime
 
 from .._warnings import _warn
-from . import _date_to_ISO, _ISO_to_date, _MapDict, _variable_decode
+from . import _date_to_string, _MapDict, _string_to_date, _variable_decode
 
 
 class _TaipyBase(ABC):
@@ -88,7 +88,7 @@ class _TaipyNumber(_TaipyBase):
             try:
                 return float(value) if value else 0.0
             except Exception as e:
-                _warn(f"{self._get_readable_name()}: Parsing {value} as float:\n{e}")
+                _warn(f"{self._get_readable_name()}: Parsing {value} as float", e)
                 return 0.0
         return super().cast_value(value)
 
@@ -103,7 +103,7 @@ class _TaipyLoNumbers(_TaipyBase):
             try:
                 return list(map(lambda f: float(f), value[1:-1].split(",")))
             except Exception as e:
-                _warn(f"{self._get_readable_name()}: Parsing {value} as an array of numbers:\n{e}")
+                _warn(f"{self._get_readable_name()}: Parsing {value} as an array of numbers", e)
                 return []
         return super().cast_value(value)
 
@@ -116,14 +116,14 @@ class _TaipyDate(_TaipyBase):
     def get(self):
         val = super().get()
         if isinstance(val, datetime):
-            val = _date_to_ISO(val)
+            val = _date_to_string(val)
         elif val is not None:
             val = str(val)
         return val
 
     def cast_value(self, value: t.Any):
         if isinstance(value, str):
-            return _ISO_to_date(value)
+            return _string_to_date(value)
         return super().cast_value(value)
 
     @staticmethod

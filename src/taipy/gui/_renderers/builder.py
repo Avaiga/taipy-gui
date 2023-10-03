@@ -22,7 +22,7 @@ from .._warnings import _warn
 from ..partial import Partial
 from ..types import PropertyType, _get_taipy_type
 from ..utils import (
-    _date_to_ISO,
+    _date_to_string,
     _get_broadcast_var_name,
     _get_client_var_name,
     _get_data_type,
@@ -653,7 +653,7 @@ class _Builder:
             try:
                 numVal = float(numVal)
             except Exception as e:
-                _warn(f"{self.__element_name}: {var_name} cannot be transformed into a number:\n{e}")
+                _warn(f"{self.__element_name}: {var_name} cannot be transformed into a number", e)
                 numVal = 0
         if isinstance(numVal, numbers.Number):
             self.__set_react_attribute(_to_camel_case(f"default_{var_name}"), numVal)
@@ -676,7 +676,7 @@ class _Builder:
             value = self.__attributes.get(var_name)
         default_var_name = _to_camel_case(f"default_{var_name}")
         if isinstance(value, (datetime, date, time)):
-            return self.set_attribute(default_var_name, _date_to_ISO(value))
+            return self.set_attribute(default_var_name, _date_to_string(value))
         elif isinstance(value, str):
             return self.set_attribute(default_var_name, value)
         elif native_type and isinstance(value, numbers.Number):
@@ -794,7 +794,7 @@ class _Builder:
             try:
                 page_size_options = [int(s.strip()) for s in page_size_options.split(";")]
             except Exception as e:
-                _warn(f"{self.__element_name}: page_size_options value is invalid ({page_size_options}):\n{e}")
+                _warn(f"{self.__element_name}: page_size_options value is invalid ({page_size_options})", e)
         if isinstance(page_size_options, list):
             self.__set_json_attribute("pageSizeOptions", page_size_options)
         else:

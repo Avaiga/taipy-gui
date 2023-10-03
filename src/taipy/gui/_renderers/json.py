@@ -18,7 +18,7 @@ from flask.json.provider import DefaultJSONProvider
 
 from .._warnings import _warn
 from ..icon import Icon
-from ..utils import _date_to_ISO, _MapDict, _TaipyBase
+from ..utils import _date_to_string, _MapDict, _TaipyBase
 
 
 def _default(o):
@@ -29,13 +29,13 @@ def _default(o):
     if isinstance(o, _TaipyBase):
         return o.get()
     if isinstance(o, (datetime, date, time)):
-        return _date_to_ISO(o)
+        return _date_to_string(o)
     if isinstance(o, Path):
         return str(o)
     try:
         raise TypeError(f"Object of type {o.__class__.__name__} is not JSON serializable")
     except Exception as e:
-        _warn(f"Exception in JSONEncoder:\n{e}")
+        _warn("Exception in JSONEncoder", e)
         return None
 
 
