@@ -58,10 +58,10 @@ def clean_up(state):
 def download_pi(state):
     digits = pi(state.precision)
     with NamedTemporaryFile("r+t", suffix=".csv", delete=False) as temp_file:
+        state.temp_path = temp_file.name
         temp_file.write("index,digit\n")
         for i, d in enumerate(digits):
             temp_file.write(f"{i},{d}\n")
-    state.temp_path = temp_file.name
     download(state, content=temp_file.name, name="pi.csv", on_action=clean_up)
 
 
