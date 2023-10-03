@@ -11,7 +11,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-import React, { useState, useCallback, useMemo, CSSProperties, MouseEvent } from "react";
+import React, { useState, useCallback, useEffect, useMemo, CSSProperties, MouseEvent } from "react";
 import TableCell, { TableCellProps } from "@mui/material/TableCell";
 import Box from "@mui/material/Box";
 import Input from "@mui/material/Input";
@@ -27,7 +27,7 @@ import { BaseDateTimePickerSlotsComponentsProps } from "@mui/x-date-pickers/Date
 import { isValid } from "date-fns";
 
 import { FormatConfig } from "../../context/taipyReducers";
-import { getDateTime, getDateTimeString, getNumberString, getTimeZonedDate } from "../../utils/index";
+import { dateToString, getDateTime, getDateTimeString, getNumberString, getTimeZonedDate } from "../../utils/index";
 import { TaipyActiveProps, TaipyMultiSelectProps } from "./utils";
 
 /**
@@ -291,7 +291,7 @@ export const EditableCell = (props: EditableCellProps) => {
                 if (val === null) {
                     castedVal = val;
                 } else if (isValid(val)) {
-                    castedVal = getTimeZonedDate(val as Date, formatConfig.timeZone, withTime).toISOString();
+                    castedVal = dateToString(getTimeZonedDate(val as Date, formatConfig.timeZone, withTime), withTime);
                 } else {
                     return;
                 }
@@ -312,11 +312,11 @@ export const EditableCell = (props: EditableCellProps) => {
         (evt?: MouseEvent) => {
             evt && evt.stopPropagation();
             colDesc.type?.startsWith("date")
-                ? setVal(getDateTime(value as string, formatConfig.timeZone))
+                ? setVal(getDateTime(value as string, formatConfig.timeZone, withTime))
                 : setVal(value);
             onValidation && setEdit((e) => !e);
         },
-        [onValidation, value, formatConfig.timeZone, colDesc.type]
+        [onValidation, value, formatConfig.timeZone, colDesc.type, withTime]
     );
 
     const onKeyDown = useCallback(
@@ -364,6 +364,10 @@ export const EditableCell = (props: EditableCellProps) => {
         onSelection && onSelection(rowIndex, colDesc.dfid);
         return false;
     }, [onSelection, rowIndex, colDesc.dfid]);
+
+    useEffect(() => {
+        !onValidation && setEdit(false);
+    }, [onValidation]);
 
     return (
         <TableCell {...getCellProps(colDesc, tableCellProps)} className={className} title={tooltip}>

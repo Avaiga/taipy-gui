@@ -42,7 +42,13 @@ if util.find_spec("pyngrok"):
 
 from ._default_config import _default_stylekit, default_config
 from ._page import _Page
-from ._warnings import _warn
+from ._renderers import _EmptyPage
+from ._renderers._markdown import _TaipyMarkdownExtension
+from ._renderers.factory import _Factory
+from ._renderers.json import _TaipyJsonEncoder
+from ._renderers.utils import _get_columns_dict
+from ._warnings import TaipyGuiWarning, _warn
+from .builder import _ElementApiGenerator
 from .config import Config, ConfigParameter, ServerConfig, Stylekit, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
@@ -51,12 +57,6 @@ from .data.data_scope import _DataScopes
 from .extension.library import Element, ElementLibrary
 from .page import Page
 from .partial import Partial
-from .renderers import _EmptyPage
-from .renderers._class_api.element_api_generator import _ElementApiGenerator
-from .renderers._markdown import _TaipyMarkdownExtension
-from .renderers.factory import _Factory
-from .renderers.json import _TaipyJsonEncoder
-from .renderers.utils import _get_columns_dict
 from .server import _Server
 from .state import State
 from .types import _WsType
@@ -66,6 +66,7 @@ from .utils import (
     _get_broadcast_var_name,
     _get_client_var_name,
     _get_css_var_value,
+    _get_expr_var_name,
     _get_module_name_from_frame,
     _get_non_existent_file_path,
     _get_page_from_module,
@@ -326,7 +327,7 @@ class Gui:
             with open(gui_file.parent / "version.json") as version_file:
                 self.__version = json.load(version_file)
         except Exception as e:  # pragma: no cover
-            _warn(f"Cannot retrieve version.json file:\n{e}")
+            _warn("Cannot retrieve version.json file", e)
             self.__version = {}
 
         # Load Markdown extension
@@ -510,7 +511,7 @@ class Gui:
             self._reset_locals_context()
             self.__send_ack(message.get("ack_id"))
         except Exception as e:  # pragma: no cover
-            _warn(f"Decoding Message has failed: {message}\n{e}")
+            _warn(f"Decoding Message has failed: {message}", e)
 
     def __front_end_update(
         self,
@@ -620,7 +621,7 @@ class Gui:
         try:
             var_name, current_context = self._get_real_var_name(var_name)
         except Exception as e:  # pragma: no cover
-            _warn(f"{e}")
+            _warn("", e)
             return
         on_change_fn = self._get_user_function(on_change) if on_change else None
         if not callable(on_change_fn):
@@ -642,7 +643,7 @@ class Gui:
                 on_change_fn(*args)
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception(on_change or "on_change", e):
-                    _warn(f"{on_change or 'on_change'}(): callback function raised an exception:\n{e}")
+                    _warn(f"{on_change or 'on_change'}(): callback function raised an exception", e)
 
     def _get_content(self, var_name: str, value: t.Any, image: bool) -> t.Any:
         ret_value = self.__get_content_accessor().get_info(var_name, value, image)
@@ -686,7 +687,7 @@ class Gui:
                     return (ret, 200)
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception("on_user_content", e):
-                    _warn(f"on_user_content() callback function raised an exception:\n{e}")
+                    _warn("on_user_content() callback function raised an exception", e)
         else:
             _warn("on_user_content() callback function has not been defined.")
         return ("", 404)
@@ -748,7 +749,7 @@ class Gui:
             try:
                 base_json.update(json.loads(template.read_text()))
             except Exception as e:  # pragma: no cover
-                _warn(f"Exception raised reading JSON in '{template}':\n{e}")
+                _warn(f"Exception raised reading JSON in '{template}'", e)
         return {"gui": base_json}
 
     def __upload_files(self):
@@ -788,7 +789,7 @@ class Gui:
                                 with open(upload_path / f"{file_path.name}.part.{nb}", "rb") as part_file:
                                     grouped_file.write(part_file.read())
                     except EnvironmentError as ee:  # pragma: no cover
-                        _warn(f"Cannot group file after chunk upload:\n{ee}")
+                        _warn("Cannot group file after chunk upload", ee)
                         return
                 # notify the file is uploaded
                 newvalue = str(file_path)
@@ -800,6 +801,8 @@ class Gui:
                     newvalue = value
                 setattr(self._bindings(), var_name, newvalue)
         return ("", 200)
+
+    _data_request_counter = 1
 
     def __send_var_list_update(
         self,
@@ -816,7 +819,9 @@ class Gui:
         for _var in modified_vars:
             newvalue = values.get(_var)
             if isinstance(newvalue, _TaipyData):
-                newvalue = None
+                # A changing integer that triggers a data request
+                newvalue = Gui._data_request_counter
+                Gui._data_request_counter = (Gui._data_request_counter % 100) + 1
             else:
                 if isinstance(newvalue, (_TaipyContent, _TaipyContentImage)):
                     ret_value = self.__get_content_accessor().get_info(
@@ -879,7 +884,8 @@ class Gui:
                                 break
                         except Exception as e:  # pragma: no cover
                             _warn(
-                                f"Exception raised in '{lib_name}.get_data({lib_name}, payload, {user_var_name}, value)':\n{e}"
+                                f"Exception raised in '{lib_name}.get_data({lib_name}, payload, {user_var_name}, value)'",
+                                e,
                             )
             if not isinstance(ret_payload, dict):
                 ret_payload = self._accessors._get_data(self, var_name, newvalue, payload)
@@ -908,7 +914,7 @@ class Gui:
                 )
                 time.sleep(0.001)
             except Exception as e:  # pragma: no cover
-                _warn(f"Exception raised in WebSocket communication in '{self.__frame.f_code.co_name}':\n{e}")
+                _warn(f"Exception raised in WebSocket communication in '{self.__frame.f_code.co_name}'", e)
         else:
             grouping_message.append(payload)
 
@@ -920,7 +926,7 @@ class Gui:
             )
             time.sleep(0.001)
         except Exception as e:  # pragma: no cover
-            _warn(f"Exception raised in WebSocket communication in '{self.__frame.f_code.co_name}':\n{e}")
+            _warn(f"Exception raised in WebSocket communication in '{self.__frame.f_code.co_name}'", e)
 
     def __send_ack(self, ack_id: t.Optional[str]) -> None:
         if ack_id:
@@ -928,9 +934,7 @@ class Gui:
                 self._server._ws.emit("message", {"type": _WsType.ACKNOWLEDGEMENT.value, "id": ack_id})
                 time.sleep(0.001)
             except Exception as e:  # pragma: no cover
-                _warn(
-                    f"Exception raised in WebSocket communication (send ack) in '{self.__frame.f_code.co_name}':\n{e}"
-                )
+                _warn(f"Exception raised in WebSocket communication (send ack) in '{self.__frame.f_code.co_name}'", e)
 
     def _send_ws_id(self, id: str) -> None:
         self.__send_ws(
@@ -941,7 +945,7 @@ class Gui:
         )
 
     def __send_ws_download(self, content: str, name: str, on_action: str) -> None:
-        self.__send_ws({"type": _WsType.DOWNLOAD_FILE.value, "content": content, "name": name, "on_action": on_action})
+        self.__send_ws({"type": _WsType.DOWNLOAD_FILE.value, "content": content, "name": name, "onAction": on_action})
 
     def __send_ws_alert(self, type: str, message: str, system_notification: bool, duration: int) -> None:
         self.__send_ws(
@@ -1027,9 +1031,9 @@ class Gui:
         try:
             self.__send_messages()
         except Exception as e:  # pragma: no cover
-            _warn(f"Exception raised while sending messages:\n{e}")
+            _warn("Exception raised while sending messages", e)
         if exc_value:  # pragma: no cover
-            _warn(f"An {exc_type or 'Exception'} was raised: {exc_value}.")
+            _warn(f"An {exc_type or 'Exception'} was raised", exc_value)
         return True
 
     def __hold_messages(self):
@@ -1099,7 +1103,7 @@ class Gui:
                 return True
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception(action_function.__name__, e):
-                    _warn(f"on_action(): Exception raised in '{action_function.__name__}()':\n{e}")
+                    _warn(f"on_action(): Exception raised in '{action_function.__name__}()'", e)
         return False
 
     def _call_function_with_state(self, user_function: t.Callable, args: t.List[t.Any]) -> t.Any:
@@ -1124,7 +1128,7 @@ class Gui:
                 return self._call_function_with_state(user_callback, args)
         except Exception as e:  # pragma: no cover
             if not self._call_on_exception(user_callback.__name__, e):
-                _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()':\n{e}")
+                _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()'", e)
         return None
 
     def _call_shared_user_callback(
@@ -1210,7 +1214,7 @@ class Gui:
 
                     return json.dumps(col_dict, cls=_TaipyJsonEncoder)
             except Exception as e:  # pragma: no cover
-                _warn(f"Exception while rebuilding table columns {e}.")
+                _warn("Exception while rebuilding table columns", e)
         return Gui.__DO_NOT_UPDATE_VALUE
 
     def _chart_conf(
@@ -1230,7 +1234,7 @@ class Gui:
 
                     return json.dumps(config, cls=_TaipyJsonEncoder)
             except Exception as e:  # pragma: no cover
-                _warn(f"Exception while rebuilding chart config {e}.")
+                _warn("Exception while rebuilding chart config", e)
         return Gui.__DO_NOT_UPDATE_VALUE
 
     # Proxy methods for Adapter
@@ -1267,19 +1271,19 @@ class Gui:
         return _taipy_on_cancel_block_ui
 
     def __add_pages_in_folder(self, folder_name: str, folder_path: str):
-        from .renderers import Html, Markdown
+        from ._renderers import Html, Markdown
 
         list_of_files = os.listdir(folder_path)
         for file_name in list_of_files:
             if file_name.startswith("__"):
                 continue
             if (re_match := Gui.__RE_HTML.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
-                renderers = Html(os.path.join(folder_path, file_name), frame=None)
-                renderers.modify_taipy_base_url(folder_name)
-                self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers)
+                _renderers = Html(os.path.join(folder_path, file_name), frame=None)
+                _renderers.modify_taipy_base_url(folder_name)
+                self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=_renderers)
             elif (re_match := Gui.__RE_MD.match(file_name)) and f"{re_match.group(1)}.py" not in list_of_files:
-                renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
-                self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=renderers_md)
+                _renderers_md = Markdown(os.path.join(folder_path, file_name), frame=None)
+                self.add_page(name=f"{folder_name}/{re_match.group(1)}", page=_renderers_md)
             elif re_match := Gui.__RE_PY.match(file_name):
                 module_name = re_match.group(1)
                 module_path = os.path.join(folder_name, module_name).replace(os.path.sep, ".")
@@ -1289,7 +1293,7 @@ class Gui:
                     if page_instance is not None:
                         self.add_page(name=f"{folder_name}/{module_name}", page=page_instance)
                 except Exception as e:
-                    _warn(f"Error while importing module '{module_path}': {e}")
+                    _warn(f"Error while importing module '{module_path}'", e)
             elif os.path.isdir(child_dir_path := os.path.join(folder_path, file_name)):
                 child_dir_name = f"{folder_name}/{file_name}"
                 self.__add_pages_in_folder(child_dir_name, child_dir_path)
@@ -1387,7 +1391,7 @@ class Gui:
         if name in self._config.routes:  # pragma: no cover
             raise Exception(f'Page name "{name if name != Gui.__root_page_name else "/"}" is already defined.')
         if isinstance(page, str):
-            from .renderers import Markdown
+            from ._renderers import Markdown
 
             page = Markdown(page, frame=None)
         elif not isinstance(page, Page):  # pragma: no cover
@@ -1527,7 +1531,7 @@ class Gui:
         ):  # pragma: no cover
             _warn(f'Partial name "{new_partial._route}" is already defined.')
         if isinstance(page, str):
-            from .renderers import Markdown
+            from ._renderers import Markdown
 
             page = Markdown(page, frame=None)
         elif not isinstance(page, Page):  # pragma: no cover
@@ -1623,7 +1627,20 @@ class Gui:
         except RuntimeError:
             return False
 
-    def _download(self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[str] = ""):
+    def _download(
+        self, content: t.Any, name: t.Optional[str] = "", on_action: t.Optional[t.Union[str, t.Callable]] = ""
+    ):
+        if callable(on_action) and on_action.__name__:
+            on_action_name = (
+                _get_expr_var_name(str(on_action.__code__))
+                if on_action.__name__ == "<lambda>"
+                else _get_expr_var_name(on_action.__name__)
+            )
+            if on_action_name:
+                self._bind_var_val(on_action_name, on_action)
+                on_action = on_action_name
+            else:
+                _warn("download() on_action is invalid.")
         content_str = self._get_content("Gui.download", content, False)
         self.__send_ws_download(content_str, str(name), str(on_action))
 
@@ -1681,7 +1698,7 @@ class Gui:
                         self._call_function_with_state(lib.on_user_init, [])
                     except Exception as e:  # pragma: no cover
                         if not self._call_on_exception(f"{name}.on_user_init", e):
-                            _warn(f"Exception raised in {name}.on_user_init():\n{e}")
+                            _warn(f"Exception raised in {name}.on_user_init()", e)
 
     def __init_route(self):
         self.__set_client_id_in_context()
@@ -1693,7 +1710,7 @@ class Gui:
                     self._call_function_with_state(self.on_init, [])
                 except Exception as e:  # pragma: no cover
                     if not self._call_on_exception("on_init", e):
-                        _warn(f"Exception raised in on_init():\n{e}")
+                        _warn("Exception raised in on_init()", e)
         return self._render_route()
 
     def _call_on_exception(self, function_name: str, exception: Exception) -> bool:
@@ -1701,7 +1718,7 @@ class Gui:
             try:
                 self.on_exception(self.__get_state(), str(function_name), exception)
             except Exception as e:  # pragma: no cover
-                _warn(f"Exception raised in on_exception():\n{e}")
+                _warn("Exception raised in on_exception()", e)
             return True
         return False
 
@@ -1711,7 +1728,7 @@ class Gui:
                 return self.on_status(self.__get_state())
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception("on_status", e):
-                    _warn(f"Exception raised in on_status:\n{e}")
+                    _warn("Exception raised in on_status", e)
         return None
 
     def __render_page(self, page_name: str) -> t.Any:
@@ -1729,7 +1746,7 @@ class Gui:
                     nav_page = page_name
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception("on_navigate", e):
-                    _warn(f"Exception raised in on_navigate():\n{e}")
+                    _warn("Exception raised in on_navigate()", e)
         page = next((page_i for page_i in self._config.pages if page_i._route == nav_page), None)
 
         # Try partials
@@ -2047,6 +2064,7 @@ class Gui:
         self._config._build_config(run_root_dir, self.__env_filename, kwargs)
 
         self._config.resolve()
+        TaipyGuiWarning.set_debug_mode(self._get_config("debug", False))
 
         self.__init_server()
 
@@ -2095,7 +2113,7 @@ class Gui:
                         )
                 except Exception as e:  # pragma: no cover
                     if not self._call_on_exception(f"{name}.on_init", e):
-                        _warn(f"Method {name}.on_init() raised an exception:\n{e}")
+                        _warn(f"Method {name}.on_init() raised an exception", e)
 
         # Initiate the Evaluator with the right context
         self.__evaluator = _Evaluator(glob_ctx, self.__shared_variables)

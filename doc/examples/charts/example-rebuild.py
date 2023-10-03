@@ -13,19 +13,21 @@
 # Python environment and run:
 #     python <script>
 # -----------------------------------------------------------------------------------------
+# Demonstrates the use of the 'rebuild' property of the 'chart' control
+# -----------------------------------------------------------------------------------------
 from taipy.gui import Gui
 
-layout = {
-    "xaxis": {
-        # Force the title of the x axis
-        "title": "Values for x"
-    }
-}
+# x values: [-10..10]
+x_range = range(-10, 11)
+data = {"X": x_range, "Y": [x * x for x in x_range]}
+
+types = [("bar", "Bar"), ("line", "Line")]
+selected_type = types[0]
 
 page = """
-# Basics - Title
+<|{data}|chart|type={selected_type[0]}|x=X|y=Y|rebuild|>
 
-<|{[x*x for x in range(0, 11)]}|chart|title=Plotting x squared|layout={layout}|>
+<|{selected_type}|toggle|lov={types}|>
 """
 
-Gui(page).run()
+Gui(page=page).run()

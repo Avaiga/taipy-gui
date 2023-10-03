@@ -18,8 +18,8 @@ from inspect import isclass
 from pathlib import Path
 from urllib.parse import urlencode
 
+from .._renderers.builder import _Builder
 from .._warnings import _warn
-from ..renderers.builder import _Builder
 from ..types import PropertyType
 from ..utils import _get_broadcast_var_name, _TaipyBase, _to_camel_case
 
@@ -177,7 +177,7 @@ class Element:
                     return xml_root
 
             except Exception as e:
-                _warn(f"{name}.render_xhtml() did not return a valid XHTML string:\n{e}")
+                _warn(f"{name}.render_xhtml() did not return a valid XHTML string", e)
                 return f"{name}.render_xhtml() did not return a valid XHTML string. {e}"
         else:
             default_attr: t.Optional[ElementProperty] = None
