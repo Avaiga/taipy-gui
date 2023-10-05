@@ -1235,9 +1235,9 @@ class Gui:
 
     def __get_on_cancel_block_ui(self, callback: t.Optional[str]):
         def _taipy_on_cancel_block_ui(guiApp, id: t.Optional[str], payload: t.Any):
-            if _hasscopeattr(self, Gui.__UI_BLOCK_NAME):
-                _setscopeattr(self, Gui.__UI_BLOCK_NAME, False)
-            self.__on_action(id, {"action": callback})
+            if _hasscopeattr(guiApp, Gui.__UI_BLOCK_NAME):
+                _setscopeattr(guiApp, Gui.__UI_BLOCK_NAME, False)
+            guiApp.__on_action(id, {"action": callback})
 
         return _taipy_on_cancel_block_ui
 

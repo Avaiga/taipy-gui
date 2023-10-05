@@ -603,7 +603,7 @@ class _Builder:
         if hash_name := self.__hashes.get(var_name):
             self.__set_update_var_name(hash_name)
         else:
-            _warn(f"{self.element_name}: {var_name} should be bound.")
+            _warn(f"file_selector: {var_name} should be bound.")
         return self
 
     def _set_content(self, var_name: str = "content", image=True):
