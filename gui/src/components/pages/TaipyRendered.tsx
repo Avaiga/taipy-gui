@@ -84,9 +84,11 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
         if (partial) {
             dispatch(createPartialAction(path.slice(1), false));
         } else {
+            const searchParams = new URLSearchParams(location.search);
+            const params = Object.fromEntries(searchParams.entries());
             axios
                 .get<AxiosRenderer>(`taipy-jsx${path}`, {
-                    params: { client_id: state.id || "", v: window.taipyVersion },
+                    params: { ...params, client_id: state.id || "", v: window.taipyVersion },
                 })
                 .then((result) => {
                     // set rendered JSX and CSS style from fetch result
@@ -107,7 +109,7 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
                     })
                 );
         }
-    }, [path, state.id, dispatch, partial, fromBlock, baseURL]);
+    }, [path, state.id, dispatch, partial, fromBlock, baseURL, location.search]);
 
     return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
