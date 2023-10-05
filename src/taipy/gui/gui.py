@@ -386,13 +386,13 @@ class Gui:
 
     @staticmethod
     def add_shared_variable(*names: str) -> None:
-        """Add a shared variable.
+        """Add shared variables.
 
-        This variable will be synchronized between all clients.
-        Only variable from the main module would be registered.
+        The variables will be synchronized between all clients when updated.
+        Note that only variables from the main module will be registered.
 
         Arguments:
-            name: The name of the variable.
+            names: The list of names of the variables that become shared.
         """
         for name in names:
             if name not in Gui.__shared_variables:
@@ -1063,21 +1063,22 @@ class Gui:
         return cls if isinstance(cls, class_type) else class_name
 
     def __on_action(self, id: t.Optional[str], payload: t.Any) -> None:
-        action = payload.get("action") if isinstance(payload, dict) else str(payload)
+        if isinstance(payload, dict):
+            action = payload.get("action")
+        else:
+            action = str(payload)
+            payload = {"action": action}
         if action:
-            if self.__call_function_with_args(
-                action_function=self._get_user_function(action), id=id, payload=payload, action=action
-            ):
+            if self.__call_function_with_args(action_function=self._get_user_function(action), id=id, payload=payload):
                 return
             else:  # pragma: no cover
                 _warn(f"on_action(): '{action}' is not a valid function.")
         if hasattr(self, "on_action"):
-            self.__call_function_with_args(action_function=self.on_action, id=id, payload=payload, action=action)
+            self.__call_function_with_args(action_function=self.on_action, id=id, payload=payload)
 
     def __call_function_with_args(self, **kwargs):
         action_function = kwargs.get("action_function")
         id = kwargs.get("id")
-        action = kwargs.get("action")
         payload = kwargs.get("payload")
 
         if callable(action_function):
@@ -1094,9 +1095,7 @@ class Gui:
                     except Exception:
                         args[1] = id
                 if argcount > 2:
-                    args[2] = payload if action is None else action
-                if argcount > 3 and action is not None:
-                    args[3] = payload
+                    args[2] = payload
                 action_function(*args)
                 return True
             except Exception as e:  # pragma: no cover
@@ -1238,9 +1237,9 @@ class Gui:
 
     def __get_on_cancel_block_ui(self, callback: t.Optional[str]):
         def _taipy_on_cancel_block_ui(guiApp, id: t.Optional[str], payload: t.Any):
-            if _hasscopeattr(self, Gui.__UI_BLOCK_NAME):
-                _setscopeattr(self, Gui.__UI_BLOCK_NAME, False)
-            self.__on_action(id, callback)
+            if _hasscopeattr(guiApp, Gui.__UI_BLOCK_NAME):
+                _setscopeattr(guiApp, Gui.__UI_BLOCK_NAME, False)
+            guiApp.__on_action(id, {"action": callback})
 
         return _taipy_on_cancel_block_ui
 
@@ -1482,7 +1481,7 @@ class Gui:
     ) -> Partial:
         """Create a new `Partial^`.
 
-        The [User Manual section on Partials](../../gui/pages/#partials) gives details on
+        The [User Manual section on Partials](../gui/pages.md#partials) gives details on
         when and how to use this class.
 
         Arguments:
@@ -1638,6 +1637,7 @@ class Gui:
         message: t.Optional[str] = "Work in Progress...",
     ):  # pragma: no cover
         action_name = callback.__name__ if callable(callback) else callback
+        # TODO: what if lambda? (it does work)
         func = self.__get_on_cancel_block_ui(action_name)
         def_action_name = func.__name__
         _setscopeattr(self, def_action_name, func)
