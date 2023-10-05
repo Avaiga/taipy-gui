@@ -1061,7 +1061,11 @@ class Gui:
         return cls if isinstance(cls, class_type) else class_name
 
     def __on_action(self, id: t.Optional[str], payload: t.Any) -> None:
-        action = payload.get("action")
+        if isinstance(payload, dict):
+            action = payload.get("action") 
+        else:
+            action = str(payload)
+            payload = { "action": action }
         if action:
             if self.__call_function_with_args(
                 action_function=self._get_user_function(action), id=id, payload=payload
