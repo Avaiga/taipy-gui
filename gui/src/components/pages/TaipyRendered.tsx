@@ -109,7 +109,8 @@ const TaipyRendered = (props: TaipyRenderedProps) => {
                     })
                 );
         }
-    }, [path, state.id, dispatch, partial, fromBlock, baseURL, location.search]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [path, state.id, dispatch, partial, fromBlock, baseURL]);
 
     return (
         <ErrorBoundary FallbackComponent={ErrorFallback}>

@@ -44,9 +44,9 @@ const Navigate = ({ to, params, tab, force }: NavigateProps) => {
             }
             dispatch(createNavigateAction());
         }
-        // we surely don't want to depend on location.pathname!
+        // we surely don't want to depend on location.pathname, and location.search!
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [to, tab, force, state.locations, dispatch, navigate, params, location.search]);
+    }, [to, tab, force, state.locations, dispatch, navigate, params]);
 
     return null;
 };
