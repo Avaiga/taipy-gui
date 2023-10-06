@@ -205,7 +205,7 @@ class Gui:
     _EXTENSION_ROOT = "taipy-extension"
     __USER_CONTENT_URL = "taipy-user-content"
     __BROADCAST_G_ID = "taipy_broadcasting"
-    __SHARED_CALLBACK_G_ID = "taipy_shared_callback"
+    __BRDCST_CALLBACK_G_ID = "taipy_brdcst_callback"
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
 
@@ -393,12 +393,28 @@ class Gui:
         The variables will be synchronized between all clients when updated.
         Note that only variables from the main module will be registered.
 
+        This is a synonym for `Gui.add_shared_variables()^`.
+
         Arguments:
-            names: The list of names of the variables that become shared.
+            names: The names of the variables that become shared, as a list argument.
         """
         for name in names:
             if name not in Gui.__shared_variables:
                 Gui.__shared_variables.append(name)
+
+    @staticmethod
+    def add_shared_variables(*names: str) -> None:
+        """Add shared variables.
+
+        The variables will be synchronized between all clients when updated.
+        Note that only variables from the main module will be registered.
+
+        This is a synonym for `Gui.add_shared_variable()^`.
+
+        Arguments:
+            names: The names of the variables that become shared, as a list argument.
+        """
+        Gui.add_shared_variable(*names)
 
     def _get_shared_variables(self) -> t.List[str]:
         return self.__evaluator.get_shared_variables()
@@ -1130,27 +1146,27 @@ class Gui:
                 _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()'", e)
         return None
 
-    def _call_shared_user_callback(
+    def _call_broadcast_callback(
         self, user_callback: t.Callable, args: t.List[t.Any], module_context: t.Optional[str]
     ) -> t.Any:
         try:
             with self.get_flask_app().app_context():
-                # Use global scopes for shared callbacks
+                # Use global scopes for broadcast callbacks
                 self.__set_client_id_in_context(_DataScopes._GLOBAL_ID)
                 if module_context is not None:
                     self._set_locals_context(module_context)
-                setattr(g, Gui.__SHARED_CALLBACK_G_ID, True)
+                setattr(g, Gui.__BRDCST_CALLBACK_G_ID, True)
                 callback_result = self._call_function_with_state(user_callback, args)
-                setattr(g, Gui.__SHARED_CALLBACK_G_ID, False)
+                setattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
                 return callback_result
         except Exception as e:  # pragma: no cover
             if not self._call_on_exception(user_callback.__name__, e):
                 _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()':\n{e}")
         return None
 
-    def _is_in_shared_callback(self):
+    def _is_in_brdcst_callback(self):
         try:
-            return getattr(g, Gui.__SHARED_CALLBACK_G_ID, False)
+            return getattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
         except RuntimeError:
             return False
 
@@ -1601,8 +1617,8 @@ class Gui:
     def load_config(self, config: Config) -> None:
         self._config._load(config)
 
-    def broadcast(self, name: str, value: t.Any):
-        """
+    def _broadcast(self, name: str, value: t.Any):
+        """NOT UNDOCUMENTED
         Send the new value of a variable to all connected clients.
 
         Arguments:
