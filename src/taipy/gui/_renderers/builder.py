@@ -111,7 +111,7 @@ class _Builder:
                 var_name, _ = gui._get_real_var_name(prop_hash)
                 for k, v in prop_dict.items():
                     (val, key_hash) = _Builder.__parse_attribute_value(gui, v)
-                    self.__attributes[k] = f"{{None if {var_name} is None else {var_name}.get('{k}')}}" if key_hash is None else v
+                    self.__attributes[k] = f"{{None if ({var_name}) is None else ({var_name}).get('{k}')}}" if key_hash is None else v
             else:
                 _warn(f"{self.__control_type}.properties ({prop_hash}) must be a dict.")
 
