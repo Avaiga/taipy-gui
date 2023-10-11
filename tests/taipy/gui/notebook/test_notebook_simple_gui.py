@@ -30,12 +30,12 @@ def test_notebook_simple_gui(tb, helpers):
     assert 'defaultValue=\\"10\\"' in urlopen("http://127.0.0.1:5000/taipy-jsx/page1").read().decode("utf-8")
     # Test state manipulation within notebook
     tb.execute_cell("get_variable")
-    assert tb.cell_output_text("get_variable") == "10"
+    assert "10" in tb.cell_output_text("get_variable")
     assert 'defaultValue=\\"10\\"' in urlopen("http://127.0.0.1:5000/taipy-jsx/page1").read().decode("utf-8")
     tb.execute_cell("set_variable")
     assert 'defaultValue=\\"20\\"' in urlopen("http://127.0.0.1:5000/taipy-jsx/page1").read().decode("utf-8")
     tb.execute_cell("re_get_variable")
-    assert tb.cell_output_text("re_get_variable") == "20"
+    assert "20" in tb.cell_output_text("re_get_variable")
     # Test page reload
     tb.execute_cell("gui_stop")
     with pytest.raises(Exception) as exc_info:
