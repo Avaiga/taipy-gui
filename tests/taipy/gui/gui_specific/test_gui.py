@@ -31,7 +31,8 @@ def test__get_real_var_name(gui: Gui):
 def test__get_user_instance(gui: Gui):
     gui.run(run_server=False)
     with gui.get_flask_app().app_context():
-        gui._get_user_instance("", type(None))
+        with pytest.warns(UserWarning):
+            gui._get_user_instance("", type(None))
 
 
 def test__call_broadcast_callback(gui: Gui):
