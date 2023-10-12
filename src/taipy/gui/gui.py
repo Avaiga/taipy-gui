@@ -1159,7 +1159,7 @@ class Gui:
                 callback_result = self._call_function_with_state(user_callback, args)
                 setattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
                 return callback_result
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             if not self._call_on_exception(user_callback.__name__, e):
                 _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()':\n{e}")
         return None
