@@ -89,5 +89,3 @@ def test__get_valid_adapter_result(gui: Gui):
         res = gui._get_valid_adapter_result(("id", "label"))
         assert isinstance(res, tuple)
         assert res[0] == "id"
-
-
