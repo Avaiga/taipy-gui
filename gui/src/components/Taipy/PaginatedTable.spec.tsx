@@ -280,7 +280,7 @@ describe("PaginatedTable Component", () => {
         );
         const elts = getAllByText("Austria");
         expect(elts.length).toBeGreaterThan(1);
-        expect(elts[0].tagName).toBe("DIV");
+        expect(elts[0].tagName).toBe("SPAN");
     });
     it("selects the rows", async () => {
         const dispatch = jest.fn();
