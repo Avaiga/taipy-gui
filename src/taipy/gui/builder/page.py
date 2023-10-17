@@ -15,13 +15,14 @@ from .._renderers import _Renderer
 from ._element import _Element, _Block, _DefaultBlock
 from ._context_manager import _BuilderContextManager
 
+
 class Page(_Renderer):
     """Page generator for the Builder API.
 
     This class is used to create a page created with the Builder API.<br/>
     Instance of this class can be added to the application using `Gui.add_page()^`.
 
-    This class should be used as a Python Context Manager to add the elements.<br/>
+    This class is typically be used as a Python Context Manager to add the elements.<br/>
     Here is how you can create a single-page application, creating the elements with code:
     ```py
     from taipy.gui import Gui
@@ -37,12 +38,17 @@ class Page(_Renderer):
     ```
     """
 
-    def __init__(self, content: t.Optional[_Element] = None, **kwargs) -> None:
-        """TODO
+    def __init__(self, element: t.Optional[_Element] = None, **kwargs) -> None:
+        """Initialize a new page.
+        
+        Arguments:
+            element (*Element*): An optional element, defined in the `taipy.gui.builder` module,
+                that is created in the page.<br/>
+                The default creates a `part` where several elements can be stored.
         """
-        if content is None:
-            content = _DefaultBlock()
-        kwargs["content"] = content
+        if element is None:
+            element = _DefaultBlock()
+        kwargs["content"] = element
         super().__init__(**kwargs)
 
     # Generate JSX from Element Object

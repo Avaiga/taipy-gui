@@ -25,6 +25,7 @@ if t.TYPE_CHECKING:
 
 class _Element(ABC):
     """NOT DOCUMENTED"""
+
     _ELEMENT_NAME = ""
     _DEFAULT_PROPERTY = ""
 
@@ -69,6 +70,7 @@ class _Element(ABC):
 
 class _Block(_Element):
     """NOT DOCUMENTED"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._children: t.List[_Element] = []
@@ -106,6 +108,7 @@ class html(_Block):
 
     This element can be used as a block element.
     """
+
     def __init__(self, *args, **kwargs):
         """Create a new `html` block.
 
