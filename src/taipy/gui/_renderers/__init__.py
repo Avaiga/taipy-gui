@@ -19,6 +19,7 @@ from ._html import _TaipyHTMLParser
 
 if t.TYPE_CHECKING:
     from ..gui import Gui
+    from ..builder._element import _Element
 
 
 class _Renderer(Page, ABC):
@@ -40,11 +41,12 @@ class _Renderer(Page, ABC):
         self._filepath = ""
         if isinstance(content, str):
             self.__process_content(content)
-        elif any(filter(lambda c: c.__name__.endswith("_Element"), type(content).__mro__)):
+        # Now this because we cannot (yet?) import gui.builder._Element
+        elif any(map(lambda c: c.__name__.endswith("_Element"), type(content).__mro__)):
             self._base_element = content
         else:
             raise ValueError(
-                f"'content' argument has incorrect type '{type(content).__name__}'. Property must be type of Union[str, builder.Element]"
+                f"'content' argument has incorrect type '{type(content).__name__}'. This must be a string or an Builder element."
             )
 
     def __process_content(self, content: str) -> None:

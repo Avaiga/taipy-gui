@@ -40,7 +40,7 @@ class Page(_Renderer):
 
     def __init__(self, element: t.Optional[_Element] = None, **kwargs) -> None:
         """Initialize a new page.
-        
+
         Arguments:
             element (*Element*): An optional element, defined in the `taipy.gui.builder` module,
                 that is created in the page.<br/>
