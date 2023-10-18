@@ -67,9 +67,9 @@ class _Renderer(Page, ABC):
             self._filepath = content
 
     def set_content(self, content: str) -> None:
-        """Set a new renderer content.
+        """Set a new page content.
 
-        Reads the new renderer content and reinitializes the _Renderer instance to reflect the change.
+        Reads the new page content and reinitializes the `Page^` instance to reflect the change.
 
         !!! important
             This function can only be used in an IPython notebook context.
@@ -107,14 +107,13 @@ class _EmptyPage(_Renderer):
 
 
 class Markdown(_Renderer):
-    """
-    Page generator for _Markdown_ text.
+    """Page generator for *Markdown* text.
 
     Taipy can use Markdown text to create pages that are the base of
     user interfaces.
 
     You can find details on the Taipy Markdown-specific syntax and how to add
-    Taipy Visual Elements in the [section on HTML](../gui/pages.md#using-markdown)
+    Taipy Visual Elements in the [section on HTML](../gui/pages/index.md#using-markdown)
     of the User Manual.
     """
 
@@ -136,13 +135,13 @@ class Markdown(_Renderer):
 
 
 class Html(_Renderer):
-    """Page generator for _HTML_ text.
+    """Page generator for *HTML* text.
 
     Taipy can use HTML code to create pages that are the base of
     user interfaces.
 
     You can find details on HTML-specific constructs and how to add
-    Taipy Visual Elements in the [section on HTML](../gui/pages.md#using-html)
+    Taipy Visual Elements in the [section on HTML](../gui/pages/index.md#using-html)
     of the User Manual.
     """
 
@@ -152,7 +151,7 @@ class Html(_Renderer):
         Arguments:
             content (str): The text content or the path to the file holding the HTML text to
                 be transformed.<br/>
-                If _content_ is a path to a readable file, the file is read as the HTML
+                If *content* is a path to a readable file, the file is read as the HTML
                 template content.
         """
         kwargs["content"] = content
