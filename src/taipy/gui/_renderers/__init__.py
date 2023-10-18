@@ -32,17 +32,18 @@ class _Renderer(Page, ABC):
 
         If *content* is a path to a readable file, the file is read entirely as the text template.
         """
+        from ..builder._element import _Element
+
         super().__init__(**kwargs)
-        content: t.Optional[t.Union[str, "_Element"]] = kwargs.get("content", None)
+        content: t.Optional[t.Union[str, _Element]] = kwargs.get("content", None)
         if content is None:
             raise ValueError("'content' argument is missing for class '_Renderer'")
         self._content = ""
-        self._base_element: t.Optional["_Element"] = None
+        self._base_element: t.Optional[_Element] = None
         self._filepath = ""
         if isinstance(content, str):
             self.__process_content(content)
-        # Now this because we cannot (yet?) import gui.builder._Element
-        elif any(map(lambda c: c.__name__.endswith("_Element"), type(content).__mro__)):
+        elif isinstance(content, _Element):
             self._base_element = content
         else:
             raise ValueError(
