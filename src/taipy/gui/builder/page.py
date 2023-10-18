@@ -12,8 +12,8 @@
 import typing as t
 
 from .._renderers import _Renderer
-from ._element import _Element, _Block, _DefaultBlock
 from ._context_manager import _BuilderContextManager
+from ._element import _Block, _DefaultBlock, _Element
 
 
 class Page(_Renderer):
