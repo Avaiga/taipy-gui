@@ -18,8 +18,8 @@ from ..utils import _is_in_notebook, _varname_from_content
 from ._html import _TaipyHTMLParser
 
 if t.TYPE_CHECKING:
-    from ..gui import Gui
     from ..builder._element import _Element
+    from ..gui import Gui
 
 
 class _Renderer(Page, ABC):
