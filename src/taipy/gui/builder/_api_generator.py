@@ -40,15 +40,15 @@ class _ElementApiGenerator(object, metaclass=_Singleton):
         current_frame = inspect.currentframe()
         error_message = "Cannot generate elements API for the current module"
         if current_frame is None:
-            raise RuntimeError("{error_message}: No frame found.")
+            raise RuntimeError(f"{error_message}: No frame found.")
         if current_frame.f_back is None:
-            raise RuntimeError("{error_message}: taipy-gui module not found.")
+            raise RuntimeError(f"{error_message}: taipy-gui module not found.")
         module_name = current_frame.f_back.f_globals["__name__"]
         self.__module = module = sys.modules[module_name]
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "viselements.json"))) as viselements:
             data = json.load(viselements)
             if "blocks" not in data or "controls" not in data:
-                raise RuntimeError("{error_message}: Invalid viselements.json file.")
+                raise RuntimeError(f"{error_message}: Invalid viselements.json file.")
             for blockElement in data["blocks"]:
                 default_property = _ElementApiGenerator.find_default_property(blockElement[1]["properties"])
                 setattr(
