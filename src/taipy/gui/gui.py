@@ -1752,8 +1752,7 @@ class Gui:
                     _warn("Exception raised in on_status", e)
         return None
 
-    def _pre_render_page(self) -> None:
-        """Pre-render all pages to have a proper initialization of all variables"""
+    def _pre_render_pages(self) -> None:
         self.__set_client_id_in_context()
         for page in self._config.pages:
             if page is not None:

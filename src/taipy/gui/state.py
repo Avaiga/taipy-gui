@@ -82,6 +82,7 @@ class State:
         "broadcast",
         "get_gui",
         "refresh",
+        "pre_render_pages",
         "_set_context",
         "_reset_context",
         "_get_placeholder",
@@ -259,6 +260,11 @@ class State:
         encoded_name = gui._bind_var(name)
         gui._broadcast_all_clients(encoded_name, value)
         self._reset_context(gui, set_context)
+
+    def pre_render_pages(self):
+        """Pre-render all pages to have a proper initialization of all variables"""
+        gui: "Gui" = super().__getattribute__(State.__gui_attr)
+        gui._pre_render_pages()
 
     def __enter__(self):
         super().__getattribute__(State.__attrs[0]).__enter__()
