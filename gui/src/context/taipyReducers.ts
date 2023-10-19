@@ -270,7 +270,7 @@ export const initializeWebSocket = (socket: Socket | undefined, dispatch: Dispat
         // Websocket confirm successful initialization
         socket.on("connect", () => {
             const id = getLocalStorageValue(TAIPY_CLIENT_ID, "");
-            sendWsMessage(socket, "ID", TAIPY_CLIENT_ID, id, id, undefined, false, (v) => {
+            sendWsMessage(socket, "ID", TAIPY_CLIENT_ID, id, id, undefined, false, () => {
                 dispatch({ type: Types.SocketConnected });
             });
         });
