@@ -460,9 +460,12 @@ class Gui:
             else getattr(g, Gui.__ARG_CLIENT_ID, "unknown id")
         )
 
-    def __set_client_id_in_context(self, client_id: t.Optional[str] = None):
+    def __set_client_id_in_context(self, client_id: t.Optional[str] = None, force=False):
         if not client_id and request:
             client_id = request.args.get(Gui.__ARG_CLIENT_ID, "")
+        if not client_id and force:
+            res = self._bindings()._get_or_create_scope("")
+            client_id = res[0] if res[1] else None
         if client_id and request:
             if sid := getattr(request, "sid", None):
                 sids = self.__client_id_2_sid.get(client_id, None)
@@ -505,7 +508,7 @@ class Gui:
             client_id = None
             if msg_type == _WsType.CLIENT_ID.value:
                 res = self._bindings()._get_or_create_scope(message.get("payload", ""))
-                client_id = res[1] if res[0] else None
+                client_id = res[0] if res[1] else None
             self.__set_client_id_in_context(client_id or message.get(Gui.__ARG_CLIENT_ID))
             self._set_locals_context(message.get("module_context") or None)
             if msg_type == _WsType.UPDATE.value:
@@ -1721,7 +1724,7 @@ class Gui:
                         _warn(f"Exception raised in {name}.on_user_init()", e)
 
     def __init_route(self):
-        self.__set_client_id_in_context()
+        self.__set_client_id_in_context(force=True)
         if not _hasscopeattr(self, Gui.__ON_INIT_NAME):
             _setscopeattr(self, Gui.__ON_INIT_NAME, True)
             self.__pre_render_pages()

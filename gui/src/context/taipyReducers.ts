@@ -270,8 +270,9 @@ export const initializeWebSocket = (socket: Socket | undefined, dispatch: Dispat
         // Websocket confirm successful initialization
         socket.on("connect", () => {
             const id = getLocalStorageValue(TAIPY_CLIENT_ID, "");
-            sendWsMessage(socket, "ID", TAIPY_CLIENT_ID, id, id);
-            dispatch({ type: Types.SocketConnected });
+            sendWsMessage(socket, "ID", TAIPY_CLIENT_ID, id, id, undefined, false, (v) => {
+                dispatch({ type: Types.SocketConnected });
+            });
         });
         // try to reconnect on connect_error
         socket.on("connect_error", () => {
@@ -780,7 +781,12 @@ export const createBlockAction = (block: BlockMessage): TaipyBlockAction => ({
     message: block.message,
 });
 
-export const createNavigateAction = (to?: string, params?: Record<string, string>, tab?: string, force?: boolean): TaipyNavigateAction => ({
+export const createNavigateAction = (
+    to?: string,
+    params?: Record<string, string>,
+    tab?: string,
+    force?: boolean
+): TaipyNavigateAction => ({
     type: Types.Navigate,
     to,
     params,
@@ -835,7 +841,8 @@ const sendWsMessage = (
     payload: Record<string, unknown> | unknown,
     id: string,
     moduleContext = "",
-    propagate = true
+    propagate = true,
+    serverAck?: (val: unknown) => void
 ): string => {
     const ackId = uuidv4();
     const msg: WsMessage = {
@@ -847,6 +854,6 @@ const sendWsMessage = (
         ack_id: ackId,
         module_context: moduleContext,
     };
-    socket?.emit("message", msg);
+    socket?.emit("message", msg, serverAck);
     return ackId;
 };
