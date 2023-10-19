@@ -510,7 +510,7 @@ class Gui:
                 res = self._bindings()._get_or_create_scope(message.get("payload", ""))
                 client_id = res[0] if res[1] else None
             self.__set_client_id_in_context(client_id or message.get(Gui.__ARG_CLIENT_ID))
-            with self._ctx_locals_context(message.get("module_context") or None):
+            with self._set_locals_context(message.get("module_context") or None):
                 if msg_type == _WsType.UPDATE.value:
                     payload = message.get("payload", {})
                     self.__front_end_update(
@@ -1135,8 +1135,8 @@ class Gui:
             args = args[:argcount]
         return user_function(*args)
 
-    def _ctx_module_context(self, module_context: t.Optional[str]) -> t.ContextManager[None]:
-        return self._ctx_locals_context(module_context) if module_context is not None else contextlib.nullcontext()
+    def _set_module_context(self, module_context: t.Optional[str]) -> t.ContextManager[None]:
+        return self._set_locals_context(module_context) if module_context is not None else contextlib.nullcontext()
 
     def _call_user_callback(
         self, state_id: t.Optional[str], user_callback: t.Callable, args: t.List[t.Any], module_context: t.Optional[str]
@@ -1144,7 +1144,7 @@ class Gui:
         try:
             with self.get_flask_app().app_context():
                 self.__set_client_id_in_context(state_id)
-                with self._ctx_module_context(module_context):
+                with self._set_module_context(module_context):
                     return self._call_function_with_state(user_callback, args)
         except Exception as e:  # pragma: no cover
             if not self._call_on_exception(user_callback.__name__, e):
@@ -1329,19 +1329,8 @@ class Gui:
         current_context = self.__locals_context.get_context()
         return current_context if current_context is not None else self.__default_module_name
 
-    def _set_locals_context(self, context: t.Optional[str]) -> None:
-        self.__locals_context.set_locals_context(context)
-
-    def _reset_locals_context(self) -> None:
-        self.__locals_context.reset_locals_context()
-
-    @contextlib.contextmanager
-    def _ctx_locals_context(self, context: t.Optional[str]) -> t.Iterator[None]:
-        try:
-            self._set_locals_context(context)
-            yield
-        finally:
-            self._reset_locals_context()
+    def _set_locals_context(self, context: t.Optional[str]) -> t.ContextManager[None]:
+        return self.__locals_context.set_locals_context(context)
 
     def _get_page_context(self, page_name: str) -> str | None:
         if page_name not in self._config.routes:

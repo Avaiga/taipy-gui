@@ -159,13 +159,13 @@ class State:
         if (pl_ctx := self._get_placeholder(State.__placeholder_attrs[1])) is not None:
             self._set_placeholder(State.__placeholder_attrs[1], None)
             if pl_ctx != gui._get_locals_context():
-                return gui._ctx_locals_context(pl_ctx)
+                return gui._set_locals_context(pl_ctx)
         if len(inspect.stack()) > 1:
             ctx = _get_module_name_from_frame(t.cast(FrameType, t.cast(FrameType, inspect.stack()[2].frame)))
             current_context = gui._get_locals_context()
             # ignore context if the current one starts with the new one (to resolve for class modules)
             if ctx != current_context and not current_context.startswith(str(ctx)):
-                return gui._ctx_locals_context(ctx)
+                return gui._set_locals_context(ctx)
         return nullcontext()
 
     def _notebook_context(self, gui: "Gui") -> t.ContextManager[None]:
@@ -233,10 +233,9 @@ class State:
             value (Any): The new variable value.
         """
         gui: "Gui" = super().__getattribute__(State.__gui_attr)
-        set_context = self._set_context(gui)
-        encoded_name = gui._bind_var(name)
-        gui._broadcast_all_clients(encoded_name, value)
-        self._reset_context(gui, set_context)
+        with self._set_context(gui):
+            encoded_name = gui._bind_var(name)
+            gui._broadcast_all_clients(encoded_name, value)
 
     def __enter__(self):
         super().__getattribute__(State.__attrs[0]).__enter__()
