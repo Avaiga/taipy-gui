@@ -921,8 +921,8 @@ class Gui:
                     )
             self.__send_var_list_update(payload["names"])
 
-    def __send_ws(self, payload: dict) -> None:
-        grouping_message = self.__get_message_grouping()
+    def __send_ws(self, payload: dict, allow_grouping=True) -> None:
+        grouping_message = self.__get_message_grouping() if allow_grouping else None
         if grouping_message is None:
             try:
                 self._server._ws.emit(
@@ -959,7 +959,8 @@ class Gui:
             {
                 "type": _WsType.CLIENT_ID.value,
                 "id": id,
-            }
+            },
+            allow_grouping=False,
         )
 
     def __send_ws_download(self, content: str, name: str, on_action: str) -> None:
