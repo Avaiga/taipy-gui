@@ -1135,7 +1135,7 @@ class Gui:
             args = args[:argcount]
         return user_function(*args)
 
-    def _ctx_module_context(self, module_context: t.Optional[str]) -> t.ContextManager:
+    def _ctx_module_context(self, module_context: t.Optional[str]) -> t.ContextManager[None]:
         return self._ctx_locals_context(module_context) if module_context is not None else contextlib.nullcontext()
 
     def _call_user_callback(
