@@ -16,6 +16,7 @@ from operator import attrgetter
 from types import FrameType
 
 from flask import has_app_context
+from flask.ctx import AppContext
 
 from .utils import _get_module_name_from_frame, _is_in_notebook
 from .utils._attributes import _attrsetter
@@ -168,7 +169,7 @@ class State:
                 return gui._set_locals_context(ctx)
         return nullcontext()
 
-    def _notebook_context(self, gui: "Gui") -> t.ContextManager[None]:
+    def _notebook_context(self, gui: "Gui"):
         return gui.get_flask_app().app_context() if not has_app_context() and _is_in_notebook() else nullcontext()
 
     def _get_placeholder(self, name: str):
