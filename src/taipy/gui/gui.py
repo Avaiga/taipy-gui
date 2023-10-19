@@ -1162,16 +1162,9 @@ class Gui:
             finally:
                 setattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
 
-        try:
-            with self.get_flask_app().app_context():
-                # Use global scopes for broadcast callbacks
-                self.__set_client_id_in_context(_DataScopes._GLOBAL_ID)
-                with _broadcast_callback(), self._ctx_module_context(module_context):
-                    return self._call_function_with_state(user_callback, args)
-        except Exception as e:
-            if not self._call_on_exception(user_callback.__name__, e):
-                _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()':\n{e}")
-        return None
+        with _broadcast_callback():
+            # Use global scopes for broadcast callbacks
+            return self._call_user_callback(_DataScopes._GLOBAL_ID, user_callback, args, module_context)
 
     def _is_in_brdcst_callback(self):
         try:
