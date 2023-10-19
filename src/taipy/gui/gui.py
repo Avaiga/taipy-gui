@@ -1138,7 +1138,10 @@ class Gui:
                 self.__set_client_id_in_context(state_id)
                 if module_context is not None:
                     self._set_locals_context(module_context)
-                return self._call_function_with_state(user_callback, args)
+                callback_result = self._call_function_with_state(user_callback, args)
+                if module_context is not None:
+                    self._reset_locals_context()
+                return callback_result
         except Exception as e:  # pragma: no cover
             if not self._call_on_exception(user_callback.__name__, e):
                 _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()'", e)
@@ -1156,6 +1159,8 @@ class Gui:
                 setattr(g, Gui.__BRDCST_CALLBACK_G_ID, True)
                 callback_result = self._call_function_with_state(user_callback, args)
                 setattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
+                if module_context is not None:
+                    self._reset_locals_context()
                 return callback_result
         except Exception as e:
             if not self._call_on_exception(user_callback.__name__, e):
