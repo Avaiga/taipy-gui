@@ -502,7 +502,11 @@ class Gui:
 
     def _manage_message(self, msg_type: _WsType, message: dict) -> None:
         try:
-            self.__set_client_id_in_context(message.get(Gui.__ARG_CLIENT_ID))
+            client_id = None
+            if msg_type == _WsType.CLIENT_ID.value:
+                res = self._bindings()._get_or_create_scope(message.get("payload", ""))
+                client_id = res[1] if res[0] else None
+            self.__set_client_id_in_context(client_id or message.get(Gui.__ARG_CLIENT_ID))
             self._set_locals_context(message.get("module_context") or None)
             if msg_type == _WsType.UPDATE.value:
                 payload = message.get("payload", {})
@@ -519,8 +523,6 @@ class Gui:
                 self.__request_data_update(str(message.get("name")), message.get("payload"))
             elif msg_type == _WsType.REQUEST_UPDATE.value:
                 self.__request_var_update(message.get("payload"))
-            elif msg_type == _WsType.CLIENT_ID.value:
-                self._bindings()._get_or_create_scope(message.get("payload", ""))
             self._reset_locals_context()
             self.__send_ack(message.get("ack_id"))
         except Exception as e:  # pragma: no cover

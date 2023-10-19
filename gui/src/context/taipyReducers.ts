@@ -190,6 +190,8 @@ export const getLocalStorageValue = <T = string>(key: string, defaultValue: T, v
     return !val ? defaultValue : !values ? val : values.indexOf(val) == -1 ? defaultValue : val;
 };
 
+const TAIPY_CLIENT_ID = "TaipyClientId";
+
 export const INITIAL_STATE: TaipyState = {
     data: {},
     theme: window.taipyConfig?.darkMode ? themes.dark : themes.light,
@@ -199,7 +201,7 @@ export const INITIAL_STATE: TaipyState = {
             ? TIMEZONE_CLIENT
             : window.taipyConfig.timeZone
         : undefined,
-    id: getLocalStorageValue("TaipyClientId", ""),
+    id: getLocalStorageValue(TAIPY_CLIENT_ID, ""),
     menu: {},
     ackList: [],
     alerts: [],
@@ -211,7 +213,7 @@ export const taipyInitialize = (initialState: TaipyState): TaipyState => ({
     socket: io("/", { autoConnect: false, path: `${getBaseURL()}socket.io` }),
 });
 
-const storeClientId = (id: string) => localStorage && localStorage.setItem("TaipyClientId", id);
+const storeClientId = (id: string) => localStorage && localStorage.setItem(TAIPY_CLIENT_ID, id);
 
 const messageToAction = (message: WsMessage) => {
     if (message.type) {
@@ -267,8 +269,8 @@ export const initializeWebSocket = (socket: Socket | undefined, dispatch: Dispat
     if (socket) {
         // Websocket confirm successful initialization
         socket.on("connect", () => {
-            const id = getLocalStorageValue("TaipyClientId", "");
-            sendWsMessage(socket, "ID", "TaipyClientId", id, id);
+            const id = getLocalStorageValue(TAIPY_CLIENT_ID, "");
+            sendWsMessage(socket, "ID", TAIPY_CLIENT_ID, id, id);
             dispatch({ type: Types.SocketConnected });
         });
         // try to reconnect on connect_error
