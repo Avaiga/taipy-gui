@@ -155,8 +155,7 @@ class html(_Block):
         if self._ELEMENT_NAME:
             attrs = ""
             if self._properties:
-                attrs = " "+" ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()]) 
-            open_tag = f""
+                attrs = " " + " ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()])
             return f"<{self._ELEMENT_NAME}{attrs}>{self._content}{self._render_children(gui)}</{self._ELEMENT_NAME}>"
         else:
             return self._content
