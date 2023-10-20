@@ -115,11 +115,14 @@ class html(_Block):
         """Create a new `html` block.
 
         Arguments:
-            args: A list of two unnamed arguments:
+            args (any[]): A list of one or two unnamed arguments:
+
                 - *args[0]* is the HTML tag name. If empty or None, this represents an HTML text
                   node.
-                - The text of this element.
-            kwargs: the HTML attributes for this element.
+                - *args[1]* (optional) is the text of this element.<br/>
+                  Note that special HTML characters (such as '&lt;' or '&amp;') do not need to be protected.
+            kwargs (dict[str, any]): the HTML attributes for this element.<br/>
+                These should be valid attribute names, with valid attribute values.
 
         Examples:
             - To generate `<br/>`, use:
@@ -130,6 +133,17 @@ class html(_Block):
                ```
                html("h1", "My page title")
                ```
+            - To generate `<h1 id="page-title">My page title</h1>`, use:
+               ```
+               html("h1", "My page title", id="page-title")
+               ```
+            - To generate `<p>This is a <b>Taipy GUI</b> element.</p>`, use:
+               ```
+               with html("p"):
+                   html(None, "This is a ")
+                   html("b", "Taipy GUI")
+                   html(None, " element.")
+               ```
         """
         super().__init__(*args, **kwargs)
         if not args:
@@ -139,11 +153,11 @@ class html(_Block):
 
     def _render(self, gui: "Gui") -> str:
         if self._ELEMENT_NAME:
-            attributes = ""
+            attrs = ""
             if self._properties:
-                attributes = " "+" ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()]) 
-            open_tag = f"<{self._ELEMENT_NAME}{attributes}>"
-            return f"{open_tag}{self._content}{self._render_children(gui)}</{self._ELEMENT_NAME}>"
+                attrs = " "+" ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()]) 
+            open_tag = f""
+            return f"<{self._ELEMENT_NAME}{attrs}>{self._content}{self._render_children(gui)}</{self._ELEMENT_NAME}>"
         else:
             return self._content
 
