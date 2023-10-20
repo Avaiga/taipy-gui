@@ -106,24 +106,46 @@ class _DefaultBlock(_Block):
 class html(_Block):
     """A visual element defined as an HTML tag.
 
+    Use this class to integrate raw HTML to your page.
+
     This element can be used as a block element.
     """
 
     def __init__(self, *args, **kwargs):
         """Create a new `html` block.
 
-        TODO
+        Arguments:
+            args: A list of two unnamed arguments:
+                - *args[0]* is the HTML tag name. If empty or None, this represents an HTML text
+                  node.
+                - The text of this element.
+            kwargs: the HTML attributes for this element.
+
+        Examples:
+            - To generate `<br/>`, use:
+               ```
+               html("br")
+               ```
+            - To generate `<h1>My page title</h1>`, use:
+               ```
+               html("h1", "My page title")
+               ```
         """
         super().__init__(*args, **kwargs)
         if not args:
             raise RuntimeError("Can't render html element. Missing html tag name.")
-        self._ELEMENT_NAME = args[0]
+        self._ELEMENT_NAME = args[0] if args[0] else None
         self._content = args[1] if len(args) > 1 else ""
 
     def _render(self, gui: "Gui") -> str:
-        open_tag_attributes = " ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()])
-        open_tag = f"<{self._ELEMENT_NAME} {open_tag_attributes}>"
-        return f"{open_tag}{self._content}{self._render_children(gui)}</{self._ELEMENT_NAME}>"
+        if self._ELEMENT_NAME:
+            attributes = ""
+            if self._properties:
+                attributes = " "+" ".join([f'{k}="{str(v)}"' for k, v in self._properties.items()]) 
+            open_tag = f"<{self._ELEMENT_NAME}{attributes}>"
+            return f"{open_tag}{self._content}{self._render_children(gui)}</{self._ELEMENT_NAME}>"
+        else:
+            return self._content
 
 
 class _Control(_Element):
