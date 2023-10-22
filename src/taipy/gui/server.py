@@ -266,6 +266,10 @@ class _Server:
         self._host = host
         self._port = port
         if _is_in_notebook() and notebook_proxy:  # pragma: no cover
+            if self._is_port_open(host_value, port):
+                raise ConnectionError(
+                    f"Port {port} is already opened on {host_value}. You have another server application running on the same port."
+                )
             # Start proxy if not already started
             self._proxy = NotebookProxy(gui=self._gui, listening_port=port)
             self._proxy.run()
