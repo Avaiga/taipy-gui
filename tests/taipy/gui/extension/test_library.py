@@ -12,6 +12,8 @@ import inspect
 import typing as t
 from pathlib import Path
 
+import pytest
+
 from taipy.gui import Gui
 from taipy.gui.extension import Element, ElementLibrary, ElementProperty, PropertyType
 
@@ -73,6 +75,22 @@ class MyLibrary(ElementLibrary):
         return Path(name)
 
 
+class MyBadLibrary(ElementLibrary):
+    def get_name(self) -> str:
+        return "bad name"
+
+    def get_elements(self) -> t.Dict[str, Element]:
+        return {}
+
+
+class MyGoodLibrary(ElementLibrary):
+    def get_name(self) -> str:
+        return "test_lib"
+
+    def get_elements(self) -> t.Dict[str, Element]:
+        return {}
+
+
 Gui.add_library(MyLibrary())
 
 
@@ -117,6 +135,7 @@ def test_lib_input_html_1(gui: Gui, test_client, helpers):
         'defaultValue=""',
         "broadcast={_bc_broadcast}",
         "value={tpec_TpExPr_val_TPMDL_0}",
+        "</TestLib_Input>",
     ]
     helpers.test_control_html(gui, html_string, expected_list)
 
@@ -124,13 +143,14 @@ def test_lib_input_html_1(gui: Gui, test_client, helpers):
 def test_lib_input_html_2(gui: Gui, test_client, helpers):
     val = ""  # noqa: F841
     gui._set_frame(inspect.currentframe())
-    html_string = '<test_lib:testinput multiline="true">{val}</testlib:testinput>'
+    html_string = '<test_lib:testinput multiline="true">{val}</test_lib:testinput>'
     expected_list = [
         "<TestLib_Input",
         "multiline={true}",
         'defaultValue=""',
         "broadcast={_bc_broadcast}",
         "value={tpec_TpExPr_val_TPMDL_0}",
+        "</TestLib_Input>",
     ]
     helpers.test_control_html(gui, html_string, expected_list)
 
@@ -152,3 +172,16 @@ def test_lib_inner_no_value_md(gui: Gui, test_client, helpers):
     md_string = "<|test_lib.inner|>"
     expected = ["<TestLib_Inner", "withProperty={tpec_TpExPr_None_TPMDL_0}"]
     helpers.test_control_md(gui, md_string, expected)
+
+
+def test_lib_bad_name():
+    with pytest.raises(NameError):
+        Gui.add_library(MyBadLibrary())
+
+
+def test_lib_good_name():
+    Gui.add_library(MyGoodLibrary())
+
+
+def test_add_lib():
+    Gui(libraries=[MyGoodLibrary()])

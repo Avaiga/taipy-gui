@@ -47,7 +47,7 @@ from ._renderers.json import _TaipyJsonEncoder
 from ._renderers.utils import _get_columns_dict
 from ._warnings import TaipyGuiWarning, _warn
 from .builder import _ElementApiGenerator
-from .config import Config, ConfigParameter, ServerConfig, Stylekit, _Config
+from .config import Config, ConfigParameter, _Config
 from .data.content_accessor import _ContentAccessor
 from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
@@ -103,7 +103,6 @@ class Gui:
     """Entry point for the Graphical User Interface generation.
 
     Attributes:
-
         on_action (Callable): The function that is called when a control
             triggers an action, as the result of an interaction with the end-user.<br/>
             It defaults to the `on_action()` global function defined in the Python
@@ -196,7 +195,6 @@ class Gui:
     __UI_BLOCK_NAME = "TaipyUiBlockVar"
     __MESSAGE_GROUPING_NAME = "TaipyMessageGrouping"
     __ON_INIT_NAME = "TaipyOnInit"
-    __ON_LIB_INIT_NAME = "TaipyOnLibsInit"
     __ARG_CLIENT_ID = "client_id"
     __INIT_URL = "taipy-init"
     __JSX_URL = "taipy-jsx"
@@ -204,6 +202,8 @@ class Gui:
     __UPLOAD_URL = "taipy-uploads"
     _EXTENSION_ROOT = "taipy-extension"
     __USER_CONTENT_URL = "taipy-user-content"
+    __BROADCAST_G_ID = "taipy_broadcasting"
+    __BRDCST_CALLBACK_G_ID = "taipy_brdcst_callback"
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
 
@@ -241,16 +241,16 @@ class Gui:
 
         Arguments:
             page (Optional[Union[str, Page^]]): An optional `Page^` instance that is used
-                when there is a single page in this interface, referenced as the _root_
+                when there is a single page in this interface, referenced as the *root*
                 page (located at `/`).<br/>
-                If _page_ is a raw string and if it holds a path to a readable file then
+                If *page* is a raw string and if it holds a path to a readable file then
                 a `Markdown^` page is built from the content of that file.<br/>
-                If _page_ is a string that does not indicate a path to readable file then
+                If *page* is a string that does not indicate a path to readable file then
                 a `Markdown^` page is built from that string.<br/>
-                Note that if _pages_ is provided, those pages are added as well.
+                Note that if *pages* is provided, those pages are added as well.
             pages (Optional[dict]): Used if you want to initialize this instance with a set
                 of pages.<br/>
-                The method `(Gui.)add_pages(pages)^` is called if _pages_ is not None.
+                The method `(Gui.)add_pages(pages)^` is called if *pages* is not None.
                 You can find details on the possible values of this argument in the
                 documentation for this method.
             css_file (Optional[str]): A pathname to a CSS file that gets used as a style sheet in
@@ -260,11 +260,11 @@ class Gui:
                 with the `.css` extension.
             path_mapping (Optional[dict]): A dictionary that associates a URL prefix to
                 a path in the server file system.<br/>
-                If the assets of your application are located in _/home/me/app_assets_ and
-                you want to access them using only '_assets_' in your application, you can
-                set _path_mapping={"assets": "/home/me/app_assets"}_. If your application
-                then requests the file _"/assets/images/logo.png"_, the server searches
-                for the file  _"/home/me/app_assets/images/logo.png"_.<br/>
+                If the assets of your application are located in */home/me/app_assets* and
+                you want to access them using only '*assets*' in your application, you can
+                set *path_mapping={"assets": "/home/me/app_assets"}*. If your application
+                then requests the file *"/assets/images/logo.png"*, the server searches
+                for the file  *"/home/me/app_assets/images/logo.png"*.<br/>
                 If empty or not defined, access through the browser to all resources under the directory
                 of the main Python file is allowed.
             env_filename (Optional[str]): An optional file from which to load application
@@ -391,12 +391,28 @@ class Gui:
         The variables will be synchronized between all clients when updated.
         Note that only variables from the main module will be registered.
 
+        This is a synonym for `(Gui.)add_shared_variables()^`.
+
         Arguments:
-            names: The list of names of the variables that become shared.
+            names: The names of the variables that become shared, as a list argument.
         """
         for name in names:
             if name not in Gui.__shared_variables:
                 Gui.__shared_variables.append(name)
+
+    @staticmethod
+    def add_shared_variables(*names: str) -> None:
+        """Add shared variables.
+
+        The variables will be synchronized between all clients when updated.
+        Note that only variables from the main module will be registered.
+
+        This is a synonym for `(Gui.)add_shared_variable()^`.
+
+        Arguments:
+            names: The names of the variables that become shared, as a list argument.
+        """
+        Gui.add_shared_variable(*names)
 
     def _get_shared_variables(self) -> t.List[str]:
         return self.__evaluator.get_shared_variables()
@@ -440,13 +456,16 @@ class Gui:
     def _get_client_id(self) -> str:
         return (
             _DataScopes._GLOBAL_ID
-            if self._bindings()._get_single_client()
+            if self._bindings()._is_single_client()
             else getattr(g, Gui.__ARG_CLIENT_ID, "unknown id")
         )
 
-    def __set_client_id_in_context(self, client_id: t.Optional[str] = None):
+    def __set_client_id_in_context(self, client_id: t.Optional[str] = None, force=False):
         if not client_id and request:
             client_id = request.args.get(Gui.__ARG_CLIENT_ID, "")
+        if not client_id and force:
+            res = self._bindings()._get_or_create_scope("")
+            client_id = res[0] if res[1] else None
         if client_id and request:
             if sid := getattr(request, "sid", None):
                 sids = self.__client_id_2_sid.get(client_id, None)
@@ -486,26 +505,27 @@ class Gui:
 
     def _manage_message(self, msg_type: _WsType, message: dict) -> None:
         try:
-            self.__set_client_id_in_context(message.get(Gui.__ARG_CLIENT_ID))
-            self._set_locals_context(message.get("module_context") or None)
-            if msg_type == _WsType.UPDATE.value:
-                payload = message.get("payload", {})
-                self.__front_end_update(
-                    str(message.get("name")),
-                    payload.get("value"),
-                    message.get("propagate", True),
-                    payload.get("relvar"),
-                    payload.get("on_change"),
-                )
-            elif msg_type == _WsType.ACTION.value:
-                self.__on_action(message.get("name"), message.get("payload"))
-            elif msg_type == _WsType.DATA_UPDATE.value:
-                self.__request_data_update(str(message.get("name")), message.get("payload"))
-            elif msg_type == _WsType.REQUEST_UPDATE.value:
-                self.__request_var_update(message.get("payload"))
-            elif msg_type == _WsType.CLIENT_ID.value:
-                self._bindings()._get_or_create_scope(message.get("payload", ""))
-            self._reset_locals_context()
+            client_id = None
+            if msg_type == _WsType.CLIENT_ID.value:
+                res = self._bindings()._get_or_create_scope(message.get("payload", ""))
+                client_id = res[0] if res[1] else None
+            self.__set_client_id_in_context(client_id or message.get(Gui.__ARG_CLIENT_ID))
+            with self._set_locals_context(message.get("module_context") or None):
+                if msg_type == _WsType.UPDATE.value:
+                    payload = message.get("payload", {})
+                    self.__front_end_update(
+                        str(message.get("name")),
+                        payload.get("value"),
+                        message.get("propagate", True),
+                        payload.get("relvar"),
+                        payload.get("on_change"),
+                    )
+                elif msg_type == _WsType.ACTION.value:
+                    self.__on_action(message.get("name"), message.get("payload"))
+                elif msg_type == _WsType.DATA_UPDATE.value:
+                    self.__request_data_update(str(message.get("name")), message.get("payload"))
+                elif msg_type == _WsType.REQUEST_UPDATE.value:
+                    self.__request_var_update(message.get("payload"))
             self.__send_ack(message.get("ack_id"))
         except Exception as e:  # pragma: no cover
             _warn(f"Decoding Message has failed: {message}", e)
@@ -900,8 +920,8 @@ class Gui:
                     )
             self.__send_var_list_update(payload["names"])
 
-    def __send_ws(self, payload: dict) -> None:
-        grouping_message = self.__get_message_grouping()
+    def __send_ws(self, payload: dict, allow_grouping=True) -> None:
+        grouping_message = self.__get_message_grouping() if allow_grouping else None
         if grouping_message is None:
             try:
                 self._server._ws.emit(
@@ -938,7 +958,8 @@ class Gui:
             {
                 "type": _WsType.CLIENT_ID.value,
                 "id": id,
-            }
+            },
+            allow_grouping=False,
         )
 
     def __send_ws_download(self, content: str, name: str, on_action: str) -> None:
@@ -1006,7 +1027,7 @@ class Gui:
         )
 
     def __get_ws_receiver(self) -> t.Union[t.List[str], t.Any, None]:
-        if self._bindings()._get_single_client():
+        if self._bindings()._is_single_client():
             return None
         sid = getattr(request, "sid", None) if request else None
         sids = self.__client_id_2_sid.get(self._get_client_id(), set())
@@ -1114,19 +1135,42 @@ class Gui:
             args = args[:argcount]
         return user_function(*args)
 
+    def _set_module_context(self, module_context: t.Optional[str]) -> t.ContextManager[None]:
+        return self._set_locals_context(module_context) if module_context is not None else contextlib.nullcontext()
+
     def _call_user_callback(
         self, state_id: t.Optional[str], user_callback: t.Callable, args: t.List[t.Any], module_context: t.Optional[str]
     ) -> t.Any:
         try:
             with self.get_flask_app().app_context():
                 self.__set_client_id_in_context(state_id)
-                if module_context is not None:
-                    self._set_locals_context(module_context)
-                return self._call_function_with_state(user_callback, args)
+                with self._set_module_context(module_context):
+                    return self._call_function_with_state(user_callback, args)
         except Exception as e:  # pragma: no cover
             if not self._call_on_exception(user_callback.__name__, e):
                 _warn(f"invoke_callback(): Exception raised in '{user_callback.__name__}()'", e)
         return None
+
+    def _call_broadcast_callback(
+        self, user_callback: t.Callable, args: t.List[t.Any], module_context: t.Optional[str]
+    ) -> t.Any:
+        @contextlib.contextmanager
+        def _broadcast_callback() -> t.Iterator[None]:
+            try:
+                setattr(g, Gui.__BRDCST_CALLBACK_G_ID, True)
+                yield
+            finally:
+                setattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
+
+        with _broadcast_callback():
+            # Use global scopes for broadcast callbacks
+            return self._call_user_callback(_DataScopes._GLOBAL_ID, user_callback, args, module_context)
+
+    def _is_in_brdcst_callback(self):
+        try:
+            return getattr(g, Gui.__BRDCST_CALLBACK_G_ID, False)
+        except RuntimeError:
+            return False
 
     # Proxy methods for Evaluator
     def _evaluate_expr(self, expr: str) -> t.Any:
@@ -1148,6 +1192,8 @@ class Gui:
         return self.__evaluator.evaluate_holders(self, expr)
 
     def _is_expression(self, expr: str) -> bool:
+        if self.__evaluator is None:
+            return False
         return self.__evaluator._is_expression(expr)
 
     # make components resettable
@@ -1285,11 +1331,8 @@ class Gui:
         current_context = self.__locals_context.get_context()
         return current_context if current_context is not None else self.__default_module_name
 
-    def _set_locals_context(self, context: t.Optional[str]) -> None:
-        self.__locals_context.set_locals_context(context)
-
-    def _reset_locals_context(self) -> None:
-        self.__locals_context.reset_locals_context()
+    def _set_locals_context(self, context: t.Optional[str]) -> t.ContextManager[None]:
+        return self.__locals_context.set_locals_context(context)
 
     def _get_page_context(self, page_name: str) -> str | None:
         if page_name not in self._config.routes:
@@ -1481,7 +1524,7 @@ class Gui:
     ) -> Partial:
         """Create a new `Partial^`.
 
-        The [User Manual section on Partials](../gui/pages.md#partials) gives details on
+        The [User Manual section on Partials](../gui/pages/index.md#partials) gives details on
         when and how to use this class.
 
         Arguments:
@@ -1575,8 +1618,8 @@ class Gui:
     def load_config(self, config: Config) -> None:
         self._config._load(config)
 
-    def broadcast(self, name: str, value: t.Any):
-        """
+    def _broadcast(self, name: str, value: t.Any):
+        """NOT UNDOCUMENTED
         Send the new value of a variable to all connected clients.
 
         Arguments:
@@ -1586,17 +1629,19 @@ class Gui:
         self.__send_ws_broadcast(name, value)
 
     def _broadcast_all_clients(self, name: str, value: t.Any):
-        self._set_broadcast()
-        self._update_var(name, value)
-        self._set_broadcast(False)
+        try:
+            self._set_broadcast()
+            self._update_var(name, value)
+        finally:
+            self._set_broadcast(False)
 
     def _set_broadcast(self, broadcast: bool = True):
         with contextlib.suppress(RuntimeError):
-            setattr(g, "is_broadcasting", broadcast)
+            setattr(g, Gui.__BROADCAST_G_ID, broadcast)
 
     def _is_broadcasting(self) -> bool:
         try:
-            return getattr(g, "is_broadcasting", False)
+            return getattr(g, Gui.__BROADCAST_G_ID, False)
         except RuntimeError:
             return False
 
@@ -1668,24 +1713,23 @@ class Gui:
         return True
 
     def __init_libs(self):
-        if not _hasscopeattr(self, Gui.__ON_LIB_INIT_NAME):
-            _setscopeattr(self, Gui.__ON_LIB_INIT_NAME, True)
-            for name, libs in self.__extensions.items():
-                for lib in libs:
-                    if not isinstance(lib, ElementLibrary):
-                        continue
-                    try:
-                        self._call_function_with_state(lib.on_user_init, [])
-                    except Exception as e:  # pragma: no cover
-                        if not self._call_on_exception(f"{name}.on_user_init", e):
-                            _warn(f"Exception raised in {name}.on_user_init()", e)
+        for name, libs in self.__extensions.items():
+            for lib in libs:
+                if not isinstance(lib, ElementLibrary):
+                    continue
+                try:
+                    self._call_function_with_state(lib.on_user_init, [])
+                except Exception as e:  # pragma: no cover
+                    if not self._call_on_exception(f"{name}.on_user_init", e):
+                        _warn(f"Exception raised in {name}.on_user_init()", e)
 
     def __init_route(self):
-        self.__set_client_id_in_context()
-        self.__init_libs()
+        self.__set_client_id_in_context(force=True)
         if not _hasscopeattr(self, Gui.__ON_INIT_NAME):
+            _setscopeattr(self, Gui.__ON_INIT_NAME, True)
+            self.__pre_render_pages()
+            self.__init_libs()
             if hasattr(self, "on_init") and callable(self.on_init):
-                _setscopeattr(self, Gui.__ON_INIT_NAME, True)
                 try:
                     self._call_function_with_state(self.on_init, [])
                 except Exception as e:  # pragma: no cover
@@ -1710,6 +1754,14 @@ class Gui:
                 if not self._call_on_exception("on_status", e):
                     _warn("Exception raised in on_status", e)
         return None
+
+    def __pre_render_pages(self) -> None:
+        """Pre-render all pages to have a proper initialization of all variables"""
+        self.__set_client_id_in_context()
+        for page in self._config.pages:
+            if page is not None:
+                with contextlib.suppress(Exception):
+                    page.render(self)
 
     def __render_page(self, page_name: str) -> t.Any:
         self.__set_client_id_in_context()
@@ -1776,7 +1828,7 @@ class Gui:
     def get_flask_app(self) -> Flask:
         """Get the internal Flask application.
 
-        This method must be called **after** (Gui.)run^ method was invoked.
+        This method must be called **after** `(Gui.)run()^` was invoked.
 
         Returns:
             The Flask instance used.
@@ -2039,12 +2091,15 @@ class Gui:
         if not hasattr(self, "_root_dir"):
             self._root_dir = run_root_dir
 
-        self.__run_kwargs = kwargs = {
-            **kwargs,
-            "run_server": run_server,
-            "run_in_thread": run_in_thread,
-            "async_mode": async_mode,
-        }
+        is_reloading = kwargs.pop("_reload", False)
+
+        if not is_reloading:
+            self.__run_kwargs = kwargs = {
+                **kwargs,
+                "run_server": run_server,
+                "run_in_thread": run_in_thread,
+                "async_mode": async_mode,
+            }
 
         # Load application config from multiple sources (env files, kwargs, command line)
         self._config._build_config(run_root_dir, self.__env_filename, kwargs)
@@ -2062,7 +2117,7 @@ class Gui:
 
         self.__var_dir.set_default(self.__frame)
 
-        if self.__state is None:
+        if self.__state is None or is_reloading:
             self.__state = State(self, self.__locals_context.get_all_keys(), self.__locals_context.get_all_context())
 
         if _is_in_notebook():
@@ -2138,7 +2193,7 @@ class Gui:
         """
         if hasattr(self, "_server") and hasattr(self._server, "_thread") and self._server._is_running:
             self._server.stop_thread()
-            self.run(**self.__run_kwargs)
+            self.run(**self.__run_kwargs, _reload=True)
             _TaipyLogger._get_logger().info("Gui server has been reloaded.")
 
     def stop(self):
@@ -2147,7 +2202,7 @@ class Gui:
 
         This function stops the underlying web server only in the situation where
         it was run in a separated thread: the *run_in_thread* parameter to the
-        `(Gui.)run^` method was set to True, or you are running in an IPython notebook
+        `(Gui.)run()^` method was set to True, or you are running in an IPython notebook
         context.
         """
         if hasattr(self, "_server") and hasattr(self._server, "_thread") and self._server._is_running:

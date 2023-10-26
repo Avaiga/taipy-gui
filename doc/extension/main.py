@@ -1,12 +1,14 @@
-from taipy.gui import Gui
-from example_library import ExampleLibrary
 import random
 import string
+
+from example_library import ExampleLibrary
+
+from taipy.gui import Gui
 
 # Initial value
 label = "Here is some text"
 
-page = """  
+page = """
 # Custom elements example
 
 ## Fraction:
@@ -25,13 +27,15 @@ Colored text: <|{label}|example.label|>
 <|Remove a character|button|id=removeChar|>
 """
 
+
 def on_action(state, id):
-  if id == "addChar":
-    # Add a random character to the end of 'label'
-    state.label += random.choice(string.ascii_letters)
-  elif id == "removeChar":
-    # Remove the first character of 'label'
-    if len(state.label) > 0:
-      state.label = state.label[1:]
+    if id == "addChar":
+        # Add a random character to the end of 'label'
+        state.label += random.choice(string.ascii_letters)
+    elif id == "removeChar":
+        # Remove the first character of 'label'
+        if len(state.label) > 0:
+            state.label = state.label[1:]
+
 
 Gui(page, libraries=[ExampleLibrary()]).run(debug=True)

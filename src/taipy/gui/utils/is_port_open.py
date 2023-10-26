@@ -8,22 +8,12 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-# -----------------------------------------------------------------------------------------
-# To execute this script, make sure that the taipy-gui package is installed in your
-# Python environment and run:
-#     python <script>
-# -----------------------------------------------------------------------------------------
-import random
 
-from taipy.gui import Gui
+import socket
 
-# Random data set
-data = {"Count": [random.random() for i in range(100)]}
 
-page = """
-# Histograms - Horizontal
-
-<|{data}|chart|type=histogram|y=Count|>
-"""
-
-Gui(page).run()
+def _is_port_open(host, port) -> bool:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex((host, port))
+    sock.close()
+    return result == 0

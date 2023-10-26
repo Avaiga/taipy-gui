@@ -38,37 +38,50 @@ class _VariableDirectory:
             imported_var_list = _get_imported_var(frame)
             self._imported_var_dir[module_name] = imported_var_list
 
-    def process_imported_var(self) -> None:
-        default_imported_dir = self._imported_var_dir[self._default_module]
-        self._locals_context.set_locals_context(self._default_module)
-        for name, asname, module in default_imported_dir:
-            if name == "*" and asname == "*":
-                continue
-            imported_module_name = _get_module_name_from_imported_var(
-                name, self._locals_context.get_locals().get(asname, None), module
-            )
-            temp_var_name = self.add_var(asname, self._default_module)
-            self.add_var(name, imported_module_name, temp_var_name)
-        self._locals_context.reset_locals_context()
+    def pre_process_module_import_all(self) -> None:
+        for imported_dir in self._imported_var_dir.values():
+            additional_var_list: t.List[t.Tuple[str, str, str]] = []
+            for name, asname, module in imported_dir:
+                if name != "*" or asname != "*":
+                    continue
+                if module not in self._locals_context._locals_map.keys():
+                    continue
+                with self._locals_context.set_locals_context(module):
+                    additional_var_list.extend(
+                        (v, v, module) for v in self._locals_context.get_locals().keys() if not v.startswith("_")
+                    )
+            imported_dir.extend(additional_var_list)
 
-        for k, v in self._imported_var_dir.items():
-            self._locals_context.set_locals_context(k)
-            for name, asname, module in v:
+    def process_imported_var(self) -> None:
+        self.pre_process_module_import_all()
+        default_imported_dir = self._imported_var_dir[self._default_module]
+        with self._locals_context.set_locals_context(self._default_module):
+            for name, asname, module in default_imported_dir:
                 if name == "*" and asname == "*":
                     continue
                 imported_module_name = _get_module_name_from_imported_var(
                     name, self._locals_context.get_locals().get(asname, None), module
                 )
-                var_name = self.get_var(name, imported_module_name)
-                var_asname = self.get_var(asname, k)
-                if var_name is None and var_asname is None:
-                    temp_var_name = self.add_var(asname, k)
-                    self.add_var(name, imported_module_name, temp_var_name)
-                elif var_name is not None:
-                    self.add_var(asname, k, var_name)
-                else:
-                    self.add_var(name, imported_module_name, var_asname)
-            self._locals_context.reset_locals_context()
+                temp_var_name = self.add_var(asname, self._default_module)
+                self.add_var(name, imported_module_name, temp_var_name)
+
+        for k, v in self._imported_var_dir.items():
+            with self._locals_context.set_locals_context(k):
+                for name, asname, module in v:
+                    if name == "*" and asname == "*":
+                        continue
+                    imported_module_name = _get_module_name_from_imported_var(
+                        name, self._locals_context.get_locals().get(asname, None), module
+                    )
+                    var_name = self.get_var(name, imported_module_name)
+                    var_asname = self.get_var(asname, k)
+                    if var_name is None and var_asname is None:
+                        temp_var_name = self.add_var(asname, k)
+                        self.add_var(name, imported_module_name, temp_var_name)
+                    elif var_name is not None:
+                        self.add_var(asname, k, var_name)
+                    else:
+                        self.add_var(name, imported_module_name, var_asname)
 
     def add_var(self, name: str, module: t.Optional[str], var_name: t.Optional[str] = None) -> str:
         if module is None:
