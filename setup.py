@@ -41,7 +41,7 @@ requirements = [
     "gevent>=23.7.0,<24.0",
     "gevent-websocket>=0.10.1,<0.11",
     "kthread>=0.2.3,<0.3",
-    "taipy-config@git+https://git@github.com/Avaiga/taipy-config.git@develop",
+    "taipy-config>=3.0,<3.1",
     "gitignore-parser>=0.1,<0.2",
     "simple-websocket>=0.10.1,<1.0",
     "twisted>=23.8.0,<24.0",
