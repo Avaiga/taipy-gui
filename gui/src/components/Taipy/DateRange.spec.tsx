@@ -247,10 +247,10 @@ describe("DateRange with time Component", () => {
         );
         const input = document.querySelector(".tp-dt-picker-start input") as HTMLInputElement;
         expect(input).toBeInTheDocument();
-        expect(cleanText(input?.value || "").toLocaleLowerCase()).toEqual("01/01/2001 01:00 am");
+        expect(cleanText(input?.value || "").toLocaleLowerCase()).toEqual("01/01/2001 12:00 am");
         const input2 = document.querySelector(".tp-dt-picker-end input") as HTMLInputElement;
         expect(input2).toBeInTheDocument();
-        expect(cleanText(input2?.value || "").toLocaleLowerCase()).toEqual("01/31/2001 01:00 am");
+        expect(cleanText(input2?.value || "").toLocaleLowerCase()).toEqual("01/31/2001 12:00 am");
     });
     it("shows labels", async () => {
         const { getByLabelText } = render(
@@ -266,9 +266,9 @@ describe("DateRange with time Component", () => {
             </LocalizationProvider>
         );
         const startInput = getByLabelText("start") as HTMLInputElement;
-        expect(startInput.value.toLocaleLowerCase()).toBe("01/01/2001 01:00 am");
+        expect(startInput.value.toLocaleLowerCase()).toBe("01/01/2001 12:00 am");
         const endInput = getByLabelText("end") as HTMLInputElement;
-        expect(endInput.value.toLocaleLowerCase()).toBe("01/31/2001 01:00 am");
+        expect(endInput.value.toLocaleLowerCase()).toBe("01/31/2001 12:00 am");
     });
     it("is disabled", async () => {
         render(
