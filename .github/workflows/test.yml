@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 40
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         python-versions: ['3.8', '3.9', '3.10', '3.11']
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-versions }}
 
       - name: npm build and test ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dom dependencies
@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: npm build and test ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 

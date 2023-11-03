@@ -19,7 +19,7 @@ import "@testing-library/jest-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
-import DateSelector from "./DateSelector";
+import DateRange from "./DateRange";
 import { TaipyContext } from "../../context/taipyContext";
 import { TaipyState, INITIAL_STATE } from "../../context/taipyReducers";
 import { getClientServerTimeZoneOffset } from "../../utils";
@@ -63,67 +63,98 @@ afterEach(() => {
 const curDate = new Date();
 curDate.setHours(1, 1, 1, 1);
 const curDateStr = curDate.toISOString();
-
+const nextDate = new Date(curDate);
+nextDate.setDate(nextDate.getDate() + 1);
+const nextDateStr = nextDate.toISOString();
+const curDates = [curDateStr, nextDateStr];
 const cleanText = (val: string) => val.replace(/\u200e|\u2066|\u2067|\u2068|\u2069/g, "");
+const defaultDates = '["2001-01-01T00:00:01.001Z","2001-01-31T00:00:01.001Z"]';
 
 describe("DateSelector Component", () => {
     it("renders", async () => {
-        const { getByTestId } = render(
+        const { getAllByTestId } = render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} />
+                <DateRange dates={curDates} />
             </LocalizationProvider>
         );
-        const elt = getByTestId("CalendarIcon");
-        expect(elt.parentElement?.tagName).toBe("BUTTON");
+        const elts = getAllByTestId("CalendarIcon");
+        expect(elts).toHaveLength(2);
+        expect(elts[0].parentElement?.tagName).toBe("BUTTON");
     });
     it("displays the right info for string", async () => {
-        const { getByTestId } = render(
+        const { getAllByTestId } = render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} defaultDate="2001-01-01T00:00:01.001Z" className="taipy-date" />
+                <DateRange dates={curDates} defaultDates={defaultDates} className="taipy-date-2" />
             </LocalizationProvider>
         );
-        const elt = getByTestId("CalendarIcon");
-        expect(elt.parentElement?.parentElement?.parentElement?.parentElement).toHaveClass("taipy-date-picker");
-        expect(elt.parentElement?.parentElement?.parentElement?.parentElement?.parentElement).toHaveClass("taipy-date");
+        const elts = getAllByTestId("CalendarIcon");
+        expect(elts).toHaveLength(2);
+        expect(elts[0].parentElement?.parentElement?.parentElement?.parentElement).toHaveClass(
+            "taipy-date-2-picker",
+            "taipy-date-2-picker-start"
+        );
+        expect(elts[0].parentElement?.parentElement?.parentElement?.parentElement?.parentElement).toHaveClass(
+            "taipy-date-2"
+        );
+        expect(elts[1].parentElement?.parentElement?.parentElement?.parentElement).toHaveClass(
+            "taipy-date-2-picker",
+            "taipy-date-2-picker-end"
+        );
+        expect(elts[1].parentElement?.parentElement?.parentElement?.parentElement?.parentElement).toHaveClass(
+            "taipy-date-2"
+        );
     });
     it("displays the default value", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector defaultDate="2001-01-01T00:00:01.001Z" date={undefined as unknown as string} />
-            </LocalizationProvider>
-        );
-        const input = document.querySelector("input");
-        expect(input).toBeInTheDocument();
-        expect(cleanText(input?.value || "")).toEqual("01/01/2001");
-    });
-    it("shows label", async () => {
-        const { getByLabelText } = render(
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector
-                    defaultDate="2001-01-01T00:00:01.001Z"
-                    date={undefined as unknown as string}
-                    className="taipy-date"
-                    label="a label"
+                <DateRange
+                    defaultDates={defaultDates}
+                    dates={undefined as unknown as string[]}
+                    className="taipy-date-range"
                 />
             </LocalizationProvider>
         );
-        const input = getByLabelText("a label") as HTMLInputElement;
-        expect(input.value).toBe("01/01/2001");
+        const input = document.querySelector(".taipy-date-range-picker-start input") as HTMLInputElement;
+        expect(input).toBeInTheDocument();
+        expect(cleanText(input?.value || "")).toEqual("01/01/2001");
+        const input2 = document.querySelector(".taipy-date-range-picker-end input") as HTMLInputElement;
+        expect(input2).toBeInTheDocument();
+        expect(cleanText(input2?.value || "")).toEqual("01/31/2001");
+    });
+    it("shows labels", async () => {
+        const { getByLabelText } = render(
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DateRange
+                    defaultDates={defaultDates}
+                    dates={undefined as unknown as string[]}
+                    className="taipy-date-range"
+                    labelStart="start"
+                    labelEnd="end"
+                />
+            </LocalizationProvider>
+        );
+        const startInput = getByLabelText("start") as HTMLInputElement;
+        expect(startInput.value).toBe("01/01/2001");
+        const endInput = getByLabelText("end") as HTMLInputElement;
+        expect(endInput.value).toBe("01/31/2001");
     });
     it("is disabled", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} active={false} />
+                <DateRange dates={curDates} active={false} className="taipy-date-range" />
             </LocalizationProvider>
         );
-        const input = document.querySelector("input");
+        const input = document.querySelector(".taipy-date-range-picker-start input");
         expect(input).toBeInTheDocument();
         expect(input).toBeDisabled();
+        const input2 = document.querySelector(".taipy-date-range-picker-end input");
+        expect(input2).toBeInTheDocument();
+        expect(input2).toBeDisabled();
     });
     it("is enabled by default", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} />
+                <DateRange dates={curDates} />
             </LocalizationProvider>
         );
         const input = document.querySelector("input");
@@ -133,7 +164,7 @@ describe("DateSelector Component", () => {
     it("is enabled by active", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} active={true} />
+                <DateRange dates={curDates} active={true} />
             </LocalizationProvider>
         );
         const input = document.querySelector("input");
@@ -146,18 +177,22 @@ describe("DateSelector Component", () => {
         render(
             <TaipyContext.Provider value={{ state, dispatch }}>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateSelector date={curDateStr} />
+                    <DateRange dates={curDates} className="taipy-date-range" />
                 </LocalizationProvider>
             </TaipyContext.Provider>
         );
-        const input = document.querySelector("input");
+        const input = document.querySelector(".taipy-date-range-picker-start input");
         expect(input).toBeInTheDocument();
-        if (input) {
+        const input2 = document.querySelector(".taipy-date-range-picker-end input");
+        expect(input2).toBeInTheDocument();
+        if (input && input2) {
             await userEvent.clear(input);
             await userEvent.type(input, "{ArrowLeft}{ArrowLeft}{ArrowLeft}01012001", { delay: 1 });
+            await userEvent.clear(input2);
+            await userEvent.type(input2, "{ArrowLeft}{ArrowLeft}{ArrowLeft}01312001", { delay: 1 });
             expect(dispatch).toHaveBeenLastCalledWith({
                 name: "",
-                payload: { value: "Mon Jan 01 2001" },
+                payload: { value: ["Mon Jan 01 2001", "Wed Jan 31 2001"] },
                 propagate: true,
                 type: "SEND_UPDATE_ACTION",
             });
@@ -169,7 +204,7 @@ describe("DateSelector with time Component", () => {
     it("renders", async () => {
         const { getByTestId } = render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} withTime={true} />
+                <DateRange dates={curDates} withTime={true} />
             </LocalizationProvider>
         );
         const elt = getByTestId("CalendarIcon");
@@ -178,7 +213,7 @@ describe("DateSelector with time Component", () => {
     it("displays the right info for string", async () => {
         const { getByTestId } = render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} withTime={true} className="taipy-time" />
+                <DateRange dates={curDates} withTime={true} className="taipy-time" />
             </LocalizationProvider>
         );
         const elt = getByTestId("CalendarIcon");
@@ -188,11 +223,7 @@ describe("DateSelector with time Component", () => {
     it("displays the default value", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector
-                    defaultDate="2001-01-01T01:01:01.001Z"
-                    withTime={true}
-                    date={undefined as unknown as string}
-                />
+                <DateRange defaultDates={defaultDates} withTime={true} dates={undefined as unknown as string[]} />
             </LocalizationProvider>
         );
         const input = document.querySelector("input");
@@ -202,7 +233,7 @@ describe("DateSelector with time Component", () => {
     it("is disabled", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} withTime={true} active={false} />
+                <DateRange dates={curDates} withTime={true} active={false} />
             </LocalizationProvider>
         );
         const input = document.querySelector("input");
@@ -212,7 +243,7 @@ describe("DateSelector with time Component", () => {
     it("is enabled by default", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} withTime={true} />
+                <DateRange dates={curDates} withTime={true} />
             </LocalizationProvider>
         );
         const input = document.querySelector("input");
@@ -222,7 +253,7 @@ describe("DateSelector with time Component", () => {
     it("is enabled by active", async () => {
         render(
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DateSelector date={curDateStr} withTime={true} active={true} />
+                <DateRange dates={curDates} withTime={true} active={true} />
             </LocalizationProvider>
         );
         const input = document.querySelector("input");
@@ -235,7 +266,7 @@ describe("DateSelector with time Component", () => {
         render(
             <TaipyContext.Provider value={{ state, dispatch }}>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateSelector date={curDateStr} withTime={true} updateVarName="varname" />
+                    <DateRange dates={curDates} withTime={true} updateVarName="varname" />
                 </LocalizationProvider>
             </TaipyContext.Provider>
         );
