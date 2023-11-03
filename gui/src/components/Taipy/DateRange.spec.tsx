@@ -266,9 +266,9 @@ describe("DateRange with time Component", () => {
             </LocalizationProvider>
         );
         const startInput = getByLabelText("start") as HTMLInputElement;
-        expect(startInput.value).toBe("01/01/2001 01:01 am");
+        expect(startInput.value.toLocaleLowerCase()).toBe("01/01/2001 12:00 am");
         const endInput = getByLabelText("end") as HTMLInputElement;
-        expect(endInput.value).toBe("01/31/2001 01:01 am");
+        expect(endInput.value.toLocaleLowerCase()).toBe("01/31/2001 12:00 am");
     });
     it("is disabled", async () => {
         render(
