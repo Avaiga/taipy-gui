@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-versions }}
 
-      - name: npm build and test ${{ matrix.node-version }} on ${{ matrix.os }}
+      - name: npm build and test with node ${{ matrix.node-version }} on ${{ matrix.os }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
