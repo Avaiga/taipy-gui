@@ -16,6 +16,7 @@ import typing as t
 from ._page import _Page
 from ._warnings import _warn
 from .state import State
+from .page import Page
 
 
 class Partial(_Page):
@@ -50,7 +51,7 @@ class Partial(_Page):
         else:
             self._route = route
 
-    def update_content(self, state: State, content: str):
+    def update_content(self, state: State, content: str | Page):
         """Update partial content.
 
         Arguments:
@@ -62,7 +63,10 @@ class Partial(_Page):
         else:
             _warn("'Partial.update_content()' must be called in the context of a callback.")
 
-    def __copy(self, content: str) -> Partial:
+    def __copy(self, content: str | Page) -> Partial:
         new_partial = Partial(self._route)
-        new_partial._renderer = type(self._renderer)(content=content) if self._renderer is not None else None
+        if isinstance(content, Page):
+            new_partial._renderer = content
+        else:
+            new_partial._renderer = type(self._renderer)(content=content) if self._renderer is not None else None
         return new_partial
