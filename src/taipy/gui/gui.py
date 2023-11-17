@@ -686,27 +686,48 @@ class Gui:
         return f"/{Gui.__USER_CONTENT_URL}/{path or ''}?{urlencode(qargs)}"
 
     def __serve_user_content(self, path: str) -> t.Any:
-        if hasattr(self, "on_user_content") and callable(self.on_user_content):
-            self.__set_client_id_in_context()
+        self.__set_client_id_in_context()
+        qargs: t.Dict[str, str] = {}
+        qargs.update(request.args)
+        qargs.pop(Gui.__ARG_CLIENT_ID, None)
+        cb_function_name = qargs.get("custom_user_content_cb")
+        cb_function = None
+        if cb_function_name:
+            cb_function = self._get_user_function(cb_function_name)
+            if not callable(cb_function):
+                parts = cb_function_name.split(".", 2)
+                if len(parts) > 1:
+                    base = _getscopeattr(self, parts[0], None)
+                    if base and (meth := getattr(base, parts[1], None)):
+                        cb_function = meth
+                    else:
+                        base = self.__evaluator._get_instance_in_context(parts[0])
+                        if base and (meth := getattr(base, parts[1], None)):
+                            cb_function = meth
+            if not callable(cb_function):
+                _warn(f"{cb_function_name}() callback function has not been defined.")
+                cb_function = None
+        if cb_function is None:
+            cb_function_name = "on_user_content"
+            if hasattr(self, cb_function_name) and callable(self.on_user_content):
+                cb_function = self.on_user_content
+            else:
+                _warn("on_user_content() callback function has not been defined.")
+        if callable(cb_function):
             try:
-                qargs: t.Dict[str, str] = {}
-                qargs.update(request.args)
-                qargs.pop(Gui.__ARG_CLIENT_ID, None)
                 args: t.List[t.Any] = []
                 if path:
                     args.append(path)
                 if len(qargs):
                     args.append(qargs)
-                ret = self._call_function_with_state(self.on_user_content, args)
+                ret = self._call_function_with_state(cb_function, args)
                 if ret is None:
-                    _warn("on_user_content() callback function should return a value.")
+                    _warn(f"{cb_function_name}() callback function should return a value.")
                 else:
                     return (ret, 200)
             except Exception as e:  # pragma: no cover
-                if not self._call_on_exception("on_user_content", e):
-                    _warn("on_user_content() callback function raised an exception", e)
-        else:
-            _warn("on_user_content() callback function has not been defined.")
+                if not self._call_on_exception(str(cb_function_name), e):
+                    _warn(f"{cb_function_name}() callback function raised an exception", e)
         return ("", 404)
 
     def __serve_extension(self, path: str) -> t.Any:
