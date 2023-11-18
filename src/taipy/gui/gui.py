@@ -695,7 +695,7 @@ class Gui:
         if cb_function_name:
             cb_function = self._get_user_function(cb_function_name)
             if not callable(cb_function):
-                parts = cb_function_name.split(".", 2)
+                parts = cb_function_name.split(".", 1)
                 if len(parts) > 1:
                     base = _getscopeattr(self, parts[0], None)
                     if base and (meth := getattr(base, parts[1], None)):
