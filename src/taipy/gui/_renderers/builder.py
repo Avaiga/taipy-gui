@@ -12,11 +12,11 @@
 import contextlib
 import json
 import numbers
+import time as _time
 import typing as t
 import xml.etree.ElementTree as etree
 from datetime import date, datetime, time
 from inspect import isclass
-import time as _time
 from urllib.parse import quote
 
 from .._warnings import _warn
@@ -864,9 +864,7 @@ class _Builder:
                 },
             ),
         )
-        return self.__set_react_attribute(
-            _to_camel_case(property_name), _get_client_var_name(front_var)
-        )
+        return self.__set_react_attribute(_to_camel_case(property_name), _get_client_var_name(front_var))
 
     def set_attributes(self, attributes: t.List[tuple]):  # noqa: C901
         """
