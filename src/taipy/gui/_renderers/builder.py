@@ -15,8 +15,8 @@ import numbers
 import typing as t
 import xml.etree.ElementTree as etree
 from datetime import date, datetime, time
-import time as _time
 from inspect import isclass
+import time as _time
 from urllib.parse import quote
 
 from .._warnings import _warn
