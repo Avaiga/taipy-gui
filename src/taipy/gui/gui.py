@@ -78,6 +78,7 @@ from .utils import (
     _setscopeattr_drill,
     _TaipyBase,
     _TaipyContent,
+    _TaipyContentHtml,
     _TaipyContentImage,
     _TaipyData,
     _TaipyLov,
@@ -206,6 +207,8 @@ class Gui:
     __BRDCST_CALLBACK_G_ID = "taipy_brdcst_callback"
     __SELF_VAR = "__gui"
     __DO_NOT_UPDATE_VALUE = _DoNotUpdate()
+    _HTML_CONTENT_KEY = "__taipy_html_content"
+    __USER_CONTENT_CB = "custom_user_content_cb"
 
     __RE_HTML = re.compile(r"(.*?)\.html$")
     __RE_MD = re.compile(r"(.*?)\.md$")
@@ -226,6 +229,8 @@ class Gui:
     __extensions: t.Dict[str, t.List[ElementLibrary]] = {}
 
     __shared_variables: t.List[str] = []
+
+    __content_providers: t.Dict[type, t.Callable[..., str]] = {}
 
     def __init__(
         self,
@@ -383,6 +388,40 @@ class Gui:
             raise RuntimeError(
                 f"add_library() argument should be a subclass of ElementLibrary instead of '{type(library)}'"
             )
+
+    @staticmethod
+    def register_content_provider(content_type: type, content_provider: t.Callable[..., str]) -> None:
+        """Add a custom content provider.
+
+        This application will be able to use custom content in the part content property.
+
+        Arguments:
+            content_type: The type of the content that will trigger the use of the provider.
+            content_provider: The function that will convert every content of the specified type into an html string.
+
+        """
+        if Gui.__content_providers.get(content_type):
+            _warn(f"the type {content_type} is already associated with a provider.")
+            return
+        if not callable(content_provider):
+            _warn(f"the provider for {content_type} should be a function.")
+            return
+        Gui.__content_providers[content_type] = content_provider
+
+    def __process_content_provider(self, state: State, path: str, query: t.Dict[str, str]):
+        variable_name = query.get("variable_name")
+        content = None
+        if variable_name:
+            content = _getscopeattr(self, variable_name)
+            if isinstance(content, _TaipyContentHtml):
+                content = content.get()
+            provider_fn = Gui.__content_providers.get(type(content))
+            if callable(provider_fn):
+                try:
+                    return provider_fn(content)
+                except Exception as e:
+                    _warn(f"Error in content provider for type {str(type(content))}", e)
+        return '<div style="background:white;color:red;">' + (f"No valid provider for type {type(content).__name__}" if content else "wrong context.") + '</div>'
 
     @staticmethod
     def add_shared_variable(*names: str) -> None:
@@ -683,30 +722,35 @@ class Gui:
     ) -> t.Optional[str]:
         qargs = query_args or {}
         qargs.update({Gui.__ARG_CLIENT_ID: self._get_client_id()})
-        return f"/{Gui.__USER_CONTENT_URL}/{path or ''}?{urlencode(qargs)}"
+        return f"/{Gui.__USER_CONTENT_URL}/{path or 'TaIpY'}?{urlencode(qargs)}"
 
     def __serve_user_content(self, path: str) -> t.Any:
         self.__set_client_id_in_context()
         qargs: t.Dict[str, str] = {}
         qargs.update(request.args)
         qargs.pop(Gui.__ARG_CLIENT_ID, None)
-        cb_function_name = qargs.get("custom_user_content_cb")
-        cb_function = None
-        if cb_function_name:
-            cb_function = self._get_user_function(cb_function_name)
-            if not callable(cb_function):
-                parts = cb_function_name.split(".", 1)
-                if len(parts) > 1:
-                    base = _getscopeattr(self, parts[0], None)
-                    if base and (meth := getattr(base, parts[1], None)):
-                        cb_function = meth
-                    else:
-                        base = self.__evaluator._get_instance_in_context(parts[0])
+        cb_function: t.Optional[t.Union[t.Callable, str]] = None
+        cb_function_name = None
+        if qargs.get(Gui._HTML_CONTENT_KEY):
+            cb_function = self.__process_content_provider
+            cb_function_name = cb_function.__name__
+        else:
+            cb_function_name = qargs.get(Gui.__USER_CONTENT_CB)
+            if cb_function_name:
+                cb_function = self._get_user_function(cb_function_name)
+                if not callable(cb_function):
+                    parts = cb_function_name.split(".", 1)
+                    if len(parts) > 1:
+                        base = _getscopeattr(self, parts[0], None)
                         if base and (meth := getattr(base, parts[1], None)):
                             cb_function = meth
-            if not callable(cb_function):
-                _warn(f"{cb_function_name}() callback function has not been defined.")
-                cb_function = None
+                        else:
+                            base = self.__evaluator._get_instance_in_context(parts[0])
+                            if base and (meth := getattr(base, parts[1], None)):
+                                cb_function = meth
+                if not callable(cb_function):
+                    _warn(f"{cb_function_name}() callback function has not been defined.")
+                    cb_function = None
         if cb_function is None:
             cb_function_name = "on_user_content"
             if hasattr(self, cb_function_name) and callable(self.on_user_content):
@@ -842,7 +886,7 @@ class Gui:
 
     _data_request_counter = 1
 
-    def __send_var_list_update(
+    def __send_var_list_update(  # noqa C901
         self,
         modified_vars: t.List[str],
         front_var: t.Optional[str] = None,
@@ -850,7 +894,7 @@ class Gui:
         ws_dict = {}
         values = {v: _getscopeattr_drill(self, v) for v in modified_vars}
         for k, v in values.items():
-            if isinstance(v, _TaipyData) and v.get_name() in modified_vars:
+            if isinstance(v, (_TaipyData, _TaipyContentHtml)) and v.get_name() in modified_vars:
                 modified_vars.remove(v.get_name())
             elif isinstance(v, _DoNotUpdate):
                 modified_vars.remove(k)
@@ -869,6 +913,10 @@ class Gui:
                         newvalue = f"/{Gui.__CONTENT_ROOT}/{ret_value[0]}"
                     else:
                         newvalue = ret_value
+                elif isinstance(newvalue, _TaipyContentHtml):
+                    newvalue = self._get_user_content_url(
+                        None, {"variable_name": str(_var), Gui._HTML_CONTENT_KEY: str(time.time())}
+                    )
                 elif isinstance(newvalue, _TaipyLov):
                     newvalue = [self.__adapter._run_for_var(newvalue.get_name(), elt) for elt in newvalue.get()]
                 elif isinstance(newvalue, _TaipyLovValue):
