@@ -397,7 +397,7 @@ class Gui:
 
         Arguments:
             content_type: The type of the content that triggers the content provider.
-            content_provider: The function that will convert every content of the specified type into an html string.
+            content_provider: The function that converts content of type \*type\* into an HTML string.
 
         """
         if Gui.__content_providers.get(content_type):
