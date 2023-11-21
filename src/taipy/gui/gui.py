@@ -393,11 +393,11 @@ class Gui:
     def register_content_provider(content_type: type, content_provider: t.Callable[..., str]) -> None:
         """Add a custom content provider.
 
-        The application can use custom content for the `part` block when its \*content\* property is set to an object with type \*type\*.
+        The application can use custom content for the `part` block when its *content* property is set to an object with type *type*.
 
         Arguments:
             content_type: The type of the content that triggers the content provider.
-            content_provider: The function that converts content of type \*type\* into an HTML string.
+            content_provider: The function that converts content of type *type* into an HTML string.
 
         """
         if Gui.__content_providers.get(content_type):
