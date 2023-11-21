@@ -393,7 +393,7 @@ class Gui:
     def register_content_provider(content_type: type, content_provider: t.Callable[..., str]) -> None:
         """Add a custom content provider.
 
-        This application will be able to use custom content in the part content property.
+        The application can use custom content for the `part` block when its \*content\* property is set to an object with type \*type\*.
 
         Arguments:
             content_type: The type of the content that will trigger the use of the provider.
