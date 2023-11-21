@@ -770,7 +770,7 @@ class Gui:
                     args.append(qargs)
                 ret = self._call_function_with_state(cb_function, args)
                 if ret is None:
-                    _warn(f"{cb_function_name}() callback function should return a value.")
+                    _warn(f"{cb_function_name}() callback function must return a value.")
                 else:
                     return (ret, 200)
             except Exception as e:  # pragma: no cover
