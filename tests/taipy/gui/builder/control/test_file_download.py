@@ -39,7 +39,7 @@ def test_file_download_file_builder(gui: Gui, test_client, helpers):
             'defaultContent="data:image/png;base64,',
         ]
         if not util.find_spec("magic"):
-            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0%2FTaiPyContent.', ".bin"]
+            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
         helpers.test_control_builder(gui, page, expected_list)
 
 
@@ -51,7 +51,7 @@ def test_file_download_path_builder(gui: Gui, test_client, helpers):
         tgb.file_download(content="{content}")
     expected_list = [
         "<FileDownload",
-        'defaultContent="/taipy-content/taipyStatic0%2Ffred.png',
+        'defaultContent="/taipy-content/taipyStatic0/fred.png',
     ]
     helpers.test_control_builder(gui, page, expected_list)
 
@@ -67,5 +67,5 @@ def test_file_download_any_file_builder(gui: Gui, test_client, helpers):
             "python;base64,",
         ]
         if not util.find_spec("magic"):
-            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0%2FTaiPyContent.', ".bin"]
+            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
         helpers.test_control_builder(gui, page, expected_list)

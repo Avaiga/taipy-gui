@@ -39,7 +39,7 @@ def test_image_file_builder(gui: Gui, test_client, helpers):
             'defaultContent="data:image/png;base64,',
         ]
         if not util.find_spec("magic"):
-            expected_list = ["<Image", 'defaultContent="/taipy-content/taipyStatic0%2FTaiPyContent.', ".bin"]
+            expected_list = ["<Image", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
         helpers.test_control_builder(gui, page, expected_list)
 
 
@@ -51,7 +51,7 @@ def test_image_path_builder(gui: Gui, test_client, helpers):
         tgb.image(content="{content}")
     expected_list = [
         "<Image",
-        'defaultContent="/taipy-content/taipyStatic0%2Ffred.png',
+        'defaultContent="/taipy-content/taipyStatic0/fred.png',
     ]
     helpers.test_control_builder(gui, page, expected_list)
 
@@ -66,5 +66,5 @@ def test_image_bad_file_builder(gui: Gui, test_client, helpers):
             'defaultContent="Invalid content: text/x',
         ]
         if not util.find_spec("magic"):
-            expected_list = ["<Image", 'defaultContent="/taipy-content/taipyStatic0%2FTaiPyContent.', ".bin"]
+            expected_list = ["<Image", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
         helpers.test_control_builder(gui, page, expected_list)

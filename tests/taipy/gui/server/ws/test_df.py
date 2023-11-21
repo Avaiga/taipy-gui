@@ -43,5 +43,5 @@ def test_download_file(gui: Gui, helpers):
     assert "args" in received_messages[0]
     args = received_messages[0]["args"]
     assert "type" in args and args["type"] == "DF"
-    assert "content" in args and args["content"] == "/taipy-content/taipyStatic0%2Ftaipan.jpg"
+    assert "content" in args and args["content"] == "/taipy-content/taipyStatic0/taipan.jpg"
     logging.getLogger().debug(args["content"])
