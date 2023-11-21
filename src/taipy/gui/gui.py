@@ -404,7 +404,7 @@ class Gui:
             _warn(f"The type {content_type} is already associated with a provider.")
             return
         if not callable(content_provider):
-            _warn(f"the provider for {content_type} should be a function.")
+            _warn(f"The provider for {content_type} must be a function.")
             return
         Gui.__content_providers[content_type] = content_provider
 
