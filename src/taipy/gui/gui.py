@@ -396,7 +396,7 @@ class Gui:
         The application can use custom content for the `part` block when its \*content\* property is set to an object with type \*type\*.
 
         Arguments:
-            content_type: The type of the content that will trigger the use of the provider.
+            content_type: The type of the content that triggers the content provider.
             content_provider: The function that will convert every content of the specified type into an html string.
 
         """
