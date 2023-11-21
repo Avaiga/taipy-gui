@@ -423,7 +423,7 @@ class Gui:
                     _warn(f"Error in content provider for type {str(type(content))}", e)
         return (
             '<div style="background:white;color:red;">'
-            + (f"No valid provider for type {type(content).__name__}" if content else "wrong context.")
+            + (f"No valid provider for type {type(content).__name__}" if content else "Wrong context.")
             + "</div>"
         )
 
