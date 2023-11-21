@@ -28,6 +28,7 @@ from types import FrameType, SimpleNamespace
 from urllib.parse import unquote, urlencode, urlparse
 
 import __main__
+from importlib.util import find_spec
 import markdown as md_lib
 import tzlocal
 from flask import Blueprint, Flask, g, jsonify, request, send_file, send_from_directory
@@ -416,6 +417,30 @@ class Gui:
             if isinstance(content, _TaipyContentHtml):
                 content = content.get()
             provider_fn = Gui.__content_providers.get(type(content))
+            if provider_fn is None:
+                # try plotly
+                if find_spec("plotly") and find_spec("plotly.graph_objs"):
+                    from plotly.graph_objs import Figure as PlotlyFigure
+                    if isinstance(content, PlotlyFigure):
+                        def get_plotly_content(figure: PlotlyFigure):
+                            return figure.to_html()
+                        Gui.register_content_provider(PlotlyFigure, get_plotly_content)
+                        provider_fn = get_plotly_content
+            if provider_fn is None:
+                # try matplotlib
+                if find_spec("matplotlib") and find_spec("matplotlib.figure"):
+                    from matplotlib.figure import Figure as MatplotlibFigure
+                    if isinstance(content, MatplotlibFigure):
+                        def get_matplotlib_content(figure: MatplotlibFigure):
+                            import base64
+                            from io import BytesIO
+                            buf = BytesIO()
+                            figure.savefig(buf, format="png")
+                            data = base64.b64encode(buf.getbuffer()).decode("ascii")
+                            return f'<img src="data:image/png;base64,{data}"/>'
+                        Gui.register_content_provider(MatplotlibFigure, get_matplotlib_content)
+                        provider_fn = get_matplotlib_content
+
             if callable(provider_fn):
                 try:
                     return provider_fn(content)

@@ -36,7 +36,7 @@ interface FileDownloadProps extends TaipyActiveProps {
 }
 
 const FileDownload = (props: FileDownloadProps) => {
-    const { id, auto, name = "", bypassPreview, onAction, label, defaultLabel = "" } = props;
+    const { id, auto, name = "", bypassPreview = true, onAction, label, defaultLabel = "" } = props;
     const aRef = useRef<HTMLAnchorElement>(null);
     const dispatch = useDispatch();
     const module = useModule();
