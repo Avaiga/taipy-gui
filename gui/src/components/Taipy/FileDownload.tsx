@@ -57,7 +57,7 @@ const FileDownload = (props: FileDownloadProps) => {
             usp.append("bypass", "");
         }
         const ret = usp.toString();
-        return [ret.length ? url + "?" + ret : url, !!bypassPreview && (name || true)];
+        return [ret.length ? url + "?" + ret : url, bypassPreview && (name || true)];
     }, [props.content, bypassPreview, name, props.defaultContent]);
 
     useEffect(() => {
