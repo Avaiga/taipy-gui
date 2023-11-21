@@ -401,7 +401,7 @@ class Gui:
 
         """
         if Gui.__content_providers.get(content_type):
-            _warn(f"the type {content_type} is already associated with a provider.")
+            _warn(f"The type {content_type} is already associated with a provider.")
             return
         if not callable(content_provider):
             _warn(f"the provider for {content_type} should be a function.")
