@@ -36,7 +36,7 @@ def test_file_download_file_md(gui: Gui, test_client, helpers):
             'defaultContent="data:image/png;base64,',
         ]
         if not util.find_spec("magic"):
-            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
+            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0%2FTaiPyContent.', ".bin"]
         helpers.test_control_md(gui, md_string, expected_list)
 
 
@@ -45,7 +45,7 @@ def test_file_download_path_md(gui: Gui, test_client, helpers):
     md_string = "<|{content}|file_download|>"
     expected_list = [
         "<FileDownload",
-        'defaultContent="/taipy-content/taipyStatic0/fred.png',
+        'defaultContent="/taipy-content/taipyStatic0%2Ffred.png',
     ]
     helpers.test_control_md(gui, md_string, expected_list)
 
@@ -60,7 +60,7 @@ def test_file_download_any_file_md(gui: Gui, test_client, helpers):
             "python;base64,",
         ]
         if not util.find_spec("magic"):
-            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0/TaiPyContent.', ".bin"]
+            expected_list = ["<FileDownload", 'defaultContent="/taipy-content/taipyStatic0%2FTaiPyContent.', ".bin"]
         helpers.test_control_md(gui, md_string, expected_list)
 
 
