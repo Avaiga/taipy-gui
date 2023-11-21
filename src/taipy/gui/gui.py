@@ -24,11 +24,11 @@ import time
 import typing as t
 import warnings
 from importlib import metadata, util
+from importlib.util import find_spec
 from types import FrameType, SimpleNamespace
 from urllib.parse import unquote, urlencode, urlparse
 
 import __main__
-from importlib.util import find_spec
 import markdown as md_lib
 import tzlocal
 from flask import Blueprint, Flask, g, jsonify, request, send_file, send_from_directory
