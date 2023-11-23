@@ -25,7 +25,7 @@ interface TaipyFieldProps extends TaipyBaseProps, TaipyHoverProps {
     defaultValue?: string;
     format?: string;
     raw?: boolean;
-    code?: string;
+    mode?: string;
 }
 
 const unsetWeightSx = { fontWeight: "unset" };
@@ -39,7 +39,7 @@ const Field = (props: TaipyFieldProps) => {
     const className = useClassNames(props.libClassName, props.dynamicClassName, props.className);
     const hover = useDynamicProperty(props.hoverText, props.defaultHoverText, undefined);
 
-    const code = typeof props.code === "string" ? props.code.toLowerCase() : undefined;
+    const mode = typeof props.mode === "string" ? props.mode.toLowerCase() : undefined;
 
     const value = useMemo(() => {
         return formatWSValue(
@@ -52,13 +52,13 @@ const Field = (props: TaipyFieldProps) => {
 
     return (
         <Tooltip title={hover || ""}>
-            {code == "text" ? (
+            {mode == "pre" ? (
                 <pre className={className} id={id}>
                     {value}
                 </pre>
-            ) : code == "markdown" ? (
+            ) : mode == "markdown" || mode == "md" ? (
                 <Markdown className={className}>{value}</Markdown>
-            ) : raw || code == "raw" ? (
+            ) : raw || mode == "raw" ? (
                 <span className={className} id={id}>
                     {value}
                 </span>

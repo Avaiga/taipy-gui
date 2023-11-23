@@ -497,7 +497,7 @@ class _Factory:
                 ("id",),
                 ("hover_text", PropertyType.dynamic_string),
                 ("raw", PropertyType.boolean, False),
-                ("code", PropertyType.string),
+                ("mode", PropertyType.string),
             ]
         ),
         "toggle": lambda gui, control_type, attrs: _Builder(
