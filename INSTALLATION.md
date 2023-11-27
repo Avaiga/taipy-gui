@@ -55,11 +55,11 @@ First you need to install <a href="https://nodejs.org/" target="_blank">Node.js<
 
 ### 3 - Build the JavaScript bundle
 
-Open a new terminal and **move to the gui directory** of the repository.
+Open a new terminal and run the following commands:
 
-Then, run the following commands:
 - Install the DOM dependencies
 ```bash
+cd gui
 cd dom
 npm i
 cd ..
