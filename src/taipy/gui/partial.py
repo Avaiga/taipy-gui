@@ -15,8 +15,8 @@ import typing as t
 
 from ._page import _Page
 from ._warnings import _warn
-from .state import State
 from .page import Page
+from .state import State
 
 
 class Partial(_Page):
