@@ -62,10 +62,10 @@ Open a new terminal and run the following commands:
 cd gui
 cd dom
 npm i
-cd ..
 ```
 - Install the web app dependencies
 ```bash
+cd ..
 npm i --omit=optional
 ```
 - Build the web app
