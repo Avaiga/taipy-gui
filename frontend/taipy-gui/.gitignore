@@ -30,3 +30,5 @@ yarn-error.log*
 
 # types generation
 /extension-types
+
+/packaging/*.gen.d.ts
