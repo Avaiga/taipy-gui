@@ -35,6 +35,7 @@ from flask import Blueprint, Flask, g, jsonify, request, send_file, send_from_di
 from werkzeug.utils import secure_filename
 
 from taipy.logger._taipy_logger import _TaipyLogger
+from _comment import remove_comment_from_pages,remove_comment 
 
 if util.find_spec("pyngrok"):
     from pyngrok import ngrok
@@ -287,6 +288,15 @@ class Gui:
                 as the underlying server. If omitted or set to None, this `Gui` will create its
                 own Flask application instance and use it to serve the pages.
         """
+        # 1st steep: remove pages comment /* XXX */ and /# XXX YYY
+        if isinstance(pages, str):
+            #print("Single page case")
+            page1 = remove_comment(pages)
+            pages = {"/": page1}
+        else:
+            #print("Multiple pages case")
+            pages= remove_comment_from_pages(pages)
+   
         # store suspected local containing frame
         self.__frame = t.cast(FrameType, t.cast(FrameType, inspect.currentframe()).f_back)
         self.__default_module_name = _get_module_name_from_frame(self.__frame)
