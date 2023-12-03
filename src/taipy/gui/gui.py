@@ -54,6 +54,7 @@ from .data.data_accessor import _DataAccessor, _DataAccessors
 from .data.data_format import _DataFormat
 from .data.data_scope import _DataScopes
 from .extension.library import Element, ElementLibrary
+from .external import CustomPage
 from .page import Page
 from .partial import Partial
 from .server import _Server
@@ -1902,6 +1903,12 @@ class Gui:
                 400,
                 {"Content-Type": "application/json; charset=utf-8"},
             )
+        if (pr := page._renderer) is not None and isinstance(pr, CustomPage):
+            if self._navigate(
+                to=page_name,
+                params={_Server._RESOURCE_HANDLER_ARG: pr._resource_handler.get_id()},
+            ):
+                return ("Failed to navigate to external resource handler", 500)
         context = page.render(self)
         if (
             nav_page == Gui.__root_page_name
