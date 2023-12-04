@@ -1945,7 +1945,11 @@ class Gui:
             self.__set_client_id_in_context(client_id)
             with self._set_locals_context(page._get_module_name()):
                 for k in self._get_locals_bind().keys():
-                    if k in page._binding_variables:
+                    if (
+                        (not page._binding_variables or k in page._binding_variables)
+                        and not k.startswith("_")
+                        and k[0].islower()
+                    ):
                         self._bind_var(k)
 
     def __render_page(self, page_name: str) -> t.Any:
