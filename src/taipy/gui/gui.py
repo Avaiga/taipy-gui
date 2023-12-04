@@ -25,7 +25,7 @@ import typing as t
 import warnings
 from importlib import metadata, util
 from importlib.util import find_spec
-from types import FrameType, SimpleNamespace
+from types import FrameType, FunctionType, LambdaType, ModuleType, SimpleNamespace
 from urllib.parse import unquote, urlencode, urlparse
 
 import __main__
@@ -1057,7 +1057,10 @@ class Gui:
         data = {
             k: v
             for k, v in data.items()
-            if not k.startswith("_") and not callable(v) and k[0].islower() and "TpExPr" not in k
+            if not k.startswith("_")
+            and not callable(v)
+            and "TpExPr" not in k
+            and not isinstance(v, (ModuleType, FunctionType, LambdaType, type, Page))
         }
         for k, v in data.items():
             if isinstance(v, _TaipyBase):
@@ -1957,11 +1960,7 @@ class Gui:
             self.__set_client_id_in_context(client_id)
             with self._set_locals_context(page._get_module_name()):
                 for k in self._get_locals_bind().keys():
-                    if (
-                        (not page._binding_variables or k in page._binding_variables)
-                        and not k.startswith("_")
-                        and k[0].islower()
-                    ):
+                    if (not page._binding_variables or k in page._binding_variables) and not k.startswith("_"):
                         self._bind_var(k)
 
     def __render_page(self, page_name: str) -> t.Any:
