@@ -587,8 +587,8 @@ class Gui:
                 client_id = res[0] if res[1] else None
             self.__set_client_id_in_context(client_id or message.get(Gui.__ARG_CLIENT_ID))
             with self._set_locals_context(message.get("module_context") or None):
+                payload: t.Dict[str, t.Any] = message.get("payload", {})
                 if msg_type == _WsType.UPDATE.value:
-                    payload = message.get("payload", {})
                     self.__front_end_update(
                         str(message.get("name")),
                         payload.get("value"),
@@ -602,6 +602,30 @@ class Gui:
                     self.__request_data_update(str(message.get("name")), message.get("payload"))
                 elif msg_type == _WsType.REQUEST_UPDATE.value:
                     self.__request_var_update(message.get("payload"))
+                elif msg_type == "GMC":
+                    # Get Module Context
+                    if mc := self._get_page_context(str(payload.get("path"))):
+                        self._bind_custom_page_variables(
+                            self._get_page(str(payload.get("path")))._renderer, self._get_client_id()
+                        )
+                        self.__send_ws(
+                            {
+                                "type": "MC",
+                                "payload": {"data": mc},
+                            }
+                        )
+                elif msg_type == "GVS":
+                    # Get Variables
+                    data_scope = vars(self._bindings()._get_data_scope())
+                    for k, v in data_scope.items():
+                        if isinstance(v, _TaipyBase):
+                            data_scope[k] = v.get()
+                    self.__send_ws(
+                        {
+                            "type": "VS",
+                            "payload": {"data": data_scope},
+                        }
+                    )
             self.__send_ack(message.get("ack_id"))
         except Exception as e:  # pragma: no cover
             _warn(f"Decoding Message has failed: {message}", e)
