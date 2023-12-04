@@ -539,6 +539,8 @@ class Gui:
     def __set_client_id_in_context(self, client_id: t.Optional[str] = None, force=False):
         if not client_id and request:
             client_id = request.args.get(Gui.__ARG_CLIENT_ID, "")
+        if not client_id and (ws_client_id := getattr(g, "ws_client_id", None)):
+            client_id = ws_client_id
         if not client_id and force:
             res = self._bindings()._get_or_create_scope("")
             client_id = res[0] if res[1] else None
@@ -585,7 +587,9 @@ class Gui:
             if msg_type == _WsType.CLIENT_ID.value:
                 res = self._bindings()._get_or_create_scope(message.get("payload", ""))
                 client_id = res[0] if res[1] else None
-            self.__set_client_id_in_context(client_id or message.get(Gui.__ARG_CLIENT_ID))
+            expected_client_id = client_id or message.get(Gui.__ARG_CLIENT_ID)
+            self.__set_client_id_in_context(expected_client_id)
+            g.ws_client_id = expected_client_id
             with self._set_locals_context(message.get("module_context") or None):
                 payload: t.Dict[str, t.Any] = message.get("payload", {})
                 if msg_type == _WsType.UPDATE.value:
@@ -616,6 +620,7 @@ class Gui:
                         )
                 elif msg_type == "GVS":
                     # Get Variables
+                    self.__pre_render_pages()
                     data_scope = vars(self._bindings()._get_data_scope())
                     for k, v in data_scope.items():
                         if isinstance(v, _TaipyBase):
@@ -1891,7 +1896,10 @@ class Gui:
         for page in self._config.pages:
             if page is not None:
                 with contextlib.suppress(Exception):
-                    page.render(self)
+                    if isinstance(page._renderer, CustomPage):
+                        self._bind_custom_page_variables(page._renderer, self._get_client_id())
+                    else:
+                        page.render(self)
 
     def _get_navigated_page(self, page_name: str) -> t.Any:
         nav_page = page_name
