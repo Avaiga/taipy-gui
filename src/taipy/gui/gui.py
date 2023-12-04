@@ -591,7 +591,7 @@ class Gui:
             self.__set_client_id_in_context(expected_client_id)
             g.ws_client_id = expected_client_id
             with self._set_locals_context(message.get("module_context") or None):
-                payload: t.Dict[str, t.Any] = message.get("payload", {})
+                payload = message.get("payload", {})
                 if msg_type == _WsType.UPDATE.value:
                     self.__front_end_update(
                         str(message.get("name")),
@@ -606,31 +606,10 @@ class Gui:
                     self.__request_data_update(str(message.get("name")), message.get("payload"))
                 elif msg_type == _WsType.REQUEST_UPDATE.value:
                     self.__request_var_update(message.get("payload"))
-                elif msg_type == "GMC":
-                    # Get Module Context
-                    if mc := self._get_page_context(str(payload.get("path"))):
-                        self._bind_custom_page_variables(
-                            self._get_page(str(payload.get("path")))._renderer, self._get_client_id()
-                        )
-                        self.__send_ws(
-                            {
-                                "type": "MC",
-                                "payload": {"data": mc},
-                            }
-                        )
-                elif msg_type == "GVS":
-                    # Get Variables
-                    self.__pre_render_pages()
-                    data_scope = vars(self._bindings()._get_data_scope())
-                    for k, v in data_scope.items():
-                        if isinstance(v, _TaipyBase):
-                            data_scope[k] = v.get()
-                    self.__send_ws(
-                        {
-                            "type": "VS",
-                            "payload": {"data": data_scope},
-                        }
-                    )
+                elif msg_type == _WsType.GET_MODULE_CONTEXT.value:
+                    self.__handle_ws_get_module_context(payload)
+                elif msg_type == _WsType.GET_VARIABLES.value:
+                    self.__handle_ws_get_variables()
             self.__send_ack(message.get("ack_id"))
         except Exception as e:  # pragma: no cover
             _warn(f"Decoding Message has failed: {message}", e)
@@ -1054,6 +1033,39 @@ class Gui:
                         val if isinstance(val, _TaipyBase) else None,
                     )
             self.__send_var_list_update(payload["names"])
+
+    def __handle_ws_get_module_context(self, payload: t.Any):
+        if isinstance(payload, dict):
+            # Get Module Context
+            if mc := self._get_page_context(str(payload.get("path"))):
+                self._bind_custom_page_variables(
+                    self._get_page(str(payload.get("path")))._renderer, self._get_client_id()
+                )
+                self.__send_ws(
+                    {
+                        "type": _WsType.GET_MODULE_CONTEXT.value,
+                        "payload": {"data": mc},
+                    }
+                )
+
+    def __handle_ws_get_variables(self):
+        # Get Variables
+        self.__pre_render_pages()
+        data_scope = vars(self._bindings()._get_data_scope())
+        data_scope = {
+            k: v
+            for k, v in data_scope.items()
+            if not k.startswith("_") and not callable(v) and k[0].islower() and "TpExPr" not in k
+        }
+        for k, v in data_scope.items():
+            if isinstance(v, _TaipyBase):
+                data_scope[k] = v.get()
+        self.__send_ws(
+            {
+                "type": _WsType.GET_VARIABLES.value,
+                "payload": {"data": data_scope},
+            }
+        )
 
     def __send_ws(self, payload: dict, allow_grouping=True) -> None:
         grouping_message = self.__get_message_grouping() if allow_grouping else None
