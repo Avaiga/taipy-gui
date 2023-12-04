@@ -24,9 +24,12 @@ if t.TYPE_CHECKING:
 class CustomPage(Page):
     """A custom page for external application that can be added to Taipy GUI"""
 
-    def __init__(self, resource_handler: ResourceHandler, **kwargs) -> None:
+    def __init__(self, resource_handler: ResourceHandler, binding_variables: t.List[str] = None, **kwargs) -> None:
+        if binding_variables is None:
+            binding_variables = []
         super().__init__(**kwargs)
         self._resource_handler = resource_handler
+        self._binding_variables = binding_variables
 
 
 class ResourceHandler(ABC):
@@ -69,7 +72,7 @@ class _ExternalResourceHandlerManager(object, metaclass=_Singleton):
         """Get a resource handler by its id
 
         Arguments:
-            id (int): The id of the resource handler
+            id (str): The id of the resource handler
 
         Returns:
             ResourceHandler: The resource handler

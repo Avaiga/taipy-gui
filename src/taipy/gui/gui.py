@@ -31,7 +31,7 @@ from urllib.parse import unquote, urlencode, urlparse
 import __main__
 import markdown as md_lib
 import tzlocal
-from flask import Blueprint, Flask, g, jsonify, request, send_file, send_from_directory
+from flask import Blueprint, Flask, g, has_app_context, jsonify, request, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 
 from taipy.logger._taipy_logger import _TaipyLogger
@@ -1869,8 +1869,7 @@ class Gui:
                 with contextlib.suppress(Exception):
                     page.render(self)
 
-    def __render_page(self, page_name: str) -> t.Any:
-        self.__set_client_id_in_context()
+    def _get_navigated_page(self, page_name: str) -> t.Any:
         nav_page = page_name
         if hasattr(self, "on_navigate") and callable(self.on_navigate):
             try:
@@ -1891,8 +1890,26 @@ class Gui:
             except Exception as e:  # pragma: no cover
                 if not self._call_on_exception("on_navigate", e):
                     _warn("Exception raised in on_navigate()", e)
-        page = next((page_i for page_i in self._config.pages if page_i._route == nav_page), None)
+        return nav_page
 
+    def _get_page(self, page_name: str):
+        return next((page_i for page_i in self._config.pages if page_i._route == page_name), None)
+
+    def _bind_custom_page_variables(self, page: CustomPage, client_id: t.Optional[str]):
+        """Handle the bindings of custom page variables"""
+        with self.get_flask_app().app_context() if has_app_context() else contextlib.nullcontext():
+            self.__set_client_id_in_context(client_id)
+            with self._set_locals_context(page._get_module_name()):
+                for k in self._get_locals_bind().keys():
+                    if k in page._binding_variables:
+                        self._bind_var(k)
+
+    def __render_page(self, page_name: str) -> t.Any:
+        self.__set_client_id_in_context()
+        nav_page = self._get_navigated_page(page_name)
+        if not isinstance(nav_page, str):
+            return nav_page
+        page = self._get_page(nav_page)
         # Try partials
         if page is None:
             page = self._get_partial(nav_page)
@@ -1903,12 +1920,19 @@ class Gui:
                 400,
                 {"Content-Type": "application/json; charset=utf-8"},
             )
+        # Handle custom pages
         if (pr := page._renderer) is not None and isinstance(pr, CustomPage):
             if self._navigate(
                 to=page_name,
-                params={_Server._RESOURCE_HANDLER_ARG: pr._resource_handler.get_id()},
+                params={
+                    _Server._RESOURCE_HANDLER_ARG: pr._resource_handler.get_id(),
+                },
             ):
-                return ("Failed to navigate to external resource handler", 500)
+                # proactively handle the bindings of custom page variables
+                self._bind_custom_page_variables(pr, self._get_client_id())
+                return ("Successfully redirect to external resource handler", 200)
+            return ("Failed to navigate to external resource handler", 500)
+        # Handle page rendering
         context = page.render(self)
         if (
             nav_page == Gui.__root_page_name
