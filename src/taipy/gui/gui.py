@@ -1051,19 +1051,31 @@ class Gui:
     def __handle_ws_get_variables(self):
         # Get Variables
         self.__pre_render_pages()
-        data_scope = vars(self._bindings()._get_data_scope())
-        data_scope = {
+        # Module Context -> Variable -> Variable data (name, type, initial_value)
+        variable_tree: t.Dict[str, t.Dict[str, t.Dict[str, t.Any]]] = {}
+        data = vars(self._bindings()._get_data_scope())
+        data = {
             k: v
-            for k, v in data_scope.items()
+            for k, v in data.items()
             if not k.startswith("_") and not callable(v) and k[0].islower() and "TpExPr" not in k
         }
-        for k, v in data_scope.items():
+        for k, v in data.items():
             if isinstance(v, _TaipyBase):
-                data_scope[k] = v.get()
+                data[k] = v.get()
+            var_name, var_module_name = _variable_decode(k)
+            if var_module_name == "" or var_module_name is None:
+                var_module_name = "__main__"
+            if var_module_name not in variable_tree:
+                variable_tree[var_module_name] = {}
+            variable_tree[var_module_name][var_name] = {
+                "type": type(v).__name__,
+                "value": data[k],
+                "encoded_name": k,
+            }
         self.__send_ws(
             {
                 "type": _WsType.GET_VARIABLES.value,
-                "payload": {"data": data_scope},
+                "payload": {"data": variable_tree},
             }
         )
 
