@@ -1088,7 +1088,7 @@
         ],
         "properties": [
           {
-            "name": "open",
+            "name": "show_dialog",
             "default_property": true,
             "type": "bool",
             "default_value": "False",
